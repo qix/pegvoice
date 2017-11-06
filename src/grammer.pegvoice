@@ -1,0 +1,112 @@
+{
+  function i3(command) {
+    return {
+      handler: 'i3',
+      command,
+    };
+  }
+  function key(name) {
+    return {
+      handler: 'key',
+      key: name,
+    };
+  }
+}
+
+slap => key('enter');
+
+/*
+
+
+start = 
+  c_i3 /
+  c_screen /
+  c_window /
+  c_window_move /
+  c_key /
+  c_type /
+  c_the /
+  c_slap
+
+c_the = "the" _ command:start {
+  return command;
+}
+
+c_i3 = "i three" _ "screen" _ screen:i3screen { 
+  return i3(`workspace ${screen}`);
+}
+
+c_key = key _ key:keyName {
+  return { handler: 'key', key };
+}
+c_type = "type" _ letters:(.*) {
+  return {
+    handler: 'type',
+    string: letters.join(''),
+  };
+}
+
+c_window = window _ direction:direction {
+  return i3(`focus ${direction}`);
+}
+c_window_float = window _ move _ screen:i3screen {
+  return i3(`floating enable`);
+}
+c_window_move = window _ move _ screen:i3screen {
+  return i3(`move container to workspace ${screen}`);
+}
+c_screen = "screen" _ screen:i3screen {
+  return i3(`workspace ${screen}`);
+}
+
+keyName "<key>" = name:(
+  enter /
+  escape /
+  backspace /
+  "up" /
+  "down" /
+  "left" /
+  "right" /
+  "i" /
+  digit
+
+) {
+  return name;
+}
+
+#alt window
+#alt move
+#alt key / he
+#alt backspace / back space / that space
+#alt enter / inter / into
+#alt escape / escaped
+
+ 
+
+i3screen = number;
+
+direction = ("up" / "down" / "left" / "right" )
+
+number = digit
+
+digit = word:(
+  "one" / "two" / "three" / "four" / "five" /
+  "six" / "seven" / "eight" / "nine"
+) {
+  return {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+  }[word];
+}
+
+_ "whitespace" = [ \t\n\r]
+
+*/
+

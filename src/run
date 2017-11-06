@@ -3,5 +3,5 @@
 ROOT="$(dirname $0)"
 
 python ~/silvius/stream/mic.py -s localhost -d 4 | \
-  nodemon -e "js,pegjs" -w "$ROOT" \
+  nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
   "$ROOT/test.js" --debug-log="$(dirname $0)/debug.log"

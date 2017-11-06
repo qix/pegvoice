@@ -15,8 +15,82 @@ const i3 = require('i3').createClient();
 const peg = require("pegjs");
 const robot = require('robotjs');
 
-const source = fs.readFileSync('grammer.pegjs').toString('utf-8');
-const parser = peg.generate(source);
+function sourceArrow(location, source) {
+  const {start, end} = location;
+  const lines = source.split('\n');
+
+  let output = '';
+  for (let line = start.line; line <= end.line; line++) {
+    const source = lines[line - 1];
+    const left = (line > start.line) ? 0 : start.column - 1;
+    const right = (line < end.line) ? source.length : end.column - 1;
+    output += `${source}\n`;
+    output += `${' '.repeat(left)}${'^'.repeat(right - left)}\n`;
+  }
+
+  return output;
+}
+
+function tryParse(source, callback) {
+  /*
+  source = source.replace(
+    /^#alt ([a-z ]+)((?:[/] *[a-z ]+)*)$/gm,
+    (match, word, alts) => {
+      word = word.trim();
+      alts = alts.split('/').map(alt => alt.trim()).filter(x => x);
+      const pegOptions = [word, ...alts].map(x => `"${x}"`).join(' / ');
+      return `${word} "${word}" = (${pegOptions}) { return "${word}"; }`;
+    }
+  );
+  */
+
+  try {
+    return callback(source);
+  } catch (err) {
+    if (err.name === 'SyntaxError' && err.location) {
+      console.error(err.message);
+      console.error(sourceArrow(err.location, source));
+      process.exit(1);
+    } else {
+      throw err;
+    }
+  }
+}
+
+function generatePegSource(ast) {
+  let rv = '';
+  if (ast.type === 'voiceGrammer') {
+    if (ast.initializer) {
+      rv += `{\n${ast.initializer.code}\n}\n`;
+    }
+    const ruleNames = [];
+    for (let ruleAst of ast.rules) {
+      const {words, code} = ruleAst;
+      const ruleName = `c_${words.join('_')}`;
+      const desc = words.join(' ');
+
+      rv += `${ruleName} "${desc}" = "${words}" { ${code} }\n`;
+      ruleNames.push(ruleName);
+    }
+    rv += `start = ${ruleNames.join(' / ')};\n`;
+  } else {
+    throw new Error('Unknown ast');
+  }
+  return rv;
+}
+
+const read = path => fs.readFileSync(path).toString('utf-8');
+const language = tryParse(read('lang.pegjs'), s => peg.generate(s));
+const parsed = tryParse(read('grammer.pegvoice'), s => language.parse(s));
+const source = generatePegSource(parsed);
+const parser = tryParse(source, s => peg.generate(s, {
+  allowedStartRules: ['start'],
+}));
+
+console.log(source);
+console.log(parse('slap'));
+process.exit(1);
+
 
 ['workspace',
   'output', 'mode', 'window', 'barconfig_update', 'binding'].forEach(event => {
