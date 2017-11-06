@@ -62,6 +62,9 @@ function tryParse(source, callback) {
     ) {
       console.error(err.message);
       console.error(sourceArrow(err.location, source));
+      if (err.name !== 'SyntaxError') {
+        console.error(err.stack);
+      }
       process.exit(1);
     } else {
       throw err;
@@ -84,13 +87,28 @@ function generatePegExpr(ast, prefix) {
 }
 
 function generatePegRule(ast, prefix) {
-  const {words, code} = ast;
-  const ruleName = `${prefix}${words.join('_')}`;
+  const {match, code} = ast;
+  const ruleName = `${prefix}${matchToId(match)}`;
 
-  const desc = words.join(' ');
+  let desc = null;
+  if (match.every(expr => expr.type === 'word')) {
+    desc = match.map(expr => expr.word).join(' ');
+  }
+
+  const pegMatch = match.map(expr => {
+    if (expr.type === 'word') {
+      return `"${expr.word}"`;
+    } else if (expr.type === 'pegmatch') {
+      return `${expr.name}:${expr.identifier}`;
+    } else {
+      throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+    }
+
+  }).join(' ');
+
   if (ast.expr.type === 'code') {
     return (
-      `${ruleName} "${desc}" = "${words}" {\n${ast.expr.code}\n}\n`
+      `${ruleName} "${desc}" = ${pegMatch} {\n${ast.expr.code}\n}\n`
     );
   } else if (ast.expr.type === 'rules') {
     const {
@@ -99,7 +117,7 @@ function generatePegRule(ast, prefix) {
     } = generatePegRules(ast.expr.rules, `${ruleName}_`);
     return (
       `${source}` +
-      `${ruleName} = "${words}" " " action:(${ruleNames.join(' / ')}) {\n` +
+      `${ruleName} = ${pegMatch} " " action:(${ruleNames.join(' / ')}) {\n` +
       `  return action;\n}\n`
     );
     return '/**/';
@@ -109,14 +127,34 @@ function generatePegRule(ast, prefix) {
   }
 }
 
+function matchToId(match) {
+  return match.map(expr => {
+    if (expr.type === 'word') {
+      return expr.word;
+    } else if (expr.type === 'pegmatch') {
+      return `_${expr.identifier}`;
+    } else {
+      throw new ParseError(expr, `Unknown ast: ${expr.type}`);
+    }
+  }).join('_');
+}
 function generatePegRules(rules, prefix) {
   const ruleNames = [];
   let source = '';
   for (let ruleAst of rules) {
-    const {words} = ruleAst;
-    const ruleName = `${prefix}${words.join('_')}`;
-    source += generatePegRule(ruleAst, prefix);
-    ruleNames.push(ruleName);
+    if (ruleAst.type === 'rule') {
+      const {match} = ruleAst;
+      const ruleName = `${prefix}${matchToId(match)}`;
+      source += generatePegRule(ruleAst, prefix);
+      ruleNames.push(ruleName);
+    } else if (ruleAst.type === 'pegrule') {
+      source += `${ruleAst.code}\n`;
+    } else if (ruleAst.type === 'spell') {
+      const {word} = ruleAst;
+      source += `${word} "${word}" = "${word}";\n`;
+    } else {
+      throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
+    }
   }
   return {ruleNames, source};
 }

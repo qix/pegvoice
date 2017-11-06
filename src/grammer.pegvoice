@@ -15,8 +15,49 @@
 
 slap => key('enter');
 
+direction = ("up" / "down" / "left" / "right" );
+
+keyName "<key>" = name:(
+  enter /
+  escape /
+  backspace /
+  "up" /
+  "down" /
+  "left" /
+  "right" /
+  "i" /
+  digit
+
+) {
+  return name;
+}
+
+spell key / he;
+spell backspace / back space / that space;
+spell enter / inter / into;
+spell escape / escaped;
+
+number = digit
+digit = word:(
+  "one" / "two" / "three" / "four" / "five" /
+  "six" / "seven" / "eight" / "nine"
+) {
+  return {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+  }[word];
+}
+
 window ...{
   float => i3('floating enable');
+  :direction => i3(`focus ${direction}`);
 }
 
 /*
@@ -52,52 +93,13 @@ c_screen = "screen" _ screen:i3screen {
   return i3(`workspace ${screen}`);
 }
 
-keyName "<key>" = name:(
-  enter /
-  escape /
-  backspace /
-  "up" /
-  "down" /
-  "left" /
-  "right" /
-  "i" /
-  digit
 
-) {
-  return name;
-}
-
-#alt window
-#alt move
-#alt key / he
-#alt backspace / back space / that space
-#alt enter / inter / into
-#alt escape / escaped
 
  
 
 i3screen = number;
 
-direction = ("up" / "down" / "left" / "right" )
 
-number = digit
-
-digit = word:(
-  "one" / "two" / "three" / "four" / "five" /
-  "six" / "seven" / "eight" / "nine"
-) {
-  return {
-    "one": 1,
-    "two": 2,
-    "three": 3,
-    "four": 4,
-    "five": 5,
-    "six": 6,
-    "seven": 7,
-    "eight": 8,
-    "nine": 9,
-  }[word];
-}
 
 _ "whitespace" = [ \t\n\r]
 

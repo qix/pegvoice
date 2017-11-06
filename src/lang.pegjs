@@ -34,7 +34,6 @@
 /*
 window ...{
   move :i3screen => i3(`move container to workspace ${i3screen}`);
-  :direction => i3(`focus ${direction}`;
 }
 screen :i3screen => i3(`workspace ${screen}`);
 i three ...{
@@ -49,7 +48,7 @@ type letters:(.*) => {
 */
 
 VoiceGrammar
-  = __ initializer:(Initializer __)? rules:(VoiceRule __)+ {
+  = __ initializer:(Initializer __)? rules:((PegRule / VoiceRule / SpellRule) __)+ {
       return {
         type: "voiceGrammer",
         initializer: extractOptional(initializer, 0),
@@ -58,14 +57,34 @@ VoiceGrammar
       };
     }
 
+SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)+ EOS {
+  return {
+    type: 'spell',
+    word: head.word,
+    alt: extractList(tail, 3),
+  };
+}
+
+Words = head:Word tail:(__ Word)* {
+  return [head, ...extractList(tail, 1)].map(word => word.word);
+}
+
 VoiceRule
-  = head:Word __ rule:(VoiceCode / VoiceBlock) {
+  = head:Match tail:(__ Match)* __ rule:(VoiceCode / VoiceBlock) {
     return {
       type: "rule",
-      words: [head],
+      match: [head],
       expr: rule,
       location: location()
     }
+}
+
+PegRule = rule:Rule {
+  console.log(rule);
+  return {
+    type: 'pegrule',
+    code: text(),
+  };
 }
 
 VoiceBlock = "..." __? "{" __ rules:(VoiceRule __)+ "}" {
@@ -83,6 +102,22 @@ VoiceCode
     };
 }
 
+Match = PegMatch / Word;
+
+PegMatch = name:Identifier? ":" identifier:Identifier {
+  return {
+    type: 'pegmatch',
+    identifier,
+    name: name || identifier,
+  };
+}
+
+Word = [a-z]+ {
+  return {
+    type: 'word',
+    word: text(),
+  };
+}
 
 /*
     code:(__ CodeBlock)? {
@@ -90,7 +125,6 @@ VoiceCode
 */
 
 JsExpr = [^;]+ { return text(); }
-Word = [a-z]+ { return text(); }
 
 // ==============
 //
