@@ -15,18 +15,11 @@
 
 slap => key('enter');
 
+window ...{
+  float => i3('floating enable');
+}
+
 /*
-
-
-start = 
-  c_i3 /
-  c_screen /
-  c_window /
-  c_window_move /
-  c_key /
-  c_type /
-  c_the /
-  c_slap
 
 c_the = "the" _ command:start {
   return command;

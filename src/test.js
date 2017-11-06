@@ -14,6 +14,7 @@ const fs = require('fs');
 const i3 = require('i3').createClient();
 const peg = require("pegjs");
 const robot = require('robotjs');
+const util = require('util');
 
 function sourceArrow(location, source) {
   const {start, end} = location;
@@ -21,14 +22,22 @@ function sourceArrow(location, source) {
 
   let output = '';
   for (let line = start.line; line <= end.line; line++) {
-    const source = lines[line - 1];
+    const lineSource = lines[line - 1];
     const left = (line > start.line) ? 0 : start.column - 1;
-    const right = (line < end.line) ? source.length : end.column - 1;
-    output += `${source}\n`;
-    output += `${' '.repeat(left)}${'^'.repeat(right - left)}\n`;
+    const right = (line < end.line) ? lineSource.length : end.column - 1;
+    output += `${lineSource}\n`;
+    output += `${' '.repeat(left)}${'^'.repeat(Math.max(right - left, 1))}\n`;
   }
 
   return output;
+}
+
+class ParseError extends Error {
+  constructor(ast, ...message) {
+    super(util.format(...message));
+    this.location = ast.location || null;
+    this.name = 'ParseError';
+  }
 }
 
 function tryParse(source, callback) {
@@ -47,7 +56,10 @@ function tryParse(source, callback) {
   try {
     return callback(source);
   } catch (err) {
-    if (err.name === 'SyntaxError' && err.location) {
+    if (
+      (err.name === 'SyntaxError' || err.name === 'ParseError') &&
+      err.location
+    ) {
       console.error(err.message);
       console.error(sourceArrow(err.location, source));
       process.exit(1);
@@ -57,38 +69,90 @@ function tryParse(source, callback) {
   }
 }
 
+function generatePegExpr(ast, prefix) {
+  if (ast.type === 'code') {
+    return ast.code;
+  } else if (ast.type === 'rules') {
+    let rv = '';
+    for (let rule of ast.rules) {
+      rv += generatePegRule(rule, prefix);
+    }
+    return rv;
+  } else {
+    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+  }
+}
+
+function generatePegRule(ast, prefix) {
+  const {words, code} = ast;
+  const ruleName = `${prefix}${words.join('_')}`;
+
+  const desc = words.join(' ');
+  if (ast.expr.type === 'code') {
+    return (
+      `${ruleName} "${desc}" = "${words}" {\n${ast.expr.code}\n}\n`
+    );
+  } else if (ast.expr.type === 'rules') {
+    const {
+      ruleNames,
+      source
+    } = generatePegRules(ast.expr.rules, `${ruleName}_`);
+    return (
+      `${source}` +
+      `${ruleName} = "${words}" " " action:(${ruleNames.join(' / ')}) {\n` +
+      `  return action;\n}\n`
+    );
+    return '/**/';
+
+  } else {
+    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+  }
+}
+
+function generatePegRules(rules, prefix) {
+  const ruleNames = [];
+  let source = '';
+  for (let ruleAst of rules) {
+    const {words} = ruleAst;
+    const ruleName = `${prefix}${words.join('_')}`;
+    source += generatePegRule(ruleAst, prefix);
+    ruleNames.push(ruleName);
+  }
+  return {ruleNames, source};
+}
+
 function generatePegSource(ast) {
   let rv = '';
   if (ast.type === 'voiceGrammer') {
     if (ast.initializer) {
       rv += `{\n${ast.initializer.code}\n}\n`;
     }
-    const ruleNames = [];
-    for (let ruleAst of ast.rules) {
-      const {words, code} = ruleAst;
-      const ruleName = `c_${words.join('_')}`;
-      const desc = words.join(' ');
-
-      rv += `${ruleName} "${desc}" = "${words}" { ${code} }\n`;
-      ruleNames.push(ruleName);
-    }
-    rv += `start = ${ruleNames.join(' / ')};\n`;
+    const {ruleNames, source} = generatePegRules(ast.rules, 'c_');
+    rv += `${source}\nstart = ${ruleNames.join(' / ')};\n`;
   } else {
-    throw new Error('Unknown ast');
+    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
   }
   return rv;
 }
 
 const read = path => fs.readFileSync(path).toString('utf-8');
+console.log('Compiling language');
 const language = tryParse(read('lang.pegjs'), s => peg.generate(s));
-const parsed = tryParse(read('grammer.pegvoice'), s => language.parse(s));
-const source = generatePegSource(parsed);
+const source = tryParse(read('grammer.pegvoice'), s => {
+  console.log('Compiling grammer');
+  const parsed = language.parse(s);
+  console.log('Generating grammer source');
+  return generatePegSource(parsed);
+});
+console.log(source);
+console.log('Creating parser');
 const parser = tryParse(source, s => peg.generate(s, {
   allowedStartRules: ['start'],
 }));
 
 console.log(source);
-console.log(parse('slap'));
+console.log('Parsing command');
+console.log(parse('window left'));
 process.exit(1);
 
 

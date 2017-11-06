@@ -35,7 +35,6 @@
 window ...{
   move :i3screen => i3(`move container to workspace ${i3screen}`);
   :direction => i3(`focus ${direction}`;
-  float => i3('floating enable');
 }
 screen :i3screen => i3(`workspace ${screen}`);
 i three ...{
@@ -60,18 +59,28 @@ VoiceGrammar
     }
 
 VoiceRule
-  = head:Word __ code:(__ VoiceCode) {
+  = head:Word __ rule:(VoiceCode / VoiceBlock) {
     return {
       type: "rule",
       words: [head],
-      code: code[1],
+      expr: rule,
       location: location()
     }
 }
 
+VoiceBlock = "..." __? "{" __ rules:(VoiceRule __)+ "}" {
+  return {
+    type: 'rules',
+    rules: extractList(rules, 0),
+  };
+}
+
 VoiceCode
   = "=>" __ expr:JsExpr __ ";" {
-    return `return ${expr};`;
+    return {
+      type: 'code',
+      code: `return ${expr};`,
+    };
 }
 
 
