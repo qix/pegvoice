@@ -34,6 +34,11 @@ i three ...{
 
 key k:keyName => key(k);
 
+alt k:keyName => key(`alt-${k}`);
+control alt k:keyName => key(`ctrl-alt-${k}`);
+control k:keyName => key(`ctrl-${k}`);
+shift k:keyName => key(`shift-${k}`);
+
 type :keyNames => {
   handler: 'multi',
   commands: keyNames.map(name => key(name)),
@@ -65,7 +70,6 @@ keyName "<key>" = name:(
   direction /
   letter /
   digit
-
 ) {
   return name;
 }
@@ -92,7 +96,8 @@ letter = (
 
 digit = word:(
   "one" / "two" / "three" / "four" / "five" /
-  "six" / "seven" / "eight" / "nine"
+  "six" / "seven" / "eight" / "nine" / "naught" / "zero" /
+  "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "0"
 ) {
   return {
     "one": 1,
@@ -104,7 +109,9 @@ digit = word:(
     "seven": 7,
     "eight": 8,
     "nine": 9,
-  }[word];
+    "zero": 0,
+    "naught": 0,
+  }[word] || word;
 }
 
 string = chars:(.*) {
