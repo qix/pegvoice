@@ -16,6 +16,12 @@ const peg = require("pegjs");
 const robot = require('robotjs');
 const util = require('util');
 
+function invariant(test, ...msg) {
+  if (!test) {
+    throw new Error(util.format(...msg));
+  }
+}
+
 function sourceArrow(location, source) {
   const {start, end} = location;
   const lines = source.split('\n');
@@ -103,21 +109,32 @@ class PegGenerator {
 
     desc = desc ? ` "${desc}"` : '';
 
-    const pegMatch = match.map(expr => {
+    const pegMatch = match.map((expr, idx) => {
+      let pegCode = '';
       if (expr.type === 'word') {
         this.words.add(expr.word);
-        return expr.word;
+        pegCode = expr.word;
       } else if (expr.type === 'pegmatch') {
-        return `${expr.name}:${expr.identifier}`;
+        pegCode = `${expr.name}:${expr.identifier}`;
       } else {
         throw new ParseError(ast, `Unknown ast: ${ast.type}`);
       }
 
-    }).join(' " " ');
+      if (idx === 0) {
+        invariant(!expr.optional, 'Not allowed');
+        return pegCode;
+      } else {
+        if (expr.optional) {
+          return ` (" " ${pegCode})?`;
+        } else {
+          return ` " " ${pegCode}`;
+        }
+      }
+    }).join('');
 
     if (ast.expr.type === 'code') {
       return (
-        `${ruleName}${desc} = ${pegMatch} {\n${ast.expr.code}\n}\n`
+        `${ruleName}${desc} = ${pegMatch} "."? {\n${ast.expr.code}\n}\n`
       );
     } else if (ast.expr.type === 'rules') {
       const {

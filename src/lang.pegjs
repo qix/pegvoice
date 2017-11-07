@@ -85,13 +85,21 @@ VoiceCode
     };
 }
 
-Match = PegMatch / Word;
+Match = PegMatch / WordMatch;
 
-PegMatch = name:Identifier? ":" identifier:Identifier {
+PegMatch = name:Identifier? ":" identifier:Identifier optional:"?"? {
   return {
     type: 'pegmatch',
     identifier,
     name: name || identifier,
+    optional: !!optional,
+  };
+}
+
+WordMatch = word:Word optional:"?"? {
+  return {
+    ...word,
+    optional: !!optional,
   };
 }
 

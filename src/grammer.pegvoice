@@ -23,7 +23,7 @@ tab :number => key(`ctrl-${number}`);
 window ...{
   float => i3('floating enable');
   :direction => i3(`focus ${direction}`);
-  move :i3screen => i3(`move container to workspace ${i3screen}`);
+  move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
 }
 
 screen :i3screen => i3(`workspace ${i3screen}`);
