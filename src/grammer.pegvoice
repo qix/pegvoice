@@ -15,7 +15,32 @@
 
 slap => key('enter');
 
+window ...{
+  float => i3('floating enable');
+  :direction => i3(`focus ${direction}`);
+  move :i3screen => i3(`move container to workspace ${i3screen}`);
+}
+
+screen :i3screen => i3(`workspace ${i3screen}`);
+
+i three ...{
+  screen :i3screen => i3(`workspace ${i3screen}`);
+}
+
+key k:keyName => key(k);
+
+type :string => {
+  handler: 'type',
+  string,
+};
+
+
+/***
+  DEFINITIONS
+***/
+
 direction = ("up" / "down" / "left" / "right" );
+i3screen = number;
 
 keyName "<key>" = name:(
   enter /
@@ -36,6 +61,7 @@ spell key / he;
 spell backspace / back space / that space;
 spell enter / inter / into;
 spell escape / escaped;
+spell window / windows;
 
 number = digit
 digit = word:(
@@ -55,53 +81,13 @@ digit = word:(
   }[word];
 }
 
-window ...{
-  float => i3('floating enable');
-  :direction => i3(`focus ${direction}`);
+string = chars:(.*) {
+  return chars.join('');
 }
 
 /*
-
 c_the = "the" _ command:start {
   return command;
 }
-
-c_i3 = "i three" _ "screen" _ screen:i3screen { 
-  return i3(`workspace ${screen}`);
-}
-
-c_key = key _ key:keyName {
-  return { handler: 'key', key };
-}
-c_type = "type" _ letters:(.*) {
-  return {
-    handler: 'type',
-    string: letters.join(''),
-  };
-}
-
-c_window = window _ direction:direction {
-  return i3(`focus ${direction}`);
-}
-c_window_float = window _ move _ screen:i3screen {
-  return i3(`floating enable`);
-}
-c_window_move = window _ move _ screen:i3screen {
-  return i3(`move container to workspace ${screen}`);
-}
-c_screen = "screen" _ screen:i3screen {
-  return i3(`workspace ${screen}`);
-}
-
-
-
- 
-
-i3screen = number;
-
-
-
-_ "whitespace" = [ \t\n\r]
-
 */
 

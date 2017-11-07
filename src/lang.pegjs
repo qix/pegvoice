@@ -31,22 +31,6 @@
 }
 
 
-/*
-window ...{
-  move :i3screen => i3(`move container to workspace ${i3screen}`);
-}
-screen :i3screen => i3(`workspace ${screen}`);
-i three ...{
-  screen :i3screen => i3(`workspace ${screen}`);
-}
-key k:key => key(k);
-type letters:(.*) => {
-  handler: 'type',
-  string: letters.join(''),
-};
-
-*/
-
 VoiceGrammar
   = __ initializer:(Initializer __)? rules:((PegRule / VoiceRule / SpellRule) __)+ {
       return {
@@ -73,14 +57,13 @@ VoiceRule
   = head:Match tail:(__ Match)* __ rule:(VoiceCode / VoiceBlock) {
     return {
       type: "rule",
-      match: [head],
+      match: [head, ...extractList(tail, 1)],
       expr: rule,
       location: location()
     }
 }
 
 PegRule = rule:Rule {
-  console.log(rule);
   return {
     type: 'pegrule',
     code: text(),

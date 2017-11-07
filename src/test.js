@@ -41,18 +41,6 @@ class ParseError extends Error {
 }
 
 function tryParse(source, callback) {
-  /*
-  source = source.replace(
-    /^#alt ([a-z ]+)((?:[/] *[a-z ]+)*)$/gm,
-    (match, word, alts) => {
-      word = word.trim();
-      alts = alts.split('/').map(alt => alt.trim()).filter(x => x);
-      const pegOptions = [word, ...alts].map(x => `"${x}"`).join(' / ');
-      return `${word} "${word}" = (${pegOptions}) { return "${word}"; }`;
-    }
-  );
-  */
-
   try {
     return callback(source);
   } catch (err) {
@@ -72,61 +60,6 @@ function tryParse(source, callback) {
   }
 }
 
-function generatePegExpr(ast, prefix) {
-  if (ast.type === 'code') {
-    return ast.code;
-  } else if (ast.type === 'rules') {
-    let rv = '';
-    for (let rule of ast.rules) {
-      rv += generatePegRule(rule, prefix);
-    }
-    return rv;
-  } else {
-    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
-  }
-}
-
-function generatePegRule(ast, prefix) {
-  const {match, code} = ast;
-  const ruleName = `${prefix}${matchToId(match)}`;
-
-  let desc = null;
-  if (match.every(expr => expr.type === 'word')) {
-    desc = match.map(expr => expr.word).join(' ');
-  }
-
-  const pegMatch = match.map(expr => {
-    if (expr.type === 'word') {
-      return `"${expr.word}"`;
-    } else if (expr.type === 'pegmatch') {
-      return `${expr.name}:${expr.identifier}`;
-    } else {
-      throw new ParseError(ast, `Unknown ast: ${ast.type}`);
-    }
-
-  }).join(' ');
-
-  if (ast.expr.type === 'code') {
-    return (
-      `${ruleName} "${desc}" = ${pegMatch} {\n${ast.expr.code}\n}\n`
-    );
-  } else if (ast.expr.type === 'rules') {
-    const {
-      ruleNames,
-      source
-    } = generatePegRules(ast.expr.rules, `${ruleName}_`);
-    return (
-      `${source}` +
-      `${ruleName} = ${pegMatch} " " action:(${ruleNames.join(' / ')}) {\n` +
-      `  return action;\n}\n`
-    );
-    return '/**/';
-
-  } else {
-    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
-  }
-}
-
 function matchToId(match) {
   return match.map(expr => {
     if (expr.type === 'word') {
@@ -138,39 +71,120 @@ function matchToId(match) {
     }
   }).join('_');
 }
-function generatePegRules(rules, prefix) {
-  const ruleNames = [];
-  let source = '';
-  for (let ruleAst of rules) {
-    if (ruleAst.type === 'rule') {
-      const {match} = ruleAst;
-      const ruleName = `${prefix}${matchToId(match)}`;
-      source += generatePegRule(ruleAst, prefix);
-      ruleNames.push(ruleName);
-    } else if (ruleAst.type === 'pegrule') {
-      source += `${ruleAst.code}\n`;
-    } else if (ruleAst.type === 'spell') {
-      const {word} = ruleAst;
-      source += `${word} "${word}" = "${word}";\n`;
-    } else {
-      throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
-    }
-  }
-  return {ruleNames, source};
-}
 
-function generatePegSource(ast) {
-  let rv = '';
-  if (ast.type === 'voiceGrammer') {
-    if (ast.initializer) {
-      rv += `{\n${ast.initializer.code}\n}\n`;
-    }
-    const {ruleNames, source} = generatePegRules(ast.rules, 'c_');
-    rv += `${source}\nstart = ${ruleNames.join(' / ')};\n`;
-  } else {
-    throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+class PegGenerator {
+  constructor() {
+    this.words = new Set();
+    this.defined = new Set();
   }
-  return rv;
+
+  pegExpr(ast, prefix) {
+    if (ast.type === 'code') {
+      return ast.code;
+    } else if (ast.type === 'rules') {
+      let rv = '';
+      for (let rule of ast.rules) {
+        rv += this.pegRule(rule, prefix);
+      }
+      return rv;
+    } else {
+      throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+    }
+  }
+
+  pegRule(ast, prefix) {
+    const {match, code} = ast;
+    const ruleName = `${prefix}${matchToId(match)}`;
+
+    let desc = null;
+    if (match.every(expr => expr.type === 'word')) {
+      desc = match.map(expr => expr.word).join(' ');
+    }
+
+    desc = desc ? ` "${desc}"` : '';
+
+    const pegMatch = match.map(expr => {
+      if (expr.type === 'word') {
+        this.words.add(expr.word);
+        return expr.word;
+      } else if (expr.type === 'pegmatch') {
+        return `${expr.name}:${expr.identifier}`;
+      } else {
+        throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+      }
+
+    }).join(' " " ');
+
+    if (ast.expr.type === 'code') {
+      return (
+        `${ruleName}${desc} = ${pegMatch} {\n${ast.expr.code}\n}\n`
+      );
+    } else if (ast.expr.type === 'rules') {
+      const {
+        ruleNames,
+        source
+      } = this.pegRules(ast.expr.rules, `${ruleName}_`);
+      return (
+        `${source}` +
+        `${ruleName} = ${pegMatch} " " action:(${ruleNames.join(' / ')}) {\n` +
+        `  return action;\n}\n`
+      );
+      return '/**/';
+
+    } else {
+      throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+    }
+  }
+
+  pegRules(rules, prefix) {
+    const ruleNames = [];
+    let source = '';
+    for (let ruleAst of rules) {
+      if (ruleAst.type === 'rule') {
+        const {match} = ruleAst;
+        const ruleName = `${prefix}${matchToId(match)}`;
+        source += this.pegRule(ruleAst, prefix);
+        ruleNames.push(ruleName);
+      } else if (ruleAst.type === 'pegrule') {
+        source += `${ruleAst.code}\n`;
+      } else if (ruleAst.type === 'spell') {
+        const {word} = ruleAst;
+        const options = [
+          [word], ...ruleAst.alt
+        ].map(words => `"${words.join(' ')}"`).sort((a, b) => {
+          return b.length - a.length;
+        });
+        source += (
+          `${word} "${word}" = ` +
+          `(${options.join(' / ')}) { return "${word}" };\n`
+        );
+        this.defined.add(word);
+      } else {
+        throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
+      }
+    }
+    return {ruleNames, source};
+  }
+
+  pegSource(ast) {
+    let rv = '';
+    if (ast.type === 'voiceGrammer') {
+      if (ast.initializer) {
+        rv += `{\n${ast.initializer.code}\n}\n`;
+      }
+      const {ruleNames, source} = this.pegRules(ast.rules, 'c_');
+      rv += `${source}\n`;
+      for (let word of this.words) {
+        if (!this.defined.has(word)) {
+          rv += `${word} = "${word}";\n`;
+        }
+      }
+      rv += `start = ${ruleNames.join(' / ')};\n`;
+    } else {
+      throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+    }
+    return rv;
+  }
 }
 
 const read = path => fs.readFileSync(path).toString('utf-8');
@@ -180,7 +194,8 @@ const source = tryParse(read('grammer.pegvoice'), s => {
   console.log('Compiling grammer');
   const parsed = language.parse(s);
   console.log('Generating grammer source');
-  return generatePegSource(parsed);
+  const generator = new PegGenerator();
+  return generator.pegSource(parsed);
 });
 console.log(source);
 console.log('Creating parser');
@@ -189,9 +204,9 @@ const parser = tryParse(source, s => peg.generate(s, {
 }));
 
 console.log(source);
-console.log('Parsing command');
-console.log(parse('window left'));
-process.exit(1);
+// console.log('Parsing command');
+// console.log(parse('window left'));
+// process.exit(1);
 
 
 ['workspace',
