@@ -41,7 +41,7 @@ VoiceGrammar
       };
     }
 
-SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)+ EOS {
+SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)* EOS {
   return {
     type: 'spell',
     word: head.word,

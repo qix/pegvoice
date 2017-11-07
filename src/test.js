@@ -4,7 +4,7 @@
 /*eslint no-console: "allow"*/
 const doc = `
 Usage:
-  pegvoice [--debug-log=<filename>]
+  pegvoice [--kaldi] [--command=<command>] [--debug-log=<filename>]
 `;
 
 const binarySplit = require('binary-split');
@@ -187,26 +187,8 @@ class PegGenerator {
   }
 }
 
-const read = path => fs.readFileSync(path).toString('utf-8');
-console.log('Compiling language');
-const language = tryParse(read('lang.pegjs'), s => peg.generate(s));
-const source = tryParse(read('grammer.pegvoice'), s => {
-  console.log('Compiling grammer');
-  const parsed = language.parse(s);
-  console.log('Generating grammer source');
-  const generator = new PegGenerator();
-  return generator.pegSource(parsed);
-});
-console.log(source);
-console.log('Creating parser');
-const parser = tryParse(source, s => peg.generate(s, {
-  allowedStartRules: ['start'],
-}));
 
-console.log(source);
-// console.log('Parsing command');
-// console.log(parse('window left'));
-// process.exit(1);
+const parser = buildParser();
 
 
 ['workspace',
@@ -221,6 +203,58 @@ console.log(source);
 
 const options = docopt(doc);
 
+if (options['--kaldi']) {
+  process.stdin.pipe(binarySplit()).on('data', line => {
+    const transcript = kaldiParser(line);
+    if (transcript !== null) {
+      console.log();
+      console.log(`Transcript: ${transcript}`);
+      executeTranscript(transcript);
+    }
+  });
+} else if (options['--command']) {
+  executeTranscript(options['--command'].trim());
+} else {
+  process.stdin.pipe(binarySplit()).on('data', line => {
+    executeTranscript(line.toString('utf-8').trim());
+  });
+}
+
+function executeTranscript(transcript) {
+  const command = parse(transcript);
+  executeCommand(command);
+}
+
+function executeCommand(command) {
+  const handlers = {
+    i3(props) {
+      const {command} = props;
+      i3.command(command);
+    },
+    multi(props) {
+      for (let command of props.commands) {
+        executeCommand(command);
+      }
+    },
+    key(props) {
+      let split = props.key.split('-');
+      const key = split.pop();
+      const modifiers = split.map(modifier => ({
+        ctrl: 'control',
+      }[modifier] || modifier));
+      robot.keyTap(key, modifiers);
+    },
+    type(props) {
+      robot.typeString(props.string);
+    },
+    noop() {}
+  };
+
+  console.log('Command: %j', command);
+  const {handler} = command;
+  handlers[handler](command);
+}
+
 const bunyanStreams = [];
 if (options['--debug-log']) {
   bunyanStreams.push({
@@ -234,19 +268,22 @@ const log = bunyan.createLogger({
   streams: bunyanStreams,
 });
 
-const handlers = {
-  i3(props) {
-    const {command} = props;
-    i3.command(command);
-  },
-  key(props) {
-    robot.keyTap(props.key);
-  },
-  type(props) {
-    robot.typeString(props.string);
-  },
-  noop() {}
-};
+function buildParser() {
+  const read = path => fs.readFileSync(path).toString('utf-8');
+  console.log('Compiling language');
+  const language = tryParse(read('lang.pegjs'), s => peg.generate(s));
+  const source = tryParse(read('grammer.pegvoice'), s => {
+    console.log('Compiling grammer');
+    const parsed = language.parse(s);
+    console.log('Generating grammer source');
+    const generator = new PegGenerator();
+    return generator.pegSource(parsed);
+  });
+  console.log('Creating parser');
+  return tryParse(source, s => peg.generate(s, {
+    allowedStartRules: ['start'],
+  }));
+}
 
 function parse(transcript) {
   try {
@@ -256,7 +293,8 @@ function parse(transcript) {
     return { handler: 'noop' };
   }
 }
-process.stdin.pipe(binarySplit()).on('data', line => {
+
+function kaldiParser(line) {
   const update = JSON.parse(line);
 
   if (update.status !== 0) {
@@ -285,13 +323,8 @@ process.stdin.pipe(binarySplit()).on('data', line => {
 
     if (final) {
       const {transcript} = hypotheses[0];
-      console.log();
-      console.log(`Transcript: ${transcript}`);
-
-      const command = parse(transcript);
-      console.log('Command: %j', command);
-      const {handler} = command;
-      handlers[handler](command);
+      return transcript;
     }
   }
-});
+  return null;
+}

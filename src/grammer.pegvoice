@@ -11,9 +11,14 @@
       key: name,
     };
   }
+  function extractList(list, index) {
+    return list.map(element => element[index]);
+  }
 }
 
 slap => key('enter');
+
+tab :number => key(`ctrl-${number}`);
 
 window ...{
   float => i3('floating enable');
@@ -29,7 +34,12 @@ i three ...{
 
 key k:keyName => key(k);
 
-type :string => {
+type :keyNames => {
+  handler: 'multi',
+  commands: keyNames.map(name => key(name)),
+};
+
+words :string => {
   handler: 'type',
   string,
 };
@@ -39,24 +49,33 @@ type :string => {
   DEFINITIONS
 ***/
 
-direction = ("up" / "down" / "left" / "right" );
+direction = (up / down / left / right);
 i3screen = number;
+
+keyNames = head:keyName _ "."? _ tail:(keyName _ "."? _ )* {
+  return [head, ...extractList(tail, 0)];
+}
 
 keyName "<key>" = name:(
   enter /
   escape /
+  space /
   backspace /
-  "up" /
-  "down" /
-  "left" /
-  "right" /
-  "i" /
+  tab /
+  direction /
+  letter /
   digit
 
 ) {
   return name;
 }
 
+spell up;
+spell down;
+spell left;
+spell right;
+spell tab;
+spell space;
 spell key / he;
 spell backspace / back space / that space;
 spell enter / inter / into;
@@ -64,6 +83,13 @@ spell escape / escaped;
 spell window / windows;
 
 number = digit
+
+letter = (
+    "a" / "b" / "c" / "d" / "e" / "f" / "g" / "h" / "i" /
+    "j" / "k" / "l" / "m" / "n" / "o" / "p" / "q" / "r" /
+    "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"
+);
+
 digit = word:(
   "one" / "two" / "three" / "four" / "five" /
   "six" / "seven" / "eight" / "nine"
@@ -84,6 +110,14 @@ digit = word:(
 string = chars:(.*) {
   return chars.join('');
 }
+
+WhiteSpace "whitespace"
+  = "\t"
+  / "\n"
+  / "\r"
+  / " "
+
+_ "whitespace" = (WhiteSpace)*;
 
 /*
 c_the = "the" _ command:start {

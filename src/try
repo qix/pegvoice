@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ROOT="$(dirname $0)"
+
+nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
+  "$ROOT/test.js" --command="$1" --debug-log="$(dirname $0)/debug.log"
