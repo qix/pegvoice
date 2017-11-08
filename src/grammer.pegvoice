@@ -1,8 +1,26 @@
 {
+  function noop() {
+    return {
+      handler: 'noop',
+    };
+  }
   function i3(command) {
     return {
       handler: 'i3',
       command,
+    };
+  }
+  function repeat(count, command) {
+    return {
+      handler: 'repeat',
+      count,
+      command,
+    };
+  }
+  function multi(...commands) {
+    return {
+      handler: 'multi',
+      commands,
     };
   }
   function key(name) {
@@ -11,20 +29,83 @@
       key: name,
     };
   }
+  function lowerKey(key) {
+    const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\ZzV{[}]><~`';
+    const index = map.indexOf(key);
+    if (index >= 0 && index % 2 === 0) {
+      return map.charAt(index + 1);
+    } else {
+      return key.toLowerCase();
+    }
+  }
+
+  function type(keys) {
+    const names = {'\n': 'enter'};
+    if (typeof keys === 'string') {
+      keys = keys.split('').map(key => {
+        if (names[key]) {
+          return names[key];
+        } else {
+          const lower = lowerKey(key);
+          return (lower !== key ? 'shift-' : '') + lower;
+        }
+      });
+    }
+    return {
+      handler: 'multi',
+      commands: keys.map(name => key(name)),
+    };
+  }
   function extractList(list, index) {
     return list.map(element => element[index]);
   }
+  function extractOptional(optional, index) {
+    return optional ? optional[index] : null;
+  }
 }
 
+wake up => noop();
+go to sleep => noop();
+
+vim => noop();
+
+above => type('O');
+open => type('o');
+
+insert => type('i');
+
+go ...{
+  top => type('gg');
+  bottom => type('G');
+}
+
+delete ...{
+  line => type('dd');
+}
+
+viminsert => noop();
+
+console log => type('console.log(');
+arrow function => multi(type(' => '), key('shift-['), key('enter'));
+arrow => type(' => ');
+string :keyNames => type("'" + keyNames + "'");
+
+endvim => noop();
+
 slap => key('enter');
+enter => key('enter');
+escape => key('escape');
 
 tab :number => key(`ctrl-${number}`);
 
 window ...{
-  float => i3('floating enable');
+  float => i3('floating toggle');
   :direction => i3(`focus ${direction}`);
   move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
 }
+
+:direction => key(direction);
+:number :direction => repeat(number, key(direction));
 
 screen :i3screen => i3(`workspace ${i3screen}`);
 
@@ -39,12 +120,9 @@ control alt k:keyName => key(`ctrl-alt-${k}`);
 control k:keyName => key(`ctrl-${k}`);
 shift k:keyName => key(`shift-${k}`);
 
-type :keyNames => {
-  handler: 'multi',
-  commands: keyNames.map(name => key(name)),
-};
+type :keyNames => type(keyNames);
 
-words :string => {
+words string:x_string => {
   handler: 'type',
   string,
 };
@@ -86,19 +164,64 @@ spell enter / inter / into;
 spell escape / escaped;
 spell window / windows;
 
-number = digit
+number = hundred_number
 
-letter = (
-    "a" / "b" / "c" / "d" / "e" / "f" / "g" / "h" / "i" /
-    "j" / "k" / "l" / "m" / "n" / "o" / "p" / "q" / "r" /
-    "s" / "t" / "u" / "v" / "w" / "x" / "y" / "z"
-);
+letter = letter:([a-zA-Z]) ("\\letter" / "\\pronoun")? {
+  return letter;
+};
+
+hundred_number = hundred:(ten_number _ "hundred" (_ "and")? _)? ten:ten_number? {
+  let number = 0;
+  if (hundred) {
+    number += hundred[0] * 100;
+  }
+  return number + (ten || 0);
+}
+
+
+ten_number = ten_fixed / ten_grouped / digit;
+
+ten_fixed = word:(
+    "ten"i / "eleven"i / "twelve"i / "thirteen"i / "fourteen"i / "fifteen"i /
+    "sixteen"i / "seventeen"i / "eighteen"i / "nineteen"i
+) {
+  return {
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+    "thirteen": 13,
+    "fourteen": 14,
+    "fifteen": 15,
+    "sixteen": 16,
+    "seventeen": 17,
+    "eighteen": 18,
+    "nineteen": 19,
+  }[word.toLowerCase()];
+};
+
+ten_grouped = word:(
+  "ten"i / "twenty"i / "thirty"i / "fourty"i / "fifty"i /
+  "sixty"i / "seventy"i / "eighty"i / "ninety"i
+) digit:(_ digit)? {
+  return {
+    twenty: 20,
+    thirty: 30,
+    fourty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+  }[word.toLowerCase()] + (extractOptional(digit, 1) || 0);
+}
+
+
 
 digit = word:(
-  "one" / "two" / "three" / "four" / "five" /
-  "six" / "seven" / "eight" / "nine" / "naught" / "zero" /
+  "one"i / "two"i / "three"i / "four"i / "five"i /
+  "six"i / "seven"i / "eight"i / "nine"i / "naught"i / "zero"i /
   "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "0"
-) {
+) ("\\number" / "\\pronoun")? {
   return {
     "one": 1,
     "two": 2,
@@ -111,10 +234,10 @@ digit = word:(
     "nine": 9,
     "zero": 0,
     "naught": 0,
-  }[word] || word;
+  }[word.toLowerCase()] || word;
 }
 
-string = chars:(.*) {
+x_string = chars:(.*) {
   return chars.join('');
 }
 

@@ -4,13 +4,20 @@
 /*eslint no-console: "allow"*/
 const doc = `
 Usage:
-  pegvoice [--kaldi] [--command=<command>] [--debug-log=<filename>]
+  pegvoice --kaldi [options]
+  pegvoice --server [options]
+  pegvoice --stdin [options]
+  pegvoice --command=<command> [options]
+
+Options:
+  --debug-log=<filename> Add a debug log
 `;
 
 const binarySplit = require('binary-split');
 const bunyan = require('bunyan');
 const {docopt} = require('docopt');
 const fs = require('fs');
+const http = require('http');
 const i3 = require('i3').createClient();
 const peg = require("pegjs");
 const robot = require('robotjs');
@@ -163,12 +170,13 @@ class PegGenerator {
         source += this.pegRule(ruleAst, prefix);
         ruleNames.push(ruleName);
       } else if (ruleAst.type === 'pegrule') {
+        this.defined.add(ruleAst.name);
         source += `${ruleAst.code}\n`;
       } else if (ruleAst.type === 'spell') {
         const {word} = ruleAst;
         const options = [
           [word], ...ruleAst.alt
-        ].map(words => `"${words.join(' ')}"`).sort((a, b) => {
+        ].map(words => `"${words.join(' ')}"i`).sort((a, b) => {
           return b.length - a.length;
         });
         source += (
@@ -193,10 +201,21 @@ class PegGenerator {
       rv += `${source}\n`;
       for (let word of this.words) {
         if (!this.defined.has(word)) {
-          rv += `${word} = "${word}";\n`;
+          rv += `${word} = "${word}"i;\n`;
         }
       }
-      rv += `start = ${ruleNames.join(' / ')};\n`;
+      rv += (`
+      __command__ = ${ruleNames.join(' / ')};
+      __grammer__ = head:__command__ tail:(_ __command__)* {
+        if (!tail.length) {
+          return head;
+        }
+        return {
+          handler: 'multi',
+          commands: [head, ...tail.map(match => match[1])],
+        };
+      }
+      `);
     } else {
       throw new ParseError(ast, `Unknown ast: ${ast.type}`);
     }
@@ -229,17 +248,72 @@ if (options['--kaldi']) {
       executeTranscript(transcript);
     }
   });
-} else if (options['--command']) {
+}
+
+if (options['--command']) {
   executeTranscript(options['--command'].trim());
-} else {
+}
+
+if (options['--stdin']) {
   process.stdin.pipe(binarySplit()).on('data', line => {
     executeTranscript(line.toString('utf-8').trim());
   });
 }
 
-function executeTranscript(transcript) {
-  const command = parse(transcript);
-  executeCommand(command);
+if (options['--server']) {
+  const server = http.createServer((req, res) => {
+    let buffer = [];
+    req.on('data', data => buffer.push(data));
+    req.on('end', () => {
+      const message = JSON.parse(Buffer.concat(buffer));
+      const transcripts = message.interpretations.map(option => {
+        return option.join(' ');
+      }).filter(x => x);
+
+      if (transcripts.length) {
+        console.log('Found %d options from dragon', transcripts.length);
+        executeTranscripts(transcripts);
+      } else {
+        console.log('Found no options from dragon');
+      }
+
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('Okay');
+    });
+  });
+  server.listen(9099);
+}
+
+const bunyanStreams = [];
+if (options['--debug-log']) {
+  bunyanStreams.push({
+    level: 'debug',
+    path: options['--debug-log'],
+  });
+}
+
+const log = bunyan.createLogger({
+  name: 'pegvoice',
+  streams: bunyanStreams,
+});
+
+function executeTranscripts(transcripts) {
+  let executed = false;
+  for (let transcript of transcripts) {
+    console.log('Testing: %s', transcript);
+    const command = parse(transcript);
+    if (command) {
+      if (executed) {
+        console.log('Skipping: %s => %j', transcript, command);
+      } else {
+        console.log('Execute: %s => %j', transcript, command);
+        executed = true;
+        executeCommand(command);
+      }
+    }
+  }
+
+  console.log('No transcripts matched!');
 }
 
 function executeCommand(command) {
@@ -251,6 +325,11 @@ function executeCommand(command) {
     multi(props) {
       for (let command of props.commands) {
         executeCommand(command);
+      }
+    },
+    repeat(props) {
+      for (let i = 0; i < props.count; i++) {
+        executeCommand(props.command);
       }
     },
     key(props) {
@@ -267,23 +346,9 @@ function executeCommand(command) {
     noop() {}
   };
 
-  console.log('Command: %j', command);
   const {handler} = command;
   handlers[handler](command);
 }
-
-const bunyanStreams = [];
-if (options['--debug-log']) {
-  bunyanStreams.push({
-    level: 'debug',
-    path: options['--debug-log'],
-  });
-}
-
-const log = bunyan.createLogger({
-  name: 'pegvoice',
-  streams: bunyanStreams,
-});
 
 function buildParser() {
   const read = path => fs.readFileSync(path).toString('utf-8');
@@ -297,8 +362,9 @@ function buildParser() {
     return generator.pegSource(parsed);
   });
   console.log('Creating parser');
+  console.log(source);
   return tryParse(source, s => peg.generate(s, {
-    allowedStartRules: ['start'],
+    allowedStartRules: ['__grammer__'],
   }));
 }
 
@@ -307,7 +373,7 @@ function parse(transcript) {
     return parser.parse(transcript);
   } catch (err) {
     console.error(`Parse error: ${err}`);
-    return { handler: 'noop' };
+    return null;
   }
 }
 

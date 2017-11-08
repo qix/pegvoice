@@ -66,6 +66,7 @@ VoiceRule
 PegRule = rule:Rule {
   return {
     type: 'pegrule',
+    name: rule.name,
     code: text(),
   };
 }
