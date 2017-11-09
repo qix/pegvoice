@@ -131,8 +131,16 @@ JsExpr "<js>" = JsExprElement+ {
 }
 
 JsExprElement
-  = !('"' / "'" / '`' / ';') SourceCharacter
-  / JsString;
+  = !('{' / '"' / "'" / '`' / ';' / LineTerminator) SourceCharacter
+  / JsString
+  / JsObject;
+
+JsObject "string"
+  = '{' chars:ObjectCharacter* '}';
+
+ObjectCharacter
+  = !('}') JsExprElement
+  / LineTerminator;
 
 JsString "string"
   = StringLiteral

@@ -33,8 +33,13 @@ class Commander {
 
     i3.on('window', (({change, container}) => {
       if (change === 'focus') {
-        const {instance} = container.window_properties;
-        this.toggleMode('vim', (instance === 'gvim'));
+        const {title} = container.window_properties;
+
+        const vimInsert = title.endsWith(' <vim:i>');
+        const vimNormal = title.endsWith(' <vim>');
+        const vim = vimInsert || vimNormal;
+        this.toggleMode('vim', vim);
+        this.toggleMode('vim-insert', vimInsert);
       }
     }));
 
@@ -43,6 +48,12 @@ class Commander {
       i3(props) {
         const {command} = props;
         i3.command(command);
+      },
+      mode: (props) => {
+        this.trackModeChange(() => {
+          (props.enable || []).forEach(mode => this.mode.add(mode));
+          (props.disable || []).forEach(mode => this.mode.delete(mode));
+        });
       },
       multi: (props) => {
         for (let command of props.commands) {
@@ -54,7 +65,7 @@ class Commander {
           this.execute(props.command);
         }
       },
-      key(props) {
+      key: (props) => {
         let split = props.key.split('-');
 
         let key = split.pop();
@@ -76,6 +87,10 @@ class Commander {
         if (lower !== key) {
           key = lower;
           modifiers.push('shift');
+        }
+
+        if (key === 'escape') {
+          this.toggleMode('vim-insert', false);
         }
 
         robot.keyTap(key, modifiers);

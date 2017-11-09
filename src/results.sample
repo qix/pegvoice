@@ -3,14 +3,18 @@
 )\right-parenthesis\right bracket · right ⮕ null
 ;\semicolon\semicolon ⮕ null
 D\uppercase-letter\capital D ⮕ null
+VI · M\letter ⮕ null
 \new-line\new line ⮕ null
 \no-space\no space ⮕ null
 acre ⮕ null
 and · \no-space\no space ⮕ null
+and ⮕ null
 append · end · key · ;\semicolon\semicolon ⮕ "A;"
 append · end ⮕ "A"
 are ⮕ null
 arrow ⮕ " => "
+at · the · voice ⮕ null
+at ⮕ null
 bitch ⮕ null
 bold · bottom ⮕ null
 brightness · ten ⮕ null
@@ -19,12 +23,17 @@ call · function ⮕ "function()" <left>
 call · hello ⮕ "hello()" <left>
 call · type ⮕ "type()" <left>
 capital · and ⮕ null
-close · buffer ⮕ ":bd" <enter>
+chest ⮕ null
+cities ⮕ null
+close · buffer ⮕ <escape> ":bd" <enter>
 close · window ⮕ null
 control · C\letter ⮕ <ctrl-c>
 control · C\letter\letter C ⮕ null
+control · D\letter ⮕ <ctrl-d>
 control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
 control · W\letter ⮕ <ctrl-w>
+control · the ⮕ null
+controlled · the ⮕ null
 delete · line ⮕ "dd"
 delete · word ⮕ "dw"
 didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
@@ -36,13 +45,22 @@ down · ten ⮕ null
 down · twenty ⮕ null
 down ⮕ <down>
 echo ⮕ null
+editor · open · editor · voice ⮕ null
+editor · voice ⮕ null
 escape · delete · line ⮕ <escape> "dd"
+escape · escape ⮕ <escape> <escape>
 escape ⮕ <escape>
-find · main ⮕ "/main"
-find · switch ⮕ "/switch"
-find ⮕ "/"
+find · commander ⮕ <escape> "/commander"
+find · hello ⮕ <escape> "/hello"
+find · main ⮕ <escape> "/main"
+find · switch ⮕ <escape> "/switch"
+find · via · IM ⮕ <escape> "/via im"
+find · voice ⮕ <escape> "/voice"
+find · window ⮕ <escape> "/window"
+find ⮕ <escape> "/"
 five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
 for ⮕ null
+from · voice ⮕ null
 go to sleep ⮕ null
 go · to · bottom ⮕ "G"
 go · to · top ⮕ "gg"
@@ -52,7 +70,11 @@ him ⮕ null
 hundred ⮕ null
 in · better · times ⮕ null
 in · it ⮕ null
-insert ⮕ "i"
+in ⮕ null
+insert · escape ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"escape"}]}
+insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
+into · into ⮕ <enter> <enter>
+into · next ⮕ <enter> "n"
 into ⮕ <enter>
 is ⮕ null
 it · nine · thousand · to · say ⮕ null
@@ -66,15 +88,21 @@ key · voice ⮕ null
 keys · ;\semicolon\semicolon ⮕ null
 left ⮕ <left>
 m\spelling-letter\M ⮕ null
-move · window · left ⮕ null
+move · window · left ⮕ {"handler":"i3","command":"move left"}
+move · window · right ⮕ {"handler":"i3","command":"move right"}
 n\spelling-letter\November ⮕ null
+next ⮕ "n"
 node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
 node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
+of · an · error · the · voice ⮕ null
+of · the ⮕ null
 of ⮕ null
 on ⮕ null
 one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
 open · above ⮕ "O"
-open · editor ⮕ {"handler":"i3","command":"exec gvim"}
+open · at · a\determiner ⮕ null
+open · editor · voice ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"}
+open · editor ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh'"}
 open · escape ⮕ "o" <escape>
 open · firm ⮕ null
 open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
@@ -95,8 +123,9 @@ right · right · right · right ⮕ <right> <right> <right> <right>
 right · right ⮕ <right> <right>
 right · wait · right · white · grout · weight ⮕ null
 right ⮕ <right>
-safe ⮕ ":w" <enter>
-save ⮕ ":w" <enter>
+safe ⮕ <escape> ":w" <enter>
+save · exit ⮕ <escape> ":wq" <enter>
+save ⮕ <escape> ":w" <enter>
 screen · for ⮕ null
 screen · four ⮕ {"handler":"i3","command":"workspace 4"}
 screen · off ⮕ null
@@ -104,6 +133,7 @@ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
 screen · one\pronoun ⮕ {"handler":"i3","command":"workspace 1"}
 screen · three ⮕ {"handler":"i3","command":"workspace 3"}
 screen · two ⮕ {"handler":"i3","command":"workspace 2"}
+search · voice ⮕ null
 showed · up ⮕ null
 shut · up ⮕ null
 sky · phone ⮕ null
@@ -125,10 +155,11 @@ tab · one ⮕ <ctrl-1>
 ten · lightweight · one\number · ten · right ⮕ null
 ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
 ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
+that ⮕ null
 the ⮕ null
 three · up ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"up"}}
 to ⮕ null
-tree · voice ⮕ ":NERDTree /home/josh/voice-code/pegvoice" <enter>
+tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
 twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"down"}}
 twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
 two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
@@ -149,6 +180,7 @@ type · o\spelling-letter\O ⮕ "o"
 type · s\spelling-letter\S ⮕ "s"
 type · semicolon ⮕ ";"
 type · u\spelling-letter\U ⮕ "u"
+type ⮕ null
 undo ⮕ "u"
 up · a\determiner · hundred ⮕ null
 up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
@@ -159,12 +191,17 @@ up ⮕ <up>
 vim ⮕ {"handler":"noop"}
 wake up ⮕ null
 wake · up ⮕ {"handler":"noop"}
+window · close ⮕ {"handler":"i3","command":"kill"}
 window · closes ⮕ null
+window · down · window · close ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"kill"}]}
 window · down · window · move · left ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"move left"}]}
 window · down ⮕ {"handler":"i3","command":"focus down"}
 window · float ⮕ {"handler":"i3","command":"floating toggle"}
 window · left ⮕ {"handler":"i3","command":"focus left"}
+window · move · left ⮕ {"handler":"i3","command":"move left"}
 window · right ⮕ {"handler":"i3","command":"focus right"}
+window · up · close · window ⮕ null
+window · up ⮕ {"handler":"i3","command":"focus up"}
 word · close ⮕ null
 words · close ⮕ {"handler":"type","string":"close"}
 words · hello ⮕ {"handler":"type","string":"hello"}

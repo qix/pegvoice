@@ -17,6 +17,18 @@
       command,
     };
   }
+  function mode(name) {
+    return {
+      handler: 'mode',
+      enable: [name],
+    };
+  }
+  function modeOff(name) {
+    return {
+      handler: 'mode',
+      disable: [name],
+    };
+  }
   function multi(...commands) {
     if (commands.length === 0) {
       return noop();
@@ -49,9 +61,12 @@
   }
 
   function vimex(command) {
-    return typeLine(`:${command}`);
+    return escaped(typeLine(`:${command}`));
   }
 
+  function escaped(command) {
+    return multi(key('escape'), command);
+  }
   function extractList(list, index) {
     return list.map(element => element[index]);
   }
@@ -68,6 +83,9 @@ go to sleep => noop();
 
 page down => key('pagedown');
 page up => key('pageup');
+
+move window :direction => i3(`move ${direction}`);
+
 window ...{
   float => i3('floating toggle');
   :direction => i3(`focus ${direction}`);
@@ -79,7 +97,7 @@ window ...{
 screen :i3screen => i3(`workspace ${i3screen}`);
 
 open terminal :folder? => i3(`exec gnome-terminal --hide-menubar --working-directory="${optional(folder, '/home/josh')}"`);
-open editor => i3(`exec gvim`);
+open editor :folder? => i3(`exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`);
 
 vim => noop();
 open above => type('O');
@@ -90,7 +108,7 @@ tree :folder => vimex(`NERDTree ${folder}`);
 
 append end => type('A');
 append => type('a');
-insert => type('i');
+insert => multi(type('i'), mode('vim-insert'));
 
 go to? ...{
   top => type('gg');
@@ -119,7 +137,8 @@ _vim_until = until code:_ascii {
 paste => type('p');
 undo => type('u');
 redo => key('ctrl-r');
-save => vimex('w')
+save exit => vimex('wq');
+save => vimex('w');
 
 viminsert => noop();
 
@@ -131,7 +150,8 @@ node require :ident => typeLine(`const ${ident} = require('${ident}');`);
 string :keys => type("'" + keys + "'");
 switch buffer => repeat(2, key('ctrl-w'));
 close buffer => vimex('bd');
-find :code? => type(`/${optional(code, '')}`);
+find :code? => escaped(type(`/${optional(code, '')}`));
+next => type('n');
 
 endvim => noop();
 
