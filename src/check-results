@@ -21,6 +21,7 @@ const fs = require('fs');
 
 const {
   rightArrow,
+  modeSeperator,
   wordSeperator,
 } = require('./symbols');
 
@@ -35,11 +36,14 @@ for (const oldLine of results.split('\n')) {
     continue;
   }
 
-  const [transcript, oldResult] = oldLine.split(rightArrow);
+  const [modeTranscript, oldResult] = oldLine.split(rightArrow);
+  const [modeString, transcript] = modeTranscript.split(modeSeperator);
+
+  const modes = new Set(Array.from(modeString.split('+')));
 
   let newResult;
   try {
-    newResult = renderCommand(parser.parse(transcript));
+    newResult = renderCommand(parser.parse(transcript, modes));
   } catch (err) {
     if (err instanceof Parser.ParseError) {
       newResult = 'null';
@@ -48,7 +52,10 @@ for (const oldLine of results.split('\n')) {
     }
   }
 
-  const newLine = `${transcript}${rightArrow}${newResult}`;
+  const newLine = (
+    `${modeString}${modeSeperator}${transcript}${rightArrow}${newResult}`
+  );
+
   newResults.push(newLine);
 
   if (newLine !== oldLine) {

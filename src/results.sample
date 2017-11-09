@@ -1,208 +1,222 @@
-'s\s\s ⮕ null
-)\right-parenthesis\close bracket ⮕ null
-)\right-parenthesis\right bracket · right ⮕ null
-;\semicolon\semicolon ⮕ null
-D\uppercase-letter\capital D ⮕ null
-VI · M\letter ⮕ null
-\new-line\new line ⮕ null
-\no-space\no space ⮕ null
-acre ⮕ null
-and · \no-space\no space ⮕ null
-and ⮕ null
-append · end · key · ;\semicolon\semicolon ⮕ "A;"
-append · end ⮕ "A"
-are ⮕ null
-arrow ⮕ " => "
-at · the · voice ⮕ null
-at ⮕ null
-bitch ⮕ null
-bold · bottom ⮕ null
-brightness · ten ⮕ null
-call · by · three ⮕ null
-call · function ⮕ "function()" <left>
-call · hello ⮕ "hello()" <left>
-call · type ⮕ "type()" <left>
-capital · and ⮕ null
-chest ⮕ null
-cities ⮕ null
-close · buffer ⮕ <escape> ":bd" <enter>
-close · window ⮕ null
-control · C\letter ⮕ <ctrl-c>
-control · C\letter\letter C ⮕ null
-control · D\letter ⮕ <ctrl-d>
-control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
-control · W\letter ⮕ <ctrl-w>
-control · the ⮕ null
-controlled · the ⮕ null
-delete · line ⮕ "dd"
-delete · word ⮕ "dw"
-didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
-do · Windows · search ⮕ null
-down · down · down · down ⮕ <down> <down> <down> <down>
-down · down · down ⮕ <down> <down> <down>
-down · down · into ⮕ <down> <down> <enter>
-down · ten ⮕ null
-down · twenty ⮕ null
-down ⮕ <down>
-echo ⮕ null
-editor · open · editor · voice ⮕ null
-editor · voice ⮕ null
-escape · delete · line ⮕ <escape> "dd"
-escape · escape ⮕ <escape> <escape>
-escape ⮕ <escape>
-find · commander ⮕ <escape> "/commander"
-find · hello ⮕ <escape> "/hello"
-find · main ⮕ <escape> "/main"
-find · switch ⮕ <escape> "/switch"
-find · via · IM ⮕ <escape> "/via im"
-find · voice ⮕ <escape> "/voice"
-find · window ⮕ <escape> "/window"
-find ⮕ <escape> "/"
-five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
-for ⮕ null
-from · voice ⮕ null
-go to sleep ⮕ null
-go · to · bottom ⮕ "G"
-go · to · top ⮕ "gg"
-go · top ⮕ "gg"
-good · top ⮕ null
-him ⮕ null
-hundred ⮕ null
-in · better · times ⮕ null
-in · it ⮕ null
-in ⮕ null
-insert · escape ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"escape"}]}
-insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
-into · into ⮕ <enter> <enter>
-into · next ⮕ <enter> "n"
-into ⮕ <enter>
-is ⮕ null
-it · nine · thousand · to · say ⮕ null
-it ⮕ null
-jump · backwards ⮕ null
-just ⮕ null
-key · at · tree · voice ⮕ null
-key · capital · and ⮕ null
-key · capital · in ⮕ null
-key · voice ⮕ null
-keys · ;\semicolon\semicolon ⮕ null
-left ⮕ <left>
-m\spelling-letter\M ⮕ null
-move · window · left ⮕ {"handler":"i3","command":"move left"}
-move · window · right ⮕ {"handler":"i3","command":"move right"}
-n\spelling-letter\November ⮕ null
-next ⮕ "n"
-node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
-node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
-of · an · error · the · voice ⮕ null
-of · the ⮕ null
-of ⮕ null
-on ⮕ null
-one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
-open · above ⮕ "O"
-open · at · a\determiner ⮕ null
-open · editor · voice ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"}
-open · editor ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh'"}
-open · escape ⮕ "o" <escape>
-open · firm ⮕ null
-open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
-open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
-open · them ⮕ null
-open ⮕ "o"
-opens ⮕ null
-opinion · some ⮕ null
-or · bottom ⮕ null
-page · down ⮕ <pagedown>
-page · up ⮕ <pageup>
-paste · line ⮕ null
-paste ⮕ "p"
-prepend ⮕ null
-redo ⮕ <ctrl-r>
-right · into ⮕ <right> <enter>
-right · right · right · right ⮕ <right> <right> <right> <right>
-right · right ⮕ <right> <right>
-right · wait · right · white · grout · weight ⮕ null
-right ⮕ <right>
-safe ⮕ <escape> ":w" <enter>
-save · exit ⮕ <escape> ":wq" <enter>
-save ⮕ <escape> ":w" <enter>
-screen · for ⮕ null
-screen · four ⮕ {"handler":"i3","command":"workspace 4"}
-screen · off ⮕ null
-screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
-screen · one\pronoun ⮕ {"handler":"i3","command":"workspace 1"}
-screen · three ⮕ {"handler":"i3","command":"workspace 3"}
-screen · two ⮕ {"handler":"i3","command":"workspace 2"}
-search · voice ⮕ null
-showed · up ⮕ null
-shut · up ⮕ null
-sky · phone ⮕ null
-slap · it ⮕ <enter>
-slap · slap ⮕ <enter> <enter>
-slap ⮕ <enter>
-sleep ⮕ null
-spell · that · v\spelling-letter\letter V · e\spelling-letter\E · n\spelling-letter\N · f\spelling-letter\letter F ⮕ null
-strengths · /\slash\slash ⮕ null
-string · ABC ⮕ null
-string · X\letter ⮕ <'> "x" <'>
-string · hello ⮕ null
-string · kill ⮕ null
-string ⮕ null
-strings · /\slash\slash ⮕ null
-switch · buffer ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"ctrl-w"}}
-switch ⮕ null
-tab · one ⮕ <ctrl-1>
-ten · lightweight · one\number · ten · right ⮕ null
-ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
-ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
-that ⮕ null
-the ⮕ null
-three · up ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"up"}}
-to ⮕ null
-tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
-twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"down"}}
-twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
-two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
-two · up ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"up"}}
-type · CLOS ⮕ null
-type · F\letter · I\pronoun · N\letter · D\letter ⮕ "find"
-type · HEI · will · all ⮕ null
-type · IM · IT ⮕ null
-type · I\pronoun · T\letter ⮕ "it"
-type · STA · RT ⮕ null
-type · T\letter · A\letter ⮕ "ta"
-type · X\letter · X\letter ⮕ "xx"
-type · _\underscore\underscore · _\underscore\underscore ⮕ "__"
-type · capital · d\spelling-letter\D ⮕ "D"
-type · close ⮕ null
-type · hello ⮕ null
-type · o\spelling-letter\O ⮕ "o"
-type · s\spelling-letter\S ⮕ "s"
-type · semicolon ⮕ ";"
-type · u\spelling-letter\U ⮕ "u"
-type ⮕ null
-undo ⮕ "u"
-up · a\determiner · hundred ⮕ null
-up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
-up · twenty ⮕ null
-up · up · up ⮕ <up> <up> <up>
-up · up ⮕ <up> <up>
-up ⮕ <up>
-vim ⮕ {"handler":"noop"}
-wake up ⮕ null
-wake · up ⮕ {"handler":"noop"}
-window · close ⮕ {"handler":"i3","command":"kill"}
-window · closes ⮕ null
-window · down · window · close ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"kill"}]}
-window · down · window · move · left ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"move left"}]}
-window · down ⮕ {"handler":"i3","command":"focus down"}
-window · float ⮕ {"handler":"i3","command":"floating toggle"}
-window · left ⮕ {"handler":"i3","command":"focus left"}
-window · move · left ⮕ {"handler":"i3","command":"move left"}
-window · right ⮕ {"handler":"i3","command":"focus right"}
-window · up · close · window ⮕ null
-window · up ⮕ {"handler":"i3","command":"focus up"}
-word · close ⮕ null
-words · close ⮕ {"handler":"type","string":"close"}
-words · hello ⮕ {"handler":"type","string":"hello"}
-yanking · on ⮕ null
+ ☇ 's\s\s ⮕ null
+ ☇ )\right-parenthesis\close bracket ⮕ null
+ ☇ )\right-parenthesis\right bracket · right ⮕ null
+ ☇ ;\semicolon\semicolon ⮕ null
+ ☇ D\uppercase-letter\capital D ⮕ null
+ ☇ VI · M\letter ⮕ null
+ ☇ \new-line\new line ⮕ null
+ ☇ \no-space\no space ⮕ null
+ ☇ acre ⮕ null
+ ☇ and · \no-space\no space ⮕ null
+ ☇ and ⮕ null
+ ☇ append · end · key · ;\semicolon\semicolon ⮕ null
+ ☇ append · end ⮕ null
+ ☇ are ⮕ null
+ ☇ arrow ⮕ " => "
+ ☇ at · the · voice ⮕ null
+ ☇ at ⮕ null
+ ☇ bitch ⮕ null
+ ☇ bold · bottom ⮕ null
+ ☇ brightness · ten ⮕ null
+ ☇ call · by · three ⮕ null
+ ☇ call · function ⮕ "function()" <left>
+ ☇ call · hello ⮕ "hello()" <left>
+ ☇ call · type ⮕ "type()" <left>
+ ☇ capital · and ⮕ null
+ ☇ chest ⮕ null
+ ☇ cities ⮕ null
+ ☇ close · buffer ⮕ <escape> ":bd" <enter>
+ ☇ close · window ⮕ null
+ ☇ control · C\letter ⮕ <ctrl-c>
+ ☇ control · C\letter\letter C ⮕ null
+ ☇ control · D\letter ⮕ <ctrl-d>
+ ☇ control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
+ ☇ control · W\letter ⮕ <ctrl-w>
+ ☇ control · the ⮕ null
+ ☇ controlled · the ⮕ null
+ ☇ delete · line ⮕ "dd"
+ ☇ delete · word ⮕ "dw"
+ ☇ didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
+ ☇ do · Windows · search ⮕ null
+ ☇ down · down · down · down ⮕ <down> <down> <down> <down>
+ ☇ down · down · down ⮕ <down> <down> <down>
+ ☇ down · down · into ⮕ <down> <down> <enter>
+ ☇ down · for ⮕ null
+ ☇ down · into ⮕ <down> <enter>
+ ☇ down · on · down · into ⮕ null
+ ☇ down · ten ⮕ null
+ ☇ down · twenty ⮕ null
+ ☇ down ⮕ <down>
+ ☇ echo ⮕ null
+ ☇ editor · open · editor · voice ⮕ null
+ ☇ editor · voice ⮕ null
+ ☇ escape · delete · line ⮕ <escape> "dd"
+ ☇ escape · escape ⮕ <escape> <escape>
+ ☇ escape ⮕ <escape>
+ ☇ find · commander ⮕ <escape> "/commander"
+ ☇ find · hello ⮕ <escape> "/hello"
+ ☇ find · main ⮕ <escape> "/main"
+ ☇ find · switch ⮕ <escape> "/switch"
+ ☇ find · via · IM ⮕ <escape> "/via im"
+ ☇ find · voice ⮕ <escape> "/voice"
+ ☇ find · window ⮕ <escape> "/window"
+ ☇ find ⮕ <escape> "/"
+ ☇ five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
+ ☇ for ⮕ null
+ ☇ four · down ⮕ {"handler":"repeat","count":4,"command":{"handler":"key","key":"down"}}
+ ☇ from · voice ⮕ null
+ ☇ go to sleep ⮕ null
+ ☇ go · to · bottom ⮕ "G"
+ ☇ go · to · top ⮕ "gg"
+ ☇ go · top ⮕ "gg"
+ ☇ good · top ⮕ null
+ ☇ him ⮕ null
+ ☇ hundred ⮕ null
+ ☇ in · better · times ⮕ null
+ ☇ in · it ⮕ null
+ ☇ in ⮕ null
+ ☇ insert · escape ⮕ null
+ ☇ insert ⮕ null
+ ☇ into · into ⮕ <enter> <enter>
+ ☇ into · next ⮕ <enter> "n"
+ ☇ into ⮕ <enter>
+ ☇ is ⮕ null
+ ☇ it · nine · thousand · to · say ⮕ null
+ ☇ it ⮕ null
+ ☇ jump · backwards ⮕ null
+ ☇ just ⮕ null
+ ☇ key · at · tree · voice ⮕ null
+ ☇ key · capital · and ⮕ null
+ ☇ key · capital · in ⮕ null
+ ☇ key · voice ⮕ null
+ ☇ keys · ;\semicolon\semicolon ⮕ null
+ ☇ left ⮕ <left>
+ ☇ long ⮕ null
+ ☇ m\spelling-letter\M ⮕ null
+ ☇ move · window · left ⮕ {"handler":"i3","command":"move left"}
+ ☇ move · window · right ⮕ {"handler":"i3","command":"move right"}
+ ☇ my ⮕ null
+ ☇ n\spelling-letter\November ⮕ null
+ ☇ name ⮕ null
+ ☇ next ⮕ "n"
+ ☇ no one · do · so ⮕ null
+ ☇ node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
+ ☇ node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
+ ☇ of · an · error · the · voice ⮕ null
+ ☇ of · the ⮕ null
+ ☇ of ⮕ null
+ ☇ on ⮕ null
+ ☇ one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
+ ☇ open · above ⮕ null
+ ☇ open · at · a\determiner ⮕ null
+ ☇ open · editor · voice ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"}
+ ☇ open · editor ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh'"}
+ ☇ open · escape ⮕ null
+ ☇ open · firm ⮕ null
+ ☇ open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
+ ☇ open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
+ ☇ open · them ⮕ null
+ ☇ open ⮕ null
+ ☇ opens ⮕ null
+ ☇ opinion · some ⮕ null
+ ☇ or · bottom ⮕ null
+ ☇ page · down ⮕ <pagedown>
+ ☇ page · up ⮕ <pageup>
+ ☇ paste · line ⮕ null
+ ☇ paste ⮕ null
+ ☇ prepend ⮕ null
+ ☇ redo ⮕ <ctrl-r>
+ ☇ right · into ⮕ <right> <enter>
+ ☇ right · right · right · right ⮕ <right> <right> <right> <right>
+ ☇ right · right ⮕ <right> <right>
+ ☇ right · wait · right · white · grout · weight ⮕ null
+ ☇ right ⮕ <right>
+ ☇ safe ⮕ null
+ ☇ save · exit ⮕ null
+ ☇ save ⮕ null
+ ☇ screen · for ⮕ null
+ ☇ screen · four ⮕ {"handler":"i3","command":"workspace 4"}
+ ☇ screen · off ⮕ null
+ ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
+ ☇ screen · one\pronoun ⮕ {"handler":"i3","command":"workspace 1"}
+ ☇ screen · three ⮕ {"handler":"i3","command":"workspace 3"}
+ ☇ screen · two ⮕ {"handler":"i3","command":"workspace 2"}
+ ☇ search · voice ⮕ null
+ ☇ showed · up ⮕ null
+ ☇ shut · up ⮕ null
+ ☇ sky · phone ⮕ null
+ ☇ slap · it ⮕ <enter>
+ ☇ slap · slap ⮕ <enter> <enter>
+ ☇ slap ⮕ <enter>
+ ☇ sleep ⮕ null
+ ☇ spell · that · v\spelling-letter\letter V · e\spelling-letter\E · n\spelling-letter\N · f\spelling-letter\letter F ⮕ null
+ ☇ stone ⮕ null
+ ☇ strengths · /\slash\slash ⮕ null
+ ☇ string · ABC ⮕ null
+ ☇ string · X\letter ⮕ <'> "x" <'>
+ ☇ string · hello ⮕ null
+ ☇ string · kill ⮕ null
+ ☇ string ⮕ null
+ ☇ strings · /\slash\slash ⮕ null
+ ☇ switch · buffer ⮕ {"handler":"multi","commands":[{"handler":"key","key":"escape"},{"handler":"repeat","count":2,"command":{"handler":"key","key":"ctrl-w"}}]}
+ ☇ switch ⮕ null
+ ☇ tab · one ⮕ <ctrl-1>
+ ☇ ten · lightweight · one\number · ten · right ⮕ null
+ ☇ ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
+ ☇ ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
+ ☇ that ⮕ null
+ ☇ the ⮕ null
+ ☇ this ⮕ null
+ ☇ three · up ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"up"}}
+ ☇ to ⮕ null
+ ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
+ ☇ twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"down"}}
+ ☇ twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
+ ☇ two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
+ ☇ two · up ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"up"}}
+ ☇ type · CLOS ⮕ null
+ ☇ type · F\letter · I\pronoun · N\letter · D\letter ⮕ "find"
+ ☇ type · HEI · will · all ⮕ null
+ ☇ type · IM · IT ⮕ null
+ ☇ type · I\pronoun · T\letter ⮕ "it"
+ ☇ type · STA · RT ⮕ null
+ ☇ type · T\letter · A\letter ⮕ "ta"
+ ☇ type · X\letter · X\letter ⮕ "xx"
+ ☇ type · _\underscore\underscore · _\underscore\underscore ⮕ "__"
+ ☇ type · capital · d\spelling-letter\D ⮕ "D"
+ ☇ type · close ⮕ null
+ ☇ type · hello ⮕ null
+ ☇ type · o\spelling-letter\O ⮕ "o"
+ ☇ type · s\spelling-letter\S ⮕ "s"
+ ☇ type · semicolon ⮕ ";"
+ ☇ type · u\spelling-letter\U ⮕ "u"
+ ☇ type ⮕ null
+ ☇ undo ⮕ null
+ ☇ up · a\determiner · hundred ⮕ null
+ ☇ up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
+ ☇ up · twenty ⮕ null
+ ☇ up · up · up ⮕ <up> <up> <up>
+ ☇ up · up ⮕ <up> <up>
+ ☇ up ⮕ <up>
+ ☇ vim ⮕ null
+ ☇ wake up ⮕ null
+ ☇ wake · up ⮕ {"handler":"noop"}
+ ☇ window · close ⮕ {"handler":"i3","command":"kill"}
+ ☇ window · closes ⮕ null
+ ☇ window · down · window · close ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"kill"}]}
+ ☇ window · down · window · move · left ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"move left"}]}
+ ☇ window · down ⮕ {"handler":"i3","command":"focus down"}
+ ☇ window · float ⮕ {"handler":"i3","command":"floating toggle"}
+ ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
+ ☇ window · move · left ⮕ {"handler":"i3","command":"move left"}
+ ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
+ ☇ window · up · close · window ⮕ null
+ ☇ window · up ⮕ {"handler":"i3","command":"focus up"}
+ ☇ word · close ⮕ null
+ ☇ words · close ⮕ {"handler":"type","string":"close"}
+ ☇ words · hello ⮕ {"handler":"type","string":"hello"}
+ ☇ yanking · on ⮕ null
+vim ☇ escape ⮕ <escape>
+vim ☇ insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
+vim ☇ open ⮕ "o"
+vim+vim-insert ☇ escape ⮕ <escape>

@@ -86,10 +86,17 @@ VoiceCode
     };
 }
 
-Match = match:(PegMatch / WordMatch) optional:"?"? {
+Match = match:(PegMatch / WordMatch / PredicateMatch) optional:"?"? {
   return {
     ...match,
     optional: !!optional,
+  };
+}
+
+PredicateMatch = "&" identifier:Identifier {
+  return {
+    type: 'pegtest',
+    identifier,
   };
 }
 
@@ -133,14 +140,13 @@ JsExpr "<js>" = JsExprElement+ {
 JsExprElement
   = !('{' / '"' / "'" / '`' / ';' / LineTerminator) SourceCharacter
   / JsString
-  / JsObject;
+  / JsCurlyBraced;
 
-JsObject "string"
-  = '{' chars:ObjectCharacter* '}';
+JsCurlyBraced "<js block>"
+  = '{' chars:ObjectCharacter* '}' { return text(); };
 
 ObjectCharacter
-  = !('}') JsExprElement
-  / LineTerminator;
+  = !('}') SourceCharacter;
 
 JsString "string"
   = StringLiteral

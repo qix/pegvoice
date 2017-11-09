@@ -83,7 +83,7 @@ function matchToId(match) {
   return match.map(expr => {
     if (expr.type === 'word') {
       return expr.word;
-    } else if (expr.type === 'pegmatch') {
+    } else if (expr.type === 'pegmatch' || expr.type === 'pegtest') {
       return `_${expr.identifier}`;
     } else {
       throw new ParseError(expr, `Unknown ast: ${expr.type}`);
@@ -122,12 +122,21 @@ class PegGenerator {
 
     desc = desc ? ` "${desc}"` : '';
 
-    const pegMatch = match.map((expr, idx) => {
+    const matches = [...match];
+
+    let predicates = '';
+    while (matches.length && matches[0].type === 'pegtest') {
+      predicates += `&_${matches.shift().identifier} `;
+    }
+
+    const pegMatch = matches.map((expr, idx) => {
       let pegCode = '';
       let prefix = '';
       if (expr.type === 'word') {
         this.words.add(expr.word);
         pegCode = expr.word;
+      } else if (expr.type === 'pegtest') {
+        throw new Error('tests must be at the start');
       } else if (expr.type === 'pegmatch') {
         prefix = `${expr.name}:`;
         pegCode = `_${expr.identifier}`;
@@ -149,16 +158,18 @@ class PegGenerator {
 
     if (ast.expr.type === 'code') {
       return (
-        `${ruleName}${desc} = ${pegMatch} "."? {\n${ast.expr.code}\n}\n`
+        `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n${ast.expr.code}\n}\n`
       );
     } else if (ast.expr.type === 'rules') {
       const {
         ruleNames,
         source,
       } = this.pegRules(ast.expr.rules, `${ruleName}_`);
+
+      const initial = predicates + pegMatch + (pegMatch ? ' _ ' : '');
       return (
         `${source}` +
-        `${ruleName} = ${pegMatch} _ action:(${ruleNames.join(' / ')}) {\n` +
+        `${ruleName} = ${initial} action:(${ruleNames.join(' / ')}) {\n` +
         `  return action;\n}\n`
       );
     } else {
@@ -236,9 +247,9 @@ class Parser {
     this.parser = buildParser();
   }
 
-  tryParse(transcript) {
+  tryParse(transcript, mode=null) {
     try {
-      return this.parse(transcript);
+      return this.parse(transcript, mode);
     } catch (err) {
       if (err instanceof ParseError) {
         console.error(`Parse error: ${err}`);
@@ -248,9 +259,12 @@ class Parser {
     }
   }
 
-  parse(transcript) {
+  parse(transcript, mode=null) {
+    mode = mode || new Set();
     try {
-      return this.parser.parse(transcript);
+      return this.parser.parse(transcript, {
+        mode,
+      });
     } catch (err) {
       if (err instanceof this.parser.SyntaxError) {
         throw new ParseError({

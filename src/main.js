@@ -26,6 +26,7 @@ const renderCommand = require('./renderCommand');
 const http = require('http');
 const {
   rightArrow,
+  modeSeperator,
   wordSeperator,
 } = require('./symbols');
 
@@ -101,9 +102,12 @@ const parser = new Parser();
 function executeTranscripts(transcripts) {
   let executed = false;
   let first = true;
+  const mode = commander.getCurrentMode();
+  const modeString = Array.from(mode).sort().join('+') + modeSeperator;
+
   for (let transcript of transcripts) {
     try {
-      const command = parser.parse(transcript);
+      const command = parser.parse(transcript, mode);
       if (executed) {
         console.log('Skipping: %s => %j', transcript, command);
       } else {
@@ -113,7 +117,9 @@ function executeTranscripts(transcripts) {
 
         if (resultLog) {
           const commandJson = renderCommand(command);
-          resultLog.write(`${transcript}${rightArrow}${commandJson}\n`);
+          resultLog.write(
+            `${modeString}${transcript}${rightArrow}${commandJson}\n`
+          );
         }
       }
     } catch (err) {
@@ -132,7 +138,7 @@ function executeTranscripts(transcripts) {
 
   if (!executed && transcripts.length) {
     if (resultLog) {
-      resultLog.write(`${transcripts[0]}${rightArrow}null\n`);
+      resultLog.write(`${modeString}${transcripts[0]}${rightArrow}null\n`);
     }
     console.log('No transcripts matched!');
   }

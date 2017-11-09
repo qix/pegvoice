@@ -99,16 +99,8 @@ screen :i3screen => i3(`workspace ${i3screen}`);
 open terminal :folder? => i3(`exec gnome-terminal --hide-menubar --working-directory="${optional(folder, '/home/josh')}"`);
 open editor :folder? => i3(`exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`);
 
-vim => noop();
-open above => type('O');
-open => type('o');
-above => type('O');
-
 tree :folder => vimex(`NERDTree ${folder}`);
 
-append end => type('A');
-append => type('a');
-insert => multi(type('i'), mode('vim-insert'));
 
 go to? ...{
   top => type('gg');
@@ -134,11 +126,21 @@ _vim_until = until code:_ascii {
   return `t${code}`;
 }
 
-paste => type('p');
-undo => type('u');
+&vim ...{
+  open above => type('O');
+  open => type('o');
+  above => type('O');
+  append end => type('A');
+  append => type('a');
+  insert => multi(type('i'), mode('vim-insert'));
+
+  paste => type('p');
+  undo => type('u');
+  save exit => vimex('wq');
+  save => vimex('w');
+}
+
 redo => key('ctrl-r');
-save exit => vimex('wq');
-save => vimex('w');
 
 viminsert => noop();
 
@@ -148,7 +150,7 @@ arrow => type(' => ');
 call :ident => multi(type(`${ident}()`), key('left'));
 node require :ident => typeLine(`const ${ident} = require('${ident}');`);
 string :keys => type("'" + keys + "'");
-switch buffer => repeat(2, key('ctrl-w'));
+switch buffer => escaped(repeat(2, key('ctrl-w')));
 close buffer => vimex('bd');
 find :code? => escaped(type(`/${optional(code, '')}`));
 next => type('n');
@@ -189,6 +191,13 @@ words :string => {
 /***
   DEFINITIONS
 ***/
+
+_vim = &{
+  return options.mode.has('vim');
+};
+_vim_insert = &{
+  return options.mode.has('vim-insert');
+};
 
 _folder = voice {
   return "/home/josh/voice-code/pegvoice";

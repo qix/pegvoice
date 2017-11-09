@@ -102,6 +102,10 @@ class Commander {
     };
   }
 
+  getCurrentMode() {
+    return this.mode;
+  }
+
   trackModeChange(cb) {
     const prev = Array.from(this.mode).sort().join(', ');
     cb();
