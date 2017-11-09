@@ -99,33 +99,6 @@ screen :i3screen => i3(`workspace ${i3screen}`);
 open terminal :folder? => i3(`exec gnome-terminal --hide-menubar --working-directory="${optional(folder, '/home/josh')}"`);
 open editor :folder? => i3(`exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`);
 
-tree :folder => vimex(`NERDTree ${folder}`);
-
-
-go to? ...{
-  top => type('gg');
-  bottom => type('G');
-}
-
-delete ...{
-  line => type('dd');
-  dir:vim_direction => type(`d${dir}`);
-}
-yank ...{
-  line => type('yy');
-  dir:vim_direction => type(`y${dir}`);
-}
-
-_vim_direction = inner:(inner _)? dir:(word / _vim_until) {
-  return (inner ? 'i' : '') + ({
-    word: 'w',
-  }[dir] || dir);
-}
-
-_vim_until = until code:_ascii {
-  return `t${code}`;
-}
-
 &vim ...{
   open above => type('O');
   open => type('o');
@@ -138,22 +111,37 @@ _vim_until = until code:_ascii {
   undo => type('u');
   save exit => vimex('wq');
   save => vimex('w');
+
+  tree :folder => vimex(`NERDTree ${folder}`);
+
+  go to? ...{
+    top => type('gg');
+    bottom => type('G');
+  }
+
+  delete ...{
+    line => type('dd');
+    dir:vim_direction => type(`d${dir}`);
+  }
+  yank ...{
+    line => type('yy');
+    dir:vim_direction => type(`y${dir}`);
+  }
+
+  node require :ident => typeLine(`const ${ident} = require('${ident}');`);
+  switch buffer => escaped(repeat(2, key('ctrl-w')));
+  close buffer => vimex('bd');
+  find :code? => escaped(type(`/${optional(code, '')}`));
+  next => type('n');
 }
 
 redo => key('ctrl-r');
 
-viminsert => noop();
-
+call :ident => multi(type(`${ident}()`), key('left'));
+string :keys => type("'" + keys + "'");
 console log => type('console.log(');
 arrow function => multi(type(' => '), key('shift-['), key('enter'));
 arrow => type(' => ');
-call :ident => multi(type(`${ident}()`), key('left'));
-node require :ident => typeLine(`const ${ident} = require('${ident}');`);
-string :keys => type("'" + keys + "'");
-switch buffer => escaped(repeat(2, key('ctrl-w')));
-close buffer => vimex('bd');
-find :code? => escaped(type(`/${optional(code, '')}`));
-next => type('n');
 
 endvim => noop();
 
@@ -161,8 +149,9 @@ slap it? => key('enter');
 enter => key('enter');
 escape => key('escape');
 
-chrome => noop();
-tab :number => key(`ctrl-${number}`);
+&chrome ...{
+  tab :number => key(`ctrl-${number}`);
+}
 
 
 :number :direction => repeat(number, key(direction));
@@ -192,6 +181,19 @@ words :string => {
   DEFINITIONS
 ***/
 
+_vim_direction = inner:(inner _)? dir:(word / _vim_until) {
+  return (inner ? 'i' : '') + ({
+    word: 'w',
+  }[dir] || dir);
+}
+
+_vim_until = until code:_ascii {
+  return `t${code}`;
+}
+
+_chrome = &{
+  return options.mode.has('chrome');
+};
 _vim = &{
   return options.mode.has('vim');
 };

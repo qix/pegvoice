@@ -25,7 +25,7 @@
  ☇ capital · and ⮕ null
  ☇ chest ⮕ null
  ☇ cities ⮕ null
- ☇ close · buffer ⮕ <escape> ":bd" <enter>
+ ☇ close · buffer ⮕ null
  ☇ close · window ⮕ null
  ☇ control · C\letter ⮕ <ctrl-c>
  ☇ control · C\letter\letter C ⮕ null
@@ -34,8 +34,8 @@
  ☇ control · W\letter ⮕ <ctrl-w>
  ☇ control · the ⮕ null
  ☇ controlled · the ⮕ null
- ☇ delete · line ⮕ "dd"
- ☇ delete · word ⮕ "dw"
+ ☇ delete · line ⮕ null
+ ☇ delete · word ⮕ null
  ☇ didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
  ☇ do · Windows · search ⮕ null
  ☇ down · down · down · down ⮕ <down> <down> <down> <down>
@@ -50,25 +50,25 @@
  ☇ echo ⮕ null
  ☇ editor · open · editor · voice ⮕ null
  ☇ editor · voice ⮕ null
- ☇ escape · delete · line ⮕ <escape> "dd"
+ ☇ escape · delete · line ⮕ null
  ☇ escape · escape ⮕ <escape> <escape>
  ☇ escape ⮕ <escape>
- ☇ find · commander ⮕ <escape> "/commander"
- ☇ find · hello ⮕ <escape> "/hello"
- ☇ find · main ⮕ <escape> "/main"
- ☇ find · switch ⮕ <escape> "/switch"
- ☇ find · via · IM ⮕ <escape> "/via im"
- ☇ find · voice ⮕ <escape> "/voice"
- ☇ find · window ⮕ <escape> "/window"
- ☇ find ⮕ <escape> "/"
+ ☇ find · commander ⮕ null
+ ☇ find · hello ⮕ null
+ ☇ find · main ⮕ null
+ ☇ find · switch ⮕ null
+ ☇ find · via · IM ⮕ null
+ ☇ find · voice ⮕ null
+ ☇ find · window ⮕ null
+ ☇ find ⮕ null
  ☇ five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
  ☇ for ⮕ null
  ☇ four · down ⮕ {"handler":"repeat","count":4,"command":{"handler":"key","key":"down"}}
  ☇ from · voice ⮕ null
  ☇ go to sleep ⮕ null
- ☇ go · to · bottom ⮕ "G"
- ☇ go · to · top ⮕ "gg"
- ☇ go · top ⮕ "gg"
+ ☇ go · to · bottom ⮕ null
+ ☇ go · to · top ⮕ null
+ ☇ go · top ⮕ null
  ☇ good · top ⮕ null
  ☇ him ⮕ null
  ☇ hundred ⮕ null
@@ -78,7 +78,7 @@
  ☇ insert · escape ⮕ null
  ☇ insert ⮕ null
  ☇ into · into ⮕ <enter> <enter>
- ☇ into · next ⮕ <enter> "n"
+ ☇ into · next ⮕ null
  ☇ into ⮕ <enter>
  ☇ is ⮕ null
  ☇ it · nine · thousand · to · say ⮕ null
@@ -98,10 +98,10 @@
  ☇ my ⮕ null
  ☇ n\spelling-letter\November ⮕ null
  ☇ name ⮕ null
- ☇ next ⮕ "n"
+ ☇ next ⮕ null
  ☇ no one · do · so ⮕ null
- ☇ node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
- ☇ node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
+ ☇ node · require · FS ⮕ null
+ ☇ node · require · render ⮕ null
  ☇ of · an · error · the · voice ⮕ null
  ☇ of · the ⮕ null
  ☇ of ⮕ null
@@ -158,9 +158,9 @@
  ☇ string · kill ⮕ null
  ☇ string ⮕ null
  ☇ strings · /\slash\slash ⮕ null
- ☇ switch · buffer ⮕ {"handler":"multi","commands":[{"handler":"key","key":"escape"},{"handler":"repeat","count":2,"command":{"handler":"key","key":"ctrl-w"}}]}
+ ☇ switch · buffer ⮕ null
  ☇ switch ⮕ null
- ☇ tab · one ⮕ <ctrl-1>
+ ☇ tab · one ⮕ null
  ☇ ten · lightweight · one\number · ten · right ⮕ null
  ☇ ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
  ☇ ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
@@ -169,7 +169,7 @@
  ☇ this ⮕ null
  ☇ three · up ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"up"}}
  ☇ to ⮕ null
- ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
+ ☇ tree · voice ⮕ null
  ☇ twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"down"}}
  ☇ twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
  ☇ two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
@@ -201,6 +201,7 @@
  ☇ vim ⮕ null
  ☇ wake up ⮕ null
  ☇ wake · up ⮕ {"handler":"noop"}
+ ☇ who ⮕ null
  ☇ window · close ⮕ {"handler":"i3","command":"kill"}
  ☇ window · closes ⮕ null
  ☇ window · down · window · close ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"kill"}]}
@@ -219,4 +220,8 @@
 vim ☇ escape ⮕ <escape>
 vim ☇ insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
 vim ☇ open ⮕ "o"
+vim ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
 vim+vim-insert ☇ escape ⮕ <escape>
+vim+vim-insert ☇ node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
+vim+vim-insert ☇ node ⮕ null
+vim+vim-insert ☇ require · FS ⮕ null

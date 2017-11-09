@@ -140,13 +140,14 @@ JsExpr "<js>" = JsExprElement+ {
 JsExprElement
   = !('{' / '"' / "'" / '`' / ';' / LineTerminator) SourceCharacter
   / JsString
-  / JsCurlyBraced;
+  / JsCurlyBraced
+  / JsRoundBraced;
 
-JsCurlyBraced "<js block>"
-  = '{' chars:ObjectCharacter* '}' { return text(); };
+JsCurlyBraced = '{' chars:CurlyBracedCharacter* '}' { return text(); };
+JsRoundBraced = '(' chars:RoundBracedCharacter* ')' { return text(); };
 
-ObjectCharacter
-  = !('}') SourceCharacter;
+CurlyBracedCharacter = !('}') SourceCharacter;
+RoundBracedCharacter = !(')') SourceCharacter;
 
 JsString "string"
   = StringLiteral
