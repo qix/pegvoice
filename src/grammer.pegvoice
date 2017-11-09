@@ -44,6 +44,9 @@
     }
     return multi(...keys.map(name => key(name)));
   }
+  function typeLine(keys) {
+    return multi(type(keys), key('enter'));
+  }
   function extractList(list, index) {
     return list.map(element => element[index]);
   }
@@ -76,7 +79,8 @@ viminsert => noop();
 console log => type('console.log(');
 arrow function => multi(type(' => '), key('shift-['), key('enter'));
 arrow => type(' => ');
-call :word => multi(type(`${word}()`), key('left'));
+call :ident => multi(type(`${ident}()`), key('left'));
+node require :ident => typeLine(`const ${ident} = require('${ident}');`);
 string :keys => type("'" + keys + "'");
 
 endvim => noop();
@@ -128,7 +132,11 @@ _keys = head:_key "."? tail:(_ _key "."?)* {
   return [head, ...extractList(tail, 1)];
 }
 
-_word = [a-z]+ {
+_ident = word:_word {
+  return word.toLowerCase();
+}
+
+_word = [A-Za-z]+ {
   return text();
 }
 _key "<key>" = name:(
@@ -146,6 +154,7 @@ _key "<key>" = name:(
 }
 
 _letter = capital:(capital _)? letter:([a-zA-Z]) (
+  "\\letter\\letter [A-Z]" /
   "\\letter" /
   "\\pronoun" /
   ("\\spelling-letter\\letter " [A-Z]) /
@@ -156,7 +165,7 @@ _letter = capital:(capital _)? letter:([a-zA-Z]) (
     capital = true;
   }
 
-  return capital ? letter.toUpperCase() : letter;
+  return capital ? letter.toUpperCase() : letter.toLowerCase();
 };
 
 

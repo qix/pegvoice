@@ -125,7 +125,23 @@ SingleWord = [a-z]+ {
     }
 */
 
-JsExpr = [^;]+ { return text(); }
+/*** @TODO: This is hard :/   */
+JsExpr "<js>" = JsExprElement+ {
+  return text();
+}
+
+JsExprElement
+  = !('"' / "'" / '`' / ';') SourceCharacter
+  / JsString;
+
+JsString "string"
+  = StringLiteral
+  / '`' chars:BacktickStringCharacter* '`' { return chars.join(""); }
+
+BacktickStringCharacter
+  = !('`' / "\\" / LineTerminator) SourceCharacter { return text(); }
+  / "\\" sequence:EscapeSequence { return sequence; }
+  / LineContinuation
 
 // ==============
 //

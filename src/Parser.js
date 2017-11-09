@@ -232,14 +232,32 @@ class Parser {
     this.parser = buildParser();
   }
 
+  tryParse(transcript) {
+    try {
+      return this.parse(transcript);
+    } catch (err) {
+      if (err instanceof ParseError) {
+        console.error(`Parse error: ${err}`);
+        return null;
+      }
+      throw err;
+    }
+  }
+
   parse(transcript) {
     try {
       return this.parser.parse(transcript);
     } catch (err) {
-      console.error(`Parse error: ${err}`);
-      return null;
+      if (err instanceof this.parser.SyntaxError) {
+        throw new ParseError({
+          location: err.location || null,
+        }, err.message);
+      }
+      throw err;
     }
   }
 }
+
+Parser.ParseError = ParseError;
 
 module.exports = Parser;

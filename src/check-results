@@ -1,0 +1,62 @@
+#!/usr/bin/env node
+'use strict';
+
+const doc = `
+Usage:
+  check-results [--write]
+
+Options:
+  --debug-log=<filename>     Add a debug log
+  --result-log=<filename>    Log results to a file
+`;
+
+const {docopt} = require('docopt');
+const chalk = require('chalk');
+
+const options = docopt(doc);
+const Parser = require('./Parser');
+
+const fs = require('fs');
+
+const {
+  rightArrow,
+  wordSeperator,
+} = require('./symbols');
+
+const parser = new Parser();
+
+const results = fs.readFileSync('results.sample').toString('utf-8');
+let regenerated = '';
+
+
+for (const oldLine of results.split('\n')) {
+  if (!oldLine) {
+    continue;
+  }
+
+  const [transcript, oldResult] = oldLine.split(rightArrow);
+
+  let newResult;
+  try {
+    newResult = JSON.stringify(parser.parse(transcript));
+  } catch (err) {
+    if (err instanceof Parser.ParseError) {
+      newResult = 'null';
+    } else {
+      throw err;
+    }
+  }
+
+  const newLine = `${transcript}${rightArrow}${newResult}`;
+
+  if (newLine !== oldLine) {
+    console.log(`${transcript}${rightArrow}${chalk.red(oldResult)}`);
+    console.log(`${transcript}${rightArrow}${chalk.green(newResult)}`);
+  }
+
+  regenerated += `${newLine}\n`;
+}
+
+if (options['--write']) {
+  fs.writeFileSync('results.sample', regenerated);
+}

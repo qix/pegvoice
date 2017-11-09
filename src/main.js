@@ -10,7 +10,8 @@ Usage:
   pegvoice --command=<command> [options]
 
 Options:
-  --debug-log=<filename> Add a debug log
+  --debug-log=<filename>     Add a debug log
+  --result-log=<filename>    Log results to a file
 `;
 
 const Commander = require('./Commander');
@@ -19,8 +20,13 @@ const Parser = require('./Parser');
 const binarySplit = require('binary-split');
 const bunyan = require('bunyan');
 const {docopt} = require('docopt');
+const fs = require('fs');
+
 const http = require('http');
-const {wordSeperator} = require('./symbols');
+const {
+  rightArrow,
+  wordSeperator,
+} = require('./symbols');
 
 const options = docopt(doc);
 
@@ -77,6 +83,13 @@ if (options['--debug-log']) {
   });
 }
 
+let resultLog = null;
+if (options['--result-log']) {
+  resultLog = fs.createWriteStream(options['--result-log'], {
+    flags : 'a',
+  });
+}
+
 const log = bunyan.createLogger({
   name: 'pegvoice',
   streams: bunyanStreams,
@@ -96,11 +109,21 @@ function executeTranscripts(transcripts) {
         console.log('Execute: %s => %j', transcript, command);
         executed = true;
         commander.execute(command);
+
+        if (resultLog) {
+          const commandJson = JSON.stringify(command);
+          resultLog.write(`${transcript}${rightArrow}${commandJson}\n`);
+        }
       }
     }
   }
 
-  console.log('No transcripts matched!');
+  if (!executed && transcripts.length) {
+    if (resultLog) {
+      resultLog.write(`${transcripts[0]}${rightArrow}null\n`);
+    }
+    console.log('No transcripts matched!');
+  }
 }
 
 function kaldiParser(line) {
