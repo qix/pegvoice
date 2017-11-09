@@ -50,7 +50,7 @@ SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)* EOS {
 }
 
 Words = head:Word tail:(__ Word)* {
-  return [head, ...extractList(tail, 1)].map(word => word.word);
+  return [head, ...extractList(tail, 1)].map(word => word.word).join(' ');
 }
 
 VoiceRule
@@ -86,25 +86,34 @@ VoiceCode
     };
 }
 
-Match = PegMatch / WordMatch;
+Match = match:(PegMatch / WordMatch) optional:"?"? {
+  return {
+    ...match,
+    optional: !!optional,
+  };
+}
 
-PegMatch = name:Identifier? ":" identifier:Identifier optional:"?"? {
+PegMatch = name:Identifier? ":" identifier:Identifier {
   return {
     type: 'pegmatch',
     identifier,
     name: name || identifier,
-    optional: !!optional,
   };
 }
 
-WordMatch = word:Word optional:"?"? {
+
+WordMatch = Word;
+
+Word = SingleWord / WordString;
+
+WordString = string:StringLiteral {
   return {
-    ...word,
-    optional: !!optional,
+    type: 'word',
+    word: string,
   };
 }
 
-Word = [a-z]+ {
+SingleWord = [a-z]+ {
   return {
     type: 'word',
     word: text(),

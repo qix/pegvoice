@@ -18,6 +18,11 @@
     };
   }
   function multi(...commands) {
+    if (commands.length === 0) {
+      return noop();
+    } else if (commands.length === 1) {
+      return commands[0];
+    }
     return {
       handler: 'multi',
       commands,
@@ -29,32 +34,15 @@
       key: name,
     };
   }
-  function lowerKey(key) {
-    const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\ZzV{[}]><~`';
-    const index = map.indexOf(key);
-    if (index >= 0 && index % 2 === 0) {
-      return map.charAt(index + 1);
-    } else {
-      return key.toLowerCase();
-    }
-  }
 
   function type(keys) {
     const names = {'\n': 'enter'};
     if (typeof keys === 'string') {
       keys = keys.split('').map(key => {
-        if (names[key]) {
-          return names[key];
-        } else {
-          const lower = lowerKey(key);
-          return (lower !== key ? 'shift-' : '') + lower;
-        }
+        return names[key] || key;
       });
     }
-    return {
-      handler: 'multi',
-      commands: keys.map(name => key(name)),
-    };
+    return multi(...keys.map(name => key(name)));
   }
   function extractList(list, index) {
     return list.map(element => element[index]);
@@ -88,7 +76,8 @@ viminsert => noop();
 console log => type('console.log(');
 arrow function => multi(type(' => '), key('shift-['), key('enter'));
 arrow => type(' => ');
-string :keyNames => type("'" + keyNames + "'");
+call :word => multi(type(`${word}()`), key('left'));
+string :keys => type("'" + keys + "'");
 
 endvim => noop();
 
@@ -113,16 +102,16 @@ i three ...{
   screen :i3screen => i3(`workspace ${i3screen}`);
 }
 
-key k:keyName => key(k);
+key k:key => key(k);
 
-alt k:keyName => key(`alt-${k}`);
-control alt k:keyName => key(`ctrl-alt-${k}`);
-control k:keyName => key(`ctrl-${k}`);
-shift k:keyName => key(`shift-${k}`);
+alt k:key => key(`alt-${k}`);
+control alt k:key => key(`ctrl-alt-${k}`);
+control k:key => key(`ctrl-${k}`);
+shift k:key => key(`shift-${k}`);
 
-type :keyNames => type(keyNames);
+type :keys => type(keys);
 
-words string:x_string => {
+words :string => {
   handler: 'type',
   string,
 };
@@ -132,45 +121,49 @@ words string:x_string => {
   DEFINITIONS
 ***/
 
-direction = (up / down / left / right);
-i3screen = number;
+_direction = (up / down / left / right);
+_i3screen = _number;
 
-keyNames = head:keyName _ "."? _ tail:(keyName _ "."? _ )* {
-  return [head, ...extractList(tail, 0)];
+_keys = head:_key "."? tail:(_ _key "."?)* {
+  return [head, ...extractList(tail, 1)];
 }
 
-keyName "<key>" = name:(
+_word = [a-z]+ {
+  return text();
+}
+_key "<key>" = name:(
   enter /
   escape /
   space /
   backspace /
+  underscore /
   tab /
-  direction /
-  letter /
-  digit
+  _direction /
+  _digit /
+  _letter
 ) {
-  return name;
+  return `${name}`;
 }
 
-spell up;
-spell down;
-spell left;
-spell right;
-spell tab;
-spell space;
-spell key / he;
-spell backspace / back space / that space;
-spell enter / inter / into;
-spell escape / escaped;
-spell window / windows;
+_letter = capital:(capital _)? letter:([a-zA-Z]) (
+  "\\letter" /
+  "\\pronoun" /
+  ("\\spelling-letter\\letter " [A-Z]) /
+  ("\\spelling-letter\\" [A-Z]) /
+  ("\\uppercase-letter\\capital " [A-Z])
+)? {
+  if (text().includes('uppercase-letter')) {
+    capital = true;
+  }
 
-number = hundred_number
-
-letter = letter:([a-zA-Z]) ("\\letter" / "\\pronoun")? {
-  return letter;
+  return capital ? letter.toUpperCase() : letter;
 };
 
-hundred_number = hundred:(ten_number _ "hundred" (_ "and")? _)? ten:ten_number? {
+
+
+_number = _number_hundred;
+
+_number_hundred = hundred:(_number_ten _ "hundred" (_ "and")? _)? ten:_number_ten? {
   let number = 0;
   if (hundred) {
     number += hundred[0] * 100;
@@ -179,9 +172,9 @@ hundred_number = hundred:(ten_number _ "hundred" (_ "and")? _)? ten:ten_number? 
 }
 
 
-ten_number = ten_fixed / ten_grouped / digit;
+_number_ten = _number_ten_word / _number_ten_combo / _digit;
 
-ten_fixed = word:(
+_number_ten_word = word:(
     "ten"i / "eleven"i / "twelve"i / "thirteen"i / "fourteen"i / "fifteen"i /
     "sixteen"i / "seventeen"i / "eighteen"i / "nineteen"i
 ) {
@@ -199,10 +192,10 @@ ten_fixed = word:(
   }[word.toLowerCase()];
 };
 
-ten_grouped = word:(
+_number_ten_combo = word:(
   "ten"i / "twenty"i / "thirty"i / "fourty"i / "fifty"i /
   "sixty"i / "seventy"i / "eighty"i / "ninety"i
-) digit:(_ digit)? {
+) digit:(_ _digit)? {
   return {
     twenty: 20,
     thirty: 30,
@@ -212,12 +205,12 @@ ten_grouped = word:(
     seventy: 70,
     eighty: 80,
     ninety: 90,
-  }[word.toLowerCase()] + (extractOptional(digit, 1) || 0);
+  }[word.toLowerCase()] + (extractOptional(_digit, 1) || 0);
 }
 
 
 
-digit = word:(
+_digit = word:(
   "one"i / "two"i / "three"i / "four"i / "five"i /
   "six"i / "seven"i / "eight"i / "nine"i / "naught"i / "zero"i /
   "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "0"
@@ -237,21 +230,20 @@ digit = word:(
   }[word.toLowerCase()] || word;
 }
 
-x_string = chars:(.*) {
+_string = chars:(.*) {
   return chars.join('');
 }
 
-WhiteSpace "whitespace"
-  = "\t"
-  / "\n"
-  / "\r"
-  / " "
-
-_ "whitespace" = (WhiteSpace)*;
-
-/*
-c_the = "the" _ command:start {
-  return command;
-}
-*/
-
+spell up;
+spell down;
+spell left;
+spell right;
+spell tab;
+spell space;
+spell key / he;
+spell backspace / back space / that space;
+spell enter / inter / into;
+spell escape / escaped;
+spell window / windows;
+spell underscore / "_" / "_\\underscore\\underscore";
+spell capital;
