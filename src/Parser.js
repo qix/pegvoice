@@ -124,23 +124,25 @@ class PegGenerator {
 
     const pegMatch = match.map((expr, idx) => {
       let pegCode = '';
+      let prefix = '';
       if (expr.type === 'word') {
         this.words.add(expr.word);
         pegCode = expr.word;
       } else if (expr.type === 'pegmatch') {
-        pegCode = `${expr.name}:_${expr.identifier}`;
+        prefix = `${expr.name}:`;
+        pegCode = `_${expr.identifier}`;
       } else {
         throw new ParseError(ast, `Unknown ast: ${ast.type}`);
       }
 
       if (idx === 0) {
-        invariant(!expr.optional, 'Not allowed');
-        return pegCode;
+        invariant(!expr.optional, 'Not allowed optional first word');
+        return `${prefix}${pegCode}`;
       } else {
         if (expr.optional) {
-          return ` (_ ${pegCode})?`;
+          return ` ${prefix}(_ ${pegCode} &_)?`;
         } else {
-          return ` _ ${pegCode}`;
+          return ` _ ${prefix}${pegCode}`;
         }
       }
     }).join('');
@@ -208,7 +210,7 @@ class PegGenerator {
         }
       }
       rv += (`
-      _ = "${wordSeperator}";
+      _ = "${wordSeperator}" / __eof__;
       __command__ = ${ruleNames.join(' / ')};
       __grammer__ = head:__command__ tail:(_ __command__)* {
         if (!tail.length) {
@@ -219,6 +221,7 @@ class PegGenerator {
           commands: [head, ...tail.map(match => match[1])],
         };
       }
+      __eof__ = !.;
       `);
     } else {
       throw new ParseError(ast, `Unknown ast: ${ast.type}`);

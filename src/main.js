@@ -101,8 +101,9 @@ function executeTranscripts(transcripts) {
   let executed = false;
   for (let transcript of transcripts) {
     console.log('Testing: %s', transcript);
-    const command = parser.parse(transcript);
-    if (command) {
+
+    try {
+      const command = parser.parse(transcript);
       if (executed) {
         console.log('Skipping: %s => %j', transcript, command);
       } else {
@@ -114,6 +115,12 @@ function executeTranscripts(transcripts) {
           const commandJson = JSON.stringify(command);
           resultLog.write(`${transcript}${rightArrow}${commandJson}\n`);
         }
+      }
+    } catch (err) {
+      if (err instanceof Parser.ParseError) {
+        console.error(err.toString());
+      } else {
+        throw err;
       }
     }
   }

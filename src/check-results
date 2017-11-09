@@ -3,7 +3,7 @@
 
 const doc = `
 Usage:
-  check-results [--write]
+  check-results [--write] [--sorted]
 
 Options:
   --debug-log=<filename>     Add a debug log
@@ -26,7 +26,7 @@ const {
 const parser = new Parser();
 
 const results = fs.readFileSync('results.sample').toString('utf-8');
-let regenerated = '';
+const newResults = [];
 
 
 for (const oldLine of results.split('\n')) {
@@ -48,15 +48,18 @@ for (const oldLine of results.split('\n')) {
   }
 
   const newLine = `${transcript}${rightArrow}${newResult}`;
+  newResults.push(newLine);
 
   if (newLine !== oldLine) {
     console.log(`${transcript}${rightArrow}${chalk.red(oldResult)}`);
     console.log(`${transcript}${rightArrow}${chalk.green(newResult)}`);
   }
-
-  regenerated += `${newLine}\n`;
 }
 
 if (options['--write']) {
-  fs.writeFileSync('results.sample', regenerated);
+  let output = newResults;
+  if (options['--sorted']) {
+    output = Array.from(new Set(output)).sort();
+  }
+  fs.writeFileSync('results.sample', output.join('\n') + '\n');
 }

@@ -33,6 +33,7 @@ function executeCommand(command) {
       let split = props.key.split('-');
       let key = split.pop();
       key = {
+        semicolon: ';',
         underscore: '_',
       }[key] || key;
 
