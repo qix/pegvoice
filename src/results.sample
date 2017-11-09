@@ -1,15 +1,26 @@
 's\s\s ⮕ null
+)\right-parenthesis\close bracket ⮕ null
+)\right-parenthesis\right bracket · right ⮕ null
 ;\semicolon\semicolon ⮕ null
 D\uppercase-letter\capital D ⮕ null
 \new-line\new line ⮕ null
-append · end · key · ;\semicolon\semicolon ⮕ "A" <semicolon>
+\no-space\no space ⮕ null
+acre ⮕ null
+and · \no-space\no space ⮕ null
+append · end · key · ;\semicolon\semicolon ⮕ "A;"
 append · end ⮕ "A"
+are ⮕ null
 arrow ⮕ " => "
 bitch ⮕ null
 bold · bottom ⮕ null
+brightness · ten ⮕ null
+call · by · three ⮕ null
+call · function ⮕ "function()" <left>
 call · hello ⮕ "hello()" <left>
 call · type ⮕ "type()" <left>
 capital · and ⮕ null
+close · buffer ⮕ ":bd" <enter>
+close · window ⮕ null
 control · C\letter ⮕ <ctrl-c>
 control · C\letter\letter C ⮕ null
 control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
@@ -17,15 +28,21 @@ control · W\letter ⮕ <ctrl-w>
 delete · line ⮕ "dd"
 delete · word ⮕ "dw"
 didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
+do · Windows · search ⮕ null
 down · down · down · down ⮕ <down> <down> <down> <down>
+down · down · down ⮕ <down> <down> <down>
+down · down · into ⮕ <down> <down> <enter>
 down · ten ⮕ null
 down · twenty ⮕ null
 down ⮕ <down>
+echo ⮕ null
 escape · delete · line ⮕ <escape> "dd"
 escape ⮕ <escape>
+find · main ⮕ "/main"
 find · switch ⮕ "/switch"
 find ⮕ "/"
 five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
+for ⮕ null
 go to sleep ⮕ null
 go · to · bottom ⮕ "G"
 go · to · top ⮕ "gg"
@@ -39,17 +56,33 @@ insert ⮕ "i"
 into ⮕ <enter>
 is ⮕ null
 it · nine · thousand · to · say ⮕ null
+it ⮕ null
+jump · backwards ⮕ null
+just ⮕ null
+key · at · tree · voice ⮕ null
 key · capital · and ⮕ null
 key · capital · in ⮕ null
+key · voice ⮕ null
 keys · ;\semicolon\semicolon ⮕ null
 left ⮕ <left>
+m\spelling-letter\M ⮕ null
+move · window · left ⮕ null
+n\spelling-letter\November ⮕ null
 node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
 node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
+of ⮕ null
 on ⮕ null
 one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
 open · above ⮕ "O"
+open · editor ⮕ {"handler":"i3","command":"exec gvim"}
 open · escape ⮕ "o" <escape>
+open · firm ⮕ null
+open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
+open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
+open · them ⮕ null
 open ⮕ "o"
+opens ⮕ null
+opinion · some ⮕ null
 or · bottom ⮕ null
 page · down ⮕ <pagedown>
 page · up ⮕ <pageup>
@@ -57,11 +90,22 @@ paste · line ⮕ null
 paste ⮕ "p"
 prepend ⮕ null
 redo ⮕ <ctrl-r>
+right · into ⮕ <right> <enter>
+right · right · right · right ⮕ <right> <right> <right> <right>
+right · right ⮕ <right> <right>
+right · wait · right · white · grout · weight ⮕ null
 right ⮕ <right>
 safe ⮕ ":w" <enter>
 save ⮕ ":w" <enter>
+screen · for ⮕ null
+screen · four ⮕ {"handler":"i3","command":"workspace 4"}
+screen · off ⮕ null
 screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
+screen · one\pronoun ⮕ {"handler":"i3","command":"workspace 1"}
 screen · three ⮕ {"handler":"i3","command":"workspace 3"}
+screen · two ⮕ {"handler":"i3","command":"workspace 2"}
+showed · up ⮕ null
+shut · up ⮕ null
 sky · phone ⮕ null
 slap · it ⮕ <enter>
 slap · slap ⮕ <enter> <enter>
@@ -72,35 +116,56 @@ strengths · /\slash\slash ⮕ null
 string · ABC ⮕ null
 string · X\letter ⮕ <'> "x" <'>
 string · hello ⮕ null
+string · kill ⮕ null
 string ⮕ null
 strings · /\slash\slash ⮕ null
 switch · buffer ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"ctrl-w"}}
 switch ⮕ null
+tab · one ⮕ <ctrl-1>
+ten · lightweight · one\number · ten · right ⮕ null
+ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
 ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
+the ⮕ null
 three · up ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"up"}}
+to ⮕ null
+tree · voice ⮕ ":NERDTree /home/josh/voice-code/pegvoice" <enter>
 twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"down"}}
 twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
 two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
 two · up ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"up"}}
+type · CLOS ⮕ null
 type · F\letter · I\pronoun · N\letter · D\letter ⮕ "find"
+type · HEI · will · all ⮕ null
 type · IM · IT ⮕ null
 type · I\pronoun · T\letter ⮕ "it"
 type · STA · RT ⮕ null
 type · T\letter · A\letter ⮕ "ta"
 type · X\letter · X\letter ⮕ "xx"
-type · _\underscore\underscore · _\underscore\underscore ⮕ <underscore> <underscore>
+type · _\underscore\underscore · _\underscore\underscore ⮕ "__"
 type · capital · d\spelling-letter\D ⮕ "D"
+type · close ⮕ null
 type · hello ⮕ null
+type · o\spelling-letter\O ⮕ "o"
 type · s\spelling-letter\S ⮕ "s"
-type · semicolon ⮕ <semicolon>
+type · semicolon ⮕ ";"
 type · u\spelling-letter\U ⮕ "u"
 undo ⮕ "u"
 up · a\determiner · hundred ⮕ null
 up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
 up · twenty ⮕ null
+up · up · up ⮕ <up> <up> <up>
+up · up ⮕ <up> <up>
 up ⮕ <up>
+vim ⮕ {"handler":"noop"}
 wake up ⮕ null
+wake · up ⮕ {"handler":"noop"}
+window · closes ⮕ null
+window · down · window · move · left ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus down"},{"handler":"i3","command":"move left"}]}
 window · down ⮕ {"handler":"i3","command":"focus down"}
+window · float ⮕ {"handler":"i3","command":"floating toggle"}
 window · left ⮕ {"handler":"i3","command":"focus left"}
+window · right ⮕ {"handler":"i3","command":"focus right"}
+word · close ⮕ null
+words · close ⮕ {"handler":"type","string":"close"}
 words · hello ⮕ {"handler":"type","string":"hello"}
 yanking · on ⮕ null

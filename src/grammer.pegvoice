@@ -55,19 +55,38 @@
   function extractList(list, index) {
     return list.map(element => element[index]);
   }
-  function extractOptional(optional, index) {
-    return optional ? optional[index] : null;
+  function extractOptional(optional, index, def=null) {
+    return optional ? optional[index] : def;
+  }
+  function optional(v, def=null) {
+    return extractOptional(v, 1, def);
   }
 }
 
 wake up => noop();
 go to sleep => noop();
 
-vim => noop();
+page down => key('pagedown');
+page up => key('pageup');
+window ...{
+  float => i3('floating toggle');
+  :direction => i3(`focus ${direction}`);
+  move :direction => i3(`move ${direction}`);
+  close => i3('kill');
+  move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
+}
+:direction => key(direction);
+screen :i3screen => i3(`workspace ${i3screen}`);
 
+open terminal :folder? => i3(`exec gnome-terminal --hide-menubar --working-directory="${optional(folder, '/home/josh')}"`);
+open editor => i3(`exec gvim`);
+
+vim => noop();
 open above => type('O');
 open => type('o');
 above => type('O');
+
+tree :folder => vimex(`NERDTree ${folder}`);
 
 append end => type('A');
 append => type('a');
@@ -80,12 +99,23 @@ go to? ...{
 
 delete ...{
   line => type('dd');
-  word => type('dw');
+  dir:vim_direction => type(`d${dir}`);
 }
 yank ...{
   line => type('yy');
-  word => type('yw');
+  dir:vim_direction => type(`y${dir}`);
 }
+
+_vim_direction = inner:(inner _)? dir:(word / _vim_until) {
+  return (inner ? 'i' : '') + ({
+    word: 'w',
+  }[dir] || dir);
+}
+
+_vim_until = until code:_ascii {
+  return `t${code}`;
+}
+
 paste => type('p');
 undo => type('u');
 redo => key('ctrl-r');
@@ -100,7 +130,8 @@ call :ident => multi(type(`${ident}()`), key('left'));
 node require :ident => typeLine(`const ${ident} = require('${ident}');`);
 string :keys => type("'" + keys + "'");
 switch buffer => repeat(2, key('ctrl-w'));
-find :code? => type(`/${extractOptional(code, 1) || ''}`);
+close buffer => vimex('bd');
+find :code? => type(`/${optional(code, '')}`);
 
 endvim => noop();
 
@@ -108,21 +139,12 @@ slap it? => key('enter');
 enter => key('enter');
 escape => key('escape');
 
+chrome => noop();
 tab :number => key(`ctrl-${number}`);
 
-page down => key('pagedown');
-page up => key('pageup');
 
-window ...{
-  float => i3('floating toggle');
-  :direction => i3(`focus ${direction}`);
-  move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
-}
-
-:direction => key(direction);
 :number :direction => repeat(number, key(direction));
 
-screen :i3screen => i3(`workspace ${i3screen}`);
 
 i three ...{
   screen :i3screen => i3(`workspace ${i3screen}`);
@@ -148,6 +170,9 @@ words :string => {
   DEFINITIONS
 ***/
 
+_folder = voice {
+  return "/home/josh/voice-code/pegvoice";
+}
 _direction = (up / down / left / right);
 _i3screen = _number;
 
@@ -167,19 +192,28 @@ _word = [A-Za-z]+ {
   return text();
 }
 
-_key "<key>" = name:(
-  enter /
-  escape /
+_key "<key>" 
+  = enter
+  / escape
+  / backspace
+  / _direction
+  / _ascii 
+
+_ascii "<ascii>" = char:(
   space /
-  backspace /
   underscore /
   semicolon /
+  dash /
   tab /
-  _direction /
   _digit /
   _letter
 ) {
-  return `${name}`;
+  return {
+    underscore: '_',
+    space: ' ',
+    semicolon: ';',
+    tab: '\t',
+  }[char] || `${char}`;
 }
 
 _letter = capital:(capital _)? letter:([a-zA-Z]) (
@@ -272,18 +306,24 @@ _string = chars:(.*) {
   return chars.join('');
 }
 
-spell up;
-spell down;
-spell left;
-spell right;
-spell tab;
-spell save / safe;
-spell space;
-spell key / he;
 spell backspace / back space / that space;
+spell capital;
+spell close / closed;
+spell dash / "-";
+spell down;
 spell enter / inter / into;
 spell escape / escaped;
-spell window / windows;
-spell underscore / "_" / "_\\underscore\\underscore";
-spell capital;
+spell inner;
+spell key / he;
+spell left;
+spell right;
+spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
+spell space;
+spell tab;
+spell underscore / "_" / "_\\underscore\\underscore";
+spell until;
+spell up;
+spell window / windows;
+spell voice;
+spell word;

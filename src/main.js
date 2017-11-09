@@ -43,12 +43,14 @@ if (options['--kaldi']) {
 }
 
 if (options['--command']) {
-  executeTranscript(options['--command'].trim());
+  executeTranscripts([options['--command'].trim()]);
 }
 
 if (options['--stdin']) {
   process.stdin.pipe(binarySplit()).on('data', line => {
-    executeTranscript(line.toString('utf-8').trim());
+    executeTranscripts([
+      line.toString('utf-8').trim().split(' ').join(wordSeperator),
+    ]);
   });
 }
 
@@ -65,8 +67,6 @@ if (options['--server']) {
       if (transcripts.length) {
         console.log('Found %d options from dragon', transcripts.length);
         executeTranscripts(transcripts);
-      } else {
-        console.log('Found no options from dragon');
       }
 
       res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -100,9 +100,8 @@ const parser = new Parser();
 
 function executeTranscripts(transcripts) {
   let executed = false;
+  let first = true;
   for (let transcript of transcripts) {
-    console.log('Testing: %s', transcript);
-
     try {
       const command = parser.parse(transcript);
       if (executed) {
@@ -118,12 +117,17 @@ function executeTranscripts(transcripts) {
         }
       }
     } catch (err) {
+      console.log('Failed: %s => null', transcript);
+
       if (err instanceof Parser.ParseError) {
-        console.error(err.toString());
+        if (first) {
+          console.error(err.toString());
+        }
       } else {
         throw err;
       }
     }
+    first = false;
   }
 
   if (!executed && transcripts.length) {

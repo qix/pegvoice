@@ -46,7 +46,6 @@ function renderCommand(command) {
     return renderKeys([command.key]);
   } else if (command.handler === 'multi') {
     const cmdList = flattenCommands(command.commands);
-    console.log('SAW', cmdList);
     const allSame = cmdList.every(cmd => {
       return cmd.handler === cmdList[0].handler;
     });

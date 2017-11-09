@@ -211,7 +211,7 @@ class PegGenerator {
       }
       rv += (`
       _ = "${wordSeperator}" / __eof__;
-      __command__ = ${ruleNames.join(' / ')};
+      __command__ "<command>" = ${ruleNames.join(' / ')};
       __grammer__ = head:__command__ tail:(_ __command__)* {
         if (!tail.length) {
           return head;
