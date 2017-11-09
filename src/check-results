@@ -12,6 +12,7 @@ Options:
 
 const {docopt} = require('docopt');
 const chalk = require('chalk');
+const renderCommand = require('./renderCommand');
 
 const options = docopt(doc);
 const Parser = require('./Parser');
@@ -38,7 +39,7 @@ for (const oldLine of results.split('\n')) {
 
   let newResult;
   try {
-    newResult = JSON.stringify(parser.parse(transcript));
+    newResult = renderCommand(parser.parse(transcript));
   } catch (err) {
     if (err instanceof Parser.ParseError) {
       newResult = 'null';

@@ -2,74 +2,75 @@
 ;\semicolon\semicolon ⮕ null
 D\uppercase-letter\capital D ⮕ null
 \new-line\new line ⮕ null
-append · end · key · ;\semicolon\semicolon ⮕ {"handler":"multi","commands":[{"handler":"key","key":"A"},{"handler":"key","key":"semicolon"}]}
-append · end ⮕ {"handler":"key","key":"A"}
-arrow ⮕ {"handler":"multi","commands":[{"handler":"key","key":" "},{"handler":"key","key":"="},{"handler":"key","key":">"},{"handler":"key","key":" "}]}
+append · end · key · ;\semicolon\semicolon ⮕ "A" <semicolon>
+append · end ⮕ "A"
+arrow ⮕ " => "
 bitch ⮕ null
 bold · bottom ⮕ null
-call · hello ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"},{"handler":"key","key":"("},{"handler":"key","key":")"}]},{"handler":"key","key":"left"}]}
-call · type ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"t"},{"handler":"key","key":"y"},{"handler":"key","key":"p"},{"handler":"key","key":"e"},{"handler":"key","key":"("},{"handler":"key","key":")"}]},{"handler":"key","key":"left"}]}
+call · hello ⮕ "hello()" <left>
+call · type ⮕ "type()" <left>
 capital · and ⮕ null
-control · C\letter ⮕ {"handler":"key","key":"ctrl-c"}
+control · C\letter ⮕ <ctrl-c>
 control · C\letter\letter C ⮕ null
-control · W\letter · control · W\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"ctrl-w"},{"handler":"key","key":"ctrl-w"}]}
-control · W\letter ⮕ {"handler":"key","key":"ctrl-w"}
-delete · line ⮕ {"handler":"multi","commands":[{"handler":"key","key":"d"},{"handler":"key","key":"d"}]}
-delete · word ⮕ {"handler":"multi","commands":[{"handler":"key","key":"d"},{"handler":"key","key":"w"}]}
+control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
+control · W\letter ⮕ <ctrl-w>
+delete · line ⮕ "dd"
+delete · word ⮕ "dw"
 didn't · get · a\determiner · a\determiner · in · better · names · with · \new-line\next line · than · eleven · thousand · nine ⮕ null
-down · down · down · down ⮕ {"handler":"multi","commands":[{"handler":"key","key":"down"},{"handler":"key","key":"down"},{"handler":"key","key":"down"},{"handler":"key","key":"down"}]}
+down · down · down · down ⮕ <down> <down> <down> <down>
 down · ten ⮕ null
 down · twenty ⮕ null
-down ⮕ {"handler":"key","key":"down"}
-escape · delete · line ⮕ {"handler":"multi","commands":[{"handler":"key","key":"escape"},{"handler":"multi","commands":[{"handler":"key","key":"d"},{"handler":"key","key":"d"}]}]}
-escape ⮕ {"handler":"key","key":"escape"}
-find · switch ⮕ {"handler":"multi","commands":[{"handler":"key","key":"/"},{"handler":"key","key":"s"},{"handler":"key","key":"w"},{"handler":"key","key":"i"},{"handler":"key","key":"t"},{"handler":"key","key":"c"},{"handler":"key","key":"h"}]}
-find ⮕ {"handler":"key","key":"/"}
+down ⮕ <down>
+escape · delete · line ⮕ <escape> "dd"
+escape ⮕ <escape>
+find · switch ⮕ "/switch"
+find ⮕ "/"
 five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
 go to sleep ⮕ null
-go · to · bottom ⮕ {"handler":"key","key":"G"}
-go · to · top ⮕ {"handler":"multi","commands":[{"handler":"key","key":"g"},{"handler":"key","key":"g"}]}
-go · top ⮕ {"handler":"multi","commands":[{"handler":"key","key":"g"},{"handler":"key","key":"g"}]}
+go · to · bottom ⮕ "G"
+go · to · top ⮕ "gg"
+go · top ⮕ "gg"
 good · top ⮕ null
 him ⮕ null
 hundred ⮕ null
 in · better · times ⮕ null
 in · it ⮕ null
-insert ⮕ {"handler":"key","key":"i"}
-into ⮕ {"handler":"key","key":"enter"}
+insert ⮕ "i"
+into ⮕ <enter>
 is ⮕ null
 it · nine · thousand · to · say ⮕ null
 key · capital · and ⮕ null
 key · capital · in ⮕ null
 keys · ;\semicolon\semicolon ⮕ null
-left ⮕ {"handler":"key","key":"left"}
-node · require · FS ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"key","key":"o"},{"handler":"key","key":"n"},{"handler":"key","key":"s"},{"handler":"key","key":"t"},{"handler":"key","key":" "},{"handler":"key","key":"f"},{"handler":"key","key":"s"},{"handler":"key","key":" "},{"handler":"key","key":"="},{"handler":"key","key":" "},{"handler":"key","key":"r"},{"handler":"key","key":"e"},{"handler":"key","key":"q"},{"handler":"key","key":"u"},{"handler":"key","key":"i"},{"handler":"key","key":"r"},{"handler":"key","key":"e"},{"handler":"key","key":"("},{"handler":"key","key":"'"},{"handler":"key","key":"f"},{"handler":"key","key":"s"},{"handler":"key","key":"'"},{"handler":"key","key":")"},{"handler":"key","key":";"}]},{"handler":"key","key":"enter"}]}
+left ⮕ <left>
+node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
+node · require · render ⮕ "const render = require(" <'> "render" <'> ");" <enter>
 on ⮕ null
 one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
-open · above ⮕ {"handler":"key","key":"O"}
-open · escape ⮕ {"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"key","key":"escape"}]}
-open ⮕ {"handler":"key","key":"o"}
+open · above ⮕ "O"
+open · escape ⮕ "o" <escape>
+open ⮕ "o"
 or · bottom ⮕ null
-page · down ⮕ {"handler":"key","key":"pagedown"}
-page · up ⮕ {"handler":"key","key":"pageup"}
+page · down ⮕ <pagedown>
+page · up ⮕ <pageup>
 paste · line ⮕ null
-paste ⮕ {"handler":"key","key":"p"}
+paste ⮕ "p"
 prepend ⮕ null
-redo ⮕ {"handler":"key","key":"ctrl-r"}
-right ⮕ {"handler":"key","key":"right"}
-safe ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":":"},{"handler":"key","key":"w"}]},{"handler":"key","key":"enter"}]}
-save ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":":"},{"handler":"key","key":"w"}]},{"handler":"key","key":"enter"}]}
+redo ⮕ <ctrl-r>
+right ⮕ <right>
+safe ⮕ ":w" <enter>
+save ⮕ ":w" <enter>
 screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
 screen · three ⮕ {"handler":"i3","command":"workspace 3"}
 sky · phone ⮕ null
-slap · it ⮕ {"handler":"key","key":"enter"}
-slap · slap ⮕ {"handler":"multi","commands":[{"handler":"key","key":"enter"},{"handler":"key","key":"enter"}]}
-slap ⮕ {"handler":"key","key":"enter"}
+slap · it ⮕ <enter>
+slap · slap ⮕ <enter> <enter>
+slap ⮕ <enter>
 sleep ⮕ null
 spell · that · v\spelling-letter\letter V · e\spelling-letter\E · n\spelling-letter\N · f\spelling-letter\letter F ⮕ null
 strengths · /\slash\slash ⮕ null
 string · ABC ⮕ null
-string · X\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"'"},{"handler":"key","key":"x"},{"handler":"key","key":"'"}]}
+string · X\letter ⮕ <'> "x" <'>
 string · hello ⮕ null
 string ⮕ null
 strings · /\slash\slash ⮕ null
@@ -81,23 +82,24 @@ twenty · down ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","ke
 twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
 two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
 two · up ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"up"}}
-type · F\letter · I\pronoun · N\letter · D\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"f"},{"handler":"key","key":"i"},{"handler":"key","key":"n"},{"handler":"key","key":"d"}]}
+type · F\letter · I\pronoun · N\letter · D\letter ⮕ "find"
 type · IM · IT ⮕ null
-type · I\pronoun · T\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"key","key":"t"}]}
+type · I\pronoun · T\letter ⮕ "it"
 type · STA · RT ⮕ null
-type · T\letter · A\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"t"},{"handler":"key","key":"a"}]}
-type · X\letter · X\letter ⮕ {"handler":"multi","commands":[{"handler":"key","key":"x"},{"handler":"key","key":"x"}]}
-type · _\underscore\underscore · _\underscore\underscore ⮕ {"handler":"multi","commands":[{"handler":"key","key":"underscore"},{"handler":"key","key":"underscore"}]}
-type · capital · d\spelling-letter\D ⮕ {"handler":"key","key":"D"}
+type · T\letter · A\letter ⮕ "ta"
+type · X\letter · X\letter ⮕ "xx"
+type · _\underscore\underscore · _\underscore\underscore ⮕ <underscore> <underscore>
+type · capital · d\spelling-letter\D ⮕ "D"
 type · hello ⮕ null
-type · s\spelling-letter\S ⮕ {"handler":"key","key":"s"}
-type · semicolon ⮕ {"handler":"key","key":"semicolon"}
-type · u\spelling-letter\U ⮕ {"handler":"key","key":"u"}
-undo ⮕ {"handler":"key","key":"u"}
+type · s\spelling-letter\S ⮕ "s"
+type · semicolon ⮕ <semicolon>
+type · u\spelling-letter\U ⮕ "u"
+undo ⮕ "u"
 up · a\determiner · hundred ⮕ null
-up · down · up · up · down ⮕ {"handler":"multi","commands":[{"handler":"key","key":"up"},{"handler":"key","key":"down"},{"handler":"key","key":"up"},{"handler":"key","key":"up"},{"handler":"key","key":"down"}]}
+up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
 up · twenty ⮕ null
-up ⮕ {"handler":"key","key":"up"}
+up ⮕ <up>
+wake up ⮕ null
 window · down ⮕ {"handler":"i3","command":"focus down"}
 window · left ⮕ {"handler":"i3","command":"focus left"}
 words · hello ⮕ {"handler":"type","string":"hello"}

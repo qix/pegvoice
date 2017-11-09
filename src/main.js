@@ -21,6 +21,7 @@ const binarySplit = require('binary-split');
 const bunyan = require('bunyan');
 const {docopt} = require('docopt');
 const fs = require('fs');
+const renderCommand = require('./renderCommand');
 
 const http = require('http');
 const {
@@ -112,7 +113,7 @@ function executeTranscripts(transcripts) {
         commander.execute(command);
 
         if (resultLog) {
-          const commandJson = JSON.stringify(command);
+          const commandJson = renderCommand(command);
           resultLog.write(`${transcript}${rightArrow}${commandJson}\n`);
         }
       }
