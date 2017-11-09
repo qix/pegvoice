@@ -96,8 +96,13 @@ window ...{
 :direction => key(direction);
 screen :i3screen => i3(`workspace ${i3screen}`);
 
-open terminal :folder? => i3(`exec gnome-terminal --hide-menubar --working-directory="${optional(folder, '/home/josh')}"`);
-open editor :folder? => i3(`exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`);
+open terminal :folder? => i3(
+  `exec gnome-terminal --hide-menubar ` +
+  `--working-directory="${optional(folder, '/home/josh')}"`
+);
+open editor :folder? => i3(
+  `exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`
+);
 
 &vim ...{
   open above => type('O');
