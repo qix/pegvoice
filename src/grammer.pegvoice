@@ -297,33 +297,49 @@ _key "<key>"
   = enter
   / escape
   / backspace
+  / _paren
   / _direction
-  / _ascii 
+  / _ascii;
+
+_paren = char:(
+  left_curly /
+  left_paren /
+  left_square /
+  left_triangle /
+  right_curly /
+  right_paren /
+  right_square /
+  right_triangle
+) &_ {
+  return {
+    left_curly: '{',
+    left_paren: '(',
+    left_square: '[',
+    left_triangle: '<',
+    right_curly: '}',
+    right_paren: ')',
+    right_square: ']',
+    right_triangle: '>',
+  }[char];
+}
 
 _ascii "<ascii>" = char:(
   and /
   at /
   backslash /
+  backtick /
   caret /
   dash /
   dollar /
   equal /
   greater /
   hash /
-  left_curly /
-  left_paren /
-  left_square /
-  left_triangle /
   less /
   percent /
   period /
   pipe /
   plus /
   question /
-  right_curly /
-  right_paren /
-  right_square /
-  right_triangle /
   semicolon /
   slash /
   space /
@@ -331,6 +347,7 @@ _ascii "<ascii>" = char:(
   tab /
   tilde /
   underscore /
+  _paren /
   _digit /
   _phonetic_letter /
   _letter
@@ -345,20 +362,12 @@ _ascii "<ascii>" = char:(
     equal: '=',
     greater: '>',
     hash: '#',
-    left_curly: '{',
-    left_paren: '(',
-    left_square: '[',
-    left_triangle: '<',
     less: '<',
     percent: '%',
     period: '.',
     pipe: '|',
     plus: '+',
     question: '?',
-    right_curly: '}',
-    right_paren: ')',
-    right_square: ']',
-    right_triangle: '>',
     semicolon: ';',
     slash: '/',
     space: ' ',
@@ -502,24 +511,28 @@ _string = chars:(.*) {
 
 undo = ("undo"i / and _ do) { return "undo"; }
 not_equal = not _ equal { return "not_equal"; }
-left_curly = left _ curly { return "left_curly"; }
-left_paren = left _ paren { return "left_paren"; }
-left_square = left _ square { return "left_square"; }
-left_triangle = left _ triangle { return "left_triangle"; }
-right_curly = right _ curly { return "right_curly"; }
-right_paren = right _ paren { return "right_paren"; }
-right_square = right _ square { return "right_square"; }
-right_triangle = right _ triangle { return "right_triangle"; }
+left_curly    = (left _ curly    / "{" _dragon?) &_ { return "left_curly"; }
+left_paren    = (left _ paren    / "(" _dragon?) &_ { return "left_paren"; }
+left_square   = (left _ square   / "[" _dragon?) &_ { return "left_square"; }
+left_triangle = (left _ triangle / "<" _dragon?) &_ { return "left_triangle"; }
+right_curly    = (right _ curly    / "}" _dragon?) &_ { return "right_curly"; }
+right_paren    = (right _ paren    / ")" _dragon?) &_ { return "right_paren"; }
+right_square   = (right _ square   / "]" _dragon?) &_ { return "right_square"; }
+right_triangle = (right _ triangle / ">" _dragon?) &_ { return "right_triangle"; }
+
+
+_dragon = "\\" [ -~]+ &_;
 
 spell and;
 spell arrow;
 spell at;
 spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
+spell backtick / "`\\backquote\\back tick";
 spell capital;
-spell caret;
+spell caret / carrot / "^\\caret\\caret";
 spell close / closed;
-spell dash / "-";
+spell dash / "-" / "–\\dash\\dash";
 spell dictate / dictates;
 spell do;
 spell dollar;
@@ -532,7 +545,7 @@ spell equal / equals;
 spell escape / escaped;
 spell five;
 spell forward;
-spell four;
+spell four / for;
 spell greater / grader;
 spell hash;
 spell inner;
@@ -543,7 +556,7 @@ spell paren;
 spell square;
 spell triangle;
 spell less;
-spell naught;
+spell naught / nought;
 spell nine;
 spell not;
 spell number;
@@ -566,7 +579,7 @@ spell star;
 spell tab / "\\tab-key\\tab key";
 spell than;
 spell three;
-spell tilde;
+spell tilde / "~\\tilde\\tilde";
 spell triple;
 spell two;
 spell underscore / "_" / "_\\underscore\\underscore";
