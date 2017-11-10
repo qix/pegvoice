@@ -267,8 +267,8 @@ _dictate_ident = w:_ident &_ {
 _dictate_key = count:(_count _)? k:_key &_ {
   return repeat(extractOptional(count, 0, 1), key(k));
 }
-_dictate_number = number _ n:_number &_ {
-  return type(`${n}`);
+_dictate_number = number _ head:_number tail:(_ _number)* &_ {
+  return type([head, ...extractList(tail, 1)].join(''));
 }
 
 _ident = word:_word {
@@ -416,14 +416,12 @@ _number_ten_combo = word:(
   }[word.toLowerCase()] + (extractOptional(digit, 1) || 0);
 }
 
-
-
 _digit = word:(
-  "one"i / "two"i / "three"i / "four"i / "five"i /
-  "six"i / "seven"i / "eight"i / "nine"i / "naught"i / "zero"i /
+  one / two / three / four / five /
+  six / seven / eight / nine / naught / zero /
   "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "0"
 ) ("\\number" / "\\pronoun")? {
-  return {
+  const digits = {
     "one": 1,
     "two": 2,
     "three": 3,
@@ -435,7 +433,8 @@ _digit = word:(
     "nine": 9,
     "zero": 0,
     "naught": 0,
-  }[word.toLowerCase()] || word;
+  };
+  return digits.hasOwnProperty(word) ? digits[word] : parseInt(word, 10);
 }
 
 _string = chars:(.*) {
@@ -456,29 +455,40 @@ spell do;
 spell dotcom / ".com\\\\dot com";
 spell double;
 spell down;
+spell eight;
 spell enter / inter / into / "\\new-line\\new line";
 spell equals;
 spell escape / escaped;
+spell five;
 spell forward;
+spell four;
 spell inner;
 spell key / he;
 spell left;
+spell naught;
+spell nine;
 spell number;
+spell one;
 spell period / "." / ".\\dot\\dot";
 spell right;
 spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
+spell seven;
 spell single;
+spell six;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell tab / "\\tab-key\\tab key";
+spell three;
 spell triple;
+spell two;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;
 spell voice;
 spell window / windows;
 spell word;
+spell zero;
 
 spell alfa / alpha / offer;
 spell bravo / brother;
