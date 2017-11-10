@@ -159,6 +159,7 @@ words :string => {
   append end => multi(type('A'), mode('vim-insert'));
   append => multi(type('a'), mode('vim-insert'));
   insert => multi(type('i'), mode('vim-insert'));
+  change => multi(type('c'), mode('vim-insert'));
 
   paste => type('p');
   undo => type('u');
@@ -167,6 +168,7 @@ words :string => {
 
   tree :folder => vimex(`NERDTree ${folder}`);
 
+  forward c:letter => type(`f${letter}`);
   go to? ...{
     top => type('gg');
     bottom => type('G');
@@ -418,6 +420,7 @@ spell down;
 spell enter / inter / into / "\\new-line\\new line";
 spell equals;
 spell escape / escaped;
+spell forward;
 spell inner;
 spell key / he;
 spell left;

@@ -397,3 +397,228 @@ vim ☇ wake up ⮕ null
 vim ☇ x-ray · whiskey · Victor ⮕ null
 vim ☇ x-ray ⮕ null
 vim ☇ yank · line ⮕ "yy"
+ ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
+vim ☇ forward · (\left-parenthesis\open paren ⮕ null
+vim ☇ Ford · (\left-parenthesis\left paren ⮕ null
+vim ☇ Ford ⮕ null
+vim ☇ K\letter ⮕ null
+vim ☇ Ford · kilo ⮕ null
+vim ☇ switch · buffer ⮕ {"handler":"multi","commands":[{"handler":"key","key":"escape"},{"handler":"repeat","count":2,"command":{"handler":"key","key":"ctrl-w"}}]}
+vim ☇ find · voice ⮕ <escape> "/voice"
+vim ☇ slap · slap ⮕ <enter> <enter>
+vim ☇ find ⮕ <escape> "/"
+vim ☇ the ⮕ null
+vim ☇ escape ⮕ <escape>
+vim ☇ page · up ⮕ <pageup>
+vim ☇ page · down · page · down ⮕ <pagedown> <pagedown>
+vim ☇ down ⮕ <down>
+vim ☇ eight ⮕ null
+vim ☇ eight · down ⮕ {"handler":"repeat","count":8,"command":{"handler":"key","key":"down"}}
+vim ☇ open · above ⮕ {"handler":"multi","commands":[{"handler":"key","key":"O"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ backspace · backspace ⮕ <backspace> <backspace>
+vim vim-insert ☇ backspace ⮕ <backspace>
+vim vim-insert ☇ forward ⮕ "forward"
+vim vim-insert ☇ space ⮕ " "
+vim vim-insert ☇ :\colon\colon · letter ⮕ null
+vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
+vim ☇ down · down · down ⮕ <down> <down> <down>
+vim ☇ copy · line ⮕ null
+vim ☇ seven · up ⮕ {"handler":"repeat","count":7,"command":{"handler":"key","key":"up"}}
+vim ☇ one\pronoun · up ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"up"}}
+vim ☇ paste ⮕ "p"
+vim ☇ delete · line ⮕ "dd"
+vim ☇ seven · down ⮕ {"handler":"repeat","count":7,"command":{"handler":"key","key":"down"}}
+vim ☇ yank · line ⮕ "yy"
+vim ☇ seven · up ⮕ {"handler":"repeat","count":7,"command":{"handler":"key","key":"up"}}
+vim ☇ up ⮕ <up>
+vim ☇ paste ⮕ "p"
+vim ☇ up ⮕ <up>
+vim ☇ J\uppercase-letter\capital J ⮕ null
+vim ☇ Key · J\uppercase-letter\capital J ⮕ "J"
+vim ☇ Mark ⮕ null
+vim ☇ p.m.\\PM · Key · a\determiner ⮕ null
+vim ☇ up · ten ⮕ null
+vim ☇ ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
+vim ☇ one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
+vim ☇ \new-line\next line ⮕ null
+vim ☇ paste ⮕ "p"
+vim ☇ delete · line · up ⮕ "dd" <up>
+vim ☇ in · clan · paste ⮕ null
+vim ☇ yank · line ⮕ "yy"
+vim ☇ paste ⮕ "p"
+vim ☇ delete · word ⮕ "dw"
+vim ☇ insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ change · space ⮕ "change "
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ ten · Ford ⮕ null
+vim ☇ ten · right ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"right"}}
+vim ☇ up · right ⮕ <up> <right>
+vim ☇ for · right ⮕ null
+vim ☇ down ⮕ <down>
+vim ☇ right · eye · drug · right ⮕ null
+vim ☇ right · right · right ⮕ <right> <right> <right>
+vim ☇ right · right ⮕ <right> <right>
+vim ☇ x-ray ⮕ null
+vim ☇ x-ray ⮕ null
+vim ☇ dictate · x-ray · insert · Charlie ⮕ {"handler":"multi","commands":[{"handler":"key","key":"x"},{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"c"}]}
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ save ⮕ <escape> ":w" <enter>
+vim ☇ downturn ⮕ null
+vim ☇ ten · down ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"down"}}
+vim ☇ one\pronoun · up ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"up"}}
+vim ☇ ten · left ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"left"}}
+vim ☇ four · left ⮕ {"handler":"repeat","count":4,"command":{"handler":"key","key":"left"}}
+vim ☇ change · word ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"w"},{"handler":"key","key":"o"},{"handler":"key","key":"r"},{"handler":"key","key":"d"}]}]}
+vim vim-insert ☇ backspace · backspace · based ⮕ <backspace> <backspace> "based"
+vim vim-insert ☇ express ⮕ "express"
+vim vim-insert ☇ Charlie ⮕ "c"
+vim vim-insert ☇ backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace>
+vim vim-insert ☇ backspace · backspace · backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace> <backspace> <backspace>
+vim vim-insert ☇ backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace>
+vim vim-insert ☇ Charlie ⮕ "c"
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ to · write ⮕ null
+vim ☇ to · write ⮕ null
+vim ☇ to · write ⮕ null
+vim ☇ right · right ⮕ <right> <right>
+vim ☇ change · word ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"w"},{"handler":"key","key":"o"},{"handler":"key","key":"r"},{"handler":"key","key":"d"}]}]}
+vim vim-insert ☇ backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace>
+vim vim-insert ☇ letter ⮕ "letter"
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ search · find · Delta ⮕ null
+vim ☇ find ⮕ <escape> "/"
+vim ☇ Delta ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ Delta ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ Delta ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ Doctor ⮕ null
+vim ☇ Dick ⮕ null
+vim ☇ Tate ⮕ null
+vim ☇ daughter ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ Delta ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ alter ⮕ null
+vim ☇ dictate ⮕ null
+vim ☇ Delta ⮕ null
+vim ☇ escape ⮕ <escape>
+vim ☇ five · right ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"right"}}
+vim ☇ right ⮕ <right>
+vim ☇ for · right ⮕ null
+vim ☇ three · right ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"right"}}
+vim ☇ three · right ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"right"}}
+vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ null
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ dictate · x-ray · x-ray ⮕ null
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ left ⮕ <left>
+vim ☇ dictate · x-ray ⮕ "x"
+vim ☇ insert · F\letter ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"f"}]}
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ five · down ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"down"}}
+vim ☇ three · down ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"down"}}
+vim ☇ for · right ⮕ null
+vim ☇ for · right ⮕ null
+vim ☇ for · right ⮕ null
+vim ☇ right · right ⮕ <right> <right>
+vim ☇ right · right ⮕ <right> <right>
+vim ☇ dictate · the ⮕ "the"
+vim ☇ escape ⮕ <escape>
+vim ☇ left ⮕ <left>
+vim ☇ dictate · Victor ⮕ "v"
+vim ☇ right · right · right · right ⮕ <right> <right> <right> <right>
+vim ☇ right · right ⮕ <right> <right>
+vim ☇ left ⮕ <left>
+vim ☇ dictate · Yankee ⮕ "y"
+vim ☇ ten · up ⮕ {"handler":"repeat","count":10,"command":{"handler":"key","key":"up"}}
+vim ☇ two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
+vim ☇ left · left ⮕ <left> <left>
+vim ☇ left ⮕ <left>
+vim ☇ paste ⮕ "p"
+vim ☇ left · left · left ⮕ <left> <left> <left>
+vim ☇ delete · word ⮕ "dw"
+vim ☇ insert · letter ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"l"},{"handler":"key","key":"e"},{"handler":"key","key":"t"},{"handler":"key","key":"t"},{"handler":"key","key":"e"},{"handler":"key","key":"r"}]}]}
+vim vim-insert ☇ escape ⮕ <escape>
+vim ☇ save ⮕ <escape> ":w" <enter>
+vim ☇ slap ⮕ <enter>
+vim ☇ forward ⮕ null
+vim ☇ the ⮕ null
+vim ☇ forward ⮕ null
+vim ☇ the ⮕ null
+vim ☇ forward ⮕ null
+vim ☇ the ⮕ null
+vim ☇ forward ⮕ null
+vim ☇ deep ⮕ null
+vim ☇ forward ⮕ null
+vim ☇ the ⮕ null
+vim ☇ forward ⮕ null
+vim ☇ T\letter ⮕ null
+vim ☇ good · about · them ⮕ null
+vim ☇ go · to · bottom ⮕ "G"
+vim ☇ twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
+vim ☇ very · up ⮕ null
+vim ☇ twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
+vim ☇ open · above ⮕ {"handler":"multi","commands":[{"handler":"key","key":"O"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ spell · forward ⮕ "spellforward"
+vim vim-insert ☇ backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace>
+vim vim-insert ☇ backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace>
+vim vim-insert ☇ backspace · space ⮕ <backspace> " "
+vim vim-insert ☇ forward ⮕ "forward"
+vim vim-insert ☇ space ⮕ " "
+vim vim-insert ☇ /\slash\slash ⮕ null
+vim vim-insert ☇ backspace ⮕ <backspace>
+vim vim-insert ☇ ;\semicolon\semicolon ⮕ ";"
+vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
+vim ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
+ ☇ control · seek ⮕ null
+ ☇ open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
+ ☇ controlled · the ⮕ null
+ ☇ controlled · the ⮕ null
+ ☇ control ⮕ null
+ ☇ the ⮕ null
+ ☇ controlled · the ⮕ null
+ ☇ controlled · the ⮕ null
+ ☇ controlled · the ⮕ null
+ ☇ close · window ⮕ null
+ ☇ window · close ⮕ {"handler":"i3","command":"kill"}
+ ☇ open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
+ ☇ type ⮕ null
+ ☇ golf · India ⮕ null
+ ☇ Tango ⮕ null
+ ☇ dictate · golf · India · Tango · space ⮕ null
+ ☇ dictate · golf ⮕ "g"
+ ☇ dictate · India · dictate · Tango ⮕ "it"
+ ☇ dictate · space ⮕ " "
+ ☇ Dick ⮕ null
+ ☇ commit ⮕ null
+ ☇ dictate · commit ⮕ "commit"
+ ☇ slap ⮕ <enter>
+ ☇ up ⮕ <up>
+ ☇ space ⮕ null
+ ☇ dictate · space · dictate · –\dash\dash ⮕ null
+ ☇ dictate · space ⮕ " "
+ ☇ dictate · –\dash\dash ⮕ null
+ ☇ dictate · –\dash\dash ⮕ null
+ ☇ slap ⮕ <enter>
+ ☇ up ⮕ <up>
+ ☇ backspace · backspace · backspace · backspace ⮕ null
+ ☇ backspace · backspace ⮕ null
+ ☇ dictate · backspace ⮕ <backspace>
+ ☇ left · left · left · left · left · left ⮕ <left> <left> <left> <left> <left> <left>
+ ☇ control · K\letter ⮕ <ctrl-k>
+ ☇ bad ⮕ null
+ ☇ dictate · ad · space · .\dot\dot ⮕ null
+ ☇ dictate · ad ⮕ "ad"
+ ☇ dictate · the ⮕ "the"
+ ☇ backspace · backspace · dictate · backspace ⮕ null
+ ☇ three · left · control · K\letter ⮕ {"handler":"multi","commands":[{"handler":"repeat","count":3,"command":{"handler":"key","key":"left"}},{"handler":"key","key":"ctrl-k"}]}
+ ☇ dictate ⮕ null
+ ☇ Delta ⮕ null
+ ☇ dictate · Delta ⮕ "d"
+ ☇ dictate · space · dictate · .\dot\dot ⮕ " ."
