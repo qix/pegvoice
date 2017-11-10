@@ -41,18 +41,34 @@ function flattenCommands(commands) {
   return rv;
 }
 
+function renderMulti(commands) {
+  const cmdList = flattenCommands(commands);
+  const keys = [];
+
+  while (cmdList.length && cmdList[0].handler === 'key') {
+    keys.push(cmdList.shift().key);
+  }
+
+  let first;
+  if (keys.length) {
+    first = renderKeys(keys);
+  } else {
+    first = renderCommand(cmdList.shift());
+  }
+
+  if (!cmdList.length) {
+    return first;
+  } else {
+    return `${first} ${renderMulti(cmdList)}`;
+  }
+}
 function renderCommand(command) {
   if (command.handler === 'key') {
     return renderKeys([command.key]);
+  } else if (command.handler === 'repeat') {
+    return `[repeat ${command.count} ${renderCommand(command.command)}]`;
   } else if (command.handler === 'multi') {
-    const cmdList = flattenCommands(command.commands);
-    const allSame = cmdList.every(cmd => {
-      return cmd.handler === cmdList[0].handler;
-    });
-    if (allSame && cmdList[0].handler === 'key') {
-      return renderKeys(cmdList.map(cmd => cmd.key));
-    }
-
+    return renderMulti(command.commands);
   }
   return JSON.stringify(command);
 }
