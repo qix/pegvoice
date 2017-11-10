@@ -1,6 +1,7 @@
 'use strict';
 /*eslint no-console: "allow"*/
 
+const commands = require('./commands');
 const fs = require('fs');
 const peg = require("pegjs");
 const util = require('util');
@@ -211,20 +212,7 @@ class PegGenerator {
     let rv = '';
     if (ast.type === 'voiceGrammer') {
       if (ast.initializer) {
-        rv += (`{
-        ${ast.initializer.code}
-
-        options.mode = new Set([...options.mode]);
-        function enableModes(cmd) {
-          if (cmd.handler === 'multi') {
-            cmd.commands.forEach(enableModes);
-          } else if (cmd.handler === 'mode') {
-            (cmd.enable || []).forEach(mode => options.mode.add(mode));
-            (cmd.disable || []).forEach(mode => options.mode.delete(mode));
-          }
-        }
-        }
-        `);
+        rv += `{\n${ast.initializer.code}\n}\n`;
       }
       const {ruleNames, source} = this.pegRules(ast.rules, 'c_');
       rv += `${source}\n`;
@@ -237,7 +225,7 @@ class PegGenerator {
       _ = "${wordSeperator}" / __eof__;
 
       __command__ "<command>" = result:(${ruleNames.join(' / ')}) {
-        enableModes(result);
+        result.parseExecute(options);
         return result;
       };
 
@@ -245,10 +233,9 @@ class PegGenerator {
         if (!tail.length) {
           return head;
         }
-        return {
-          handler: 'multi',
-          commands: [head, ...tail.map(match => match[1])],
-        };
+        return new options.commands.MultiCommand([
+          head, ...tail.map(match => match[1])
+        ]);
       }
       __eof__ = !.;
       `);
@@ -280,6 +267,7 @@ class Parser {
     mode = mode || new Set();
     try {
       return this.parser.parse(transcript, {
+        commands,
         mode,
       });
     } catch (err) {

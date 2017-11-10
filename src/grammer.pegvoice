@@ -1,36 +1,30 @@
 {
+  const {
+    NoopCommand,
+    I3Command,
+    RepeatCommand,
+    KeyCommand,
+    ModeCommand,
+    MultiCommand,
+  } = options.commands;
+
   function noop() {
-    return {
-      handler: 'noop',
-    };
+    return new NoopCommand();
   }
   function i3(command) {
-    return {
-      handler: 'i3',
-      command,
-    };
+    return new I3Command(command);
   }
   function repeat(count, command) {
     if (count === 1) {
       return command;
     }
-    return {
-      handler: 'repeat',
-      count,
-      command,
-    };
+    return new RepeatCommand(count, command);
   }
   function mode(name) {
-    return {
-      handler: 'mode',
-      enable: [name],
-    };
+    return new ModeCommand([name], []);
   }
   function modeOff(name) {
-    return {
-      handler: 'mode',
-      disable: [name],
-    };
+    return new ModeCommand([], [name]);
   }
   function multi(...commands) {
     if (commands.length === 0) {
@@ -38,18 +32,13 @@
     } else if (commands.length === 1) {
       return commands[0];
     }
-    return {
-      handler: 'multi',
-      commands,
-    };
+    return new MultiCommand(commands);
   }
 
   function key(name) {
-    return {
-      handler: 'key',
-      key: name,
-    };
+    return new KeyCommand(name);
   }
+
   function type(keys) {
     const names = {'\n': 'enter'};
     if (typeof keys === 'string') {
@@ -154,11 +143,7 @@ shift k:key => key(`shift-${k}`);
 
 type :keys => type(keys);
 dictate :dictate => dictate;
-
-words :string => {
-  handler: 'type',
-  string,
-};
+words :string => type(string);
 
 &vim ...{
   open above => multi(type('O'), mode('vim-insert'));

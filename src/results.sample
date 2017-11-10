@@ -129,8 +129,8 @@
  ☇ left ⮕ <left>
  ☇ long ⮕ null
  ☇ m\spelling-letter\M ⮕ null
- ☇ move · window · left ⮕ {"handler":"i3","command":"move left"}
- ☇ move · window · right ⮕ {"handler":"i3","command":"move right"}
+ ☇ move · window · left ⮕ [i3 "move left"]
+ ☇ move · window · right ⮕ [i3 "move right"]
  ☇ my ⮕ null
  ☇ n\spelling-letter\November ⮕ null
  ☇ name ⮕ null
@@ -145,13 +145,13 @@
  ☇ one\pronoun · down ⮕ <down>
  ☇ open · above ⮕ null
  ☇ open · at · a\determiner ⮕ null
- ☇ open · editor · voice ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"}
- ☇ open · editor ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh'"}
+ ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"]
+ ☇ open · editor ⮕ [i3 "exec gvim -c ':NERDTree /home/josh'"]
  ☇ open · escape ⮕ null
  ☇ open · firm ⮕ null
  ☇ open · hello · _\underscore\underscore · world ⮕ null
- ☇ open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
- ☇ open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
+ ☇ open · terminal · voice ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""]
+ ☇ open · terminal ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""]
  ☇ open · them ⮕ null
  ☇ open ⮕ null
  ☇ opens ⮕ null
@@ -173,12 +173,12 @@
  ☇ save · exit ⮕ null
  ☇ save ⮕ null
  ☇ screen · for ⮕ null
- ☇ screen · four ⮕ {"handler":"i3","command":"workspace 4"}
+ ☇ screen · four ⮕ [i3 "workspace 4"]
  ☇ screen · off ⮕ null
- ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
- ☇ screen · one\pronoun ⮕ {"handler":"i3","command":"workspace 1"}
- ☇ screen · three ⮕ {"handler":"i3","command":"workspace 3"}
- ☇ screen · two ⮕ {"handler":"i3","command":"workspace 2"}
+ ☇ screen · one\number ⮕ [i3 "workspace 1"]
+ ☇ screen · one\pronoun ⮕ [i3 "workspace 1"]
+ ☇ screen · three ⮕ [i3 "workspace 3"]
+ ☇ screen · two ⮕ [i3 "workspace 2"]
  ☇ search · voice ⮕ null
  ☇ showed · up ⮕ null
  ☇ shut · up ⮕ null
@@ -241,23 +241,23 @@
  ☇ up ⮕ <up>
  ☇ vim ⮕ null
  ☇ wake up ⮕ null
- ☇ wake · up ⮕ {"handler":"noop"}
+ ☇ wake · up ⮕ [noop]
  ☇ who ⮕ null
- ☇ window · close ⮕ {"handler":"i3","command":"kill"}
+ ☇ window · close ⮕ [i3 "kill"]
  ☇ window · closes ⮕ null
- ☇ window · down · window · close ⮕ {"handler":"i3","command":"focus down"} {"handler":"i3","command":"kill"}
- ☇ window · down · window · move · left ⮕ {"handler":"i3","command":"focus down"} {"handler":"i3","command":"move left"}
- ☇ window · down ⮕ {"handler":"i3","command":"focus down"}
- ☇ window · float ⮕ {"handler":"i3","command":"floating toggle"}
- ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
- ☇ window · move · left ⮕ {"handler":"i3","command":"move left"}
- ☇ window · right · window · left ⮕ {"handler":"i3","command":"focus right"} {"handler":"i3","command":"focus left"}
- ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
+ ☇ window · down · window · close ⮕ [i3 "focus down"] [i3 "kill"]
+ ☇ window · down · window · move · left ⮕ [i3 "focus down"] [i3 "move left"]
+ ☇ window · down ⮕ [i3 "focus down"]
+ ☇ window · float ⮕ [i3 "floating toggle"]
+ ☇ window · left ⮕ [i3 "focus left"]
+ ☇ window · move · left ⮕ [i3 "move left"]
+ ☇ window · right · window · left ⮕ [i3 "focus right"] [i3 "focus left"]
+ ☇ window · right ⮕ [i3 "focus right"]
  ☇ window · up · close · window ⮕ null
- ☇ window · up ⮕ {"handler":"i3","command":"focus up"}
+ ☇ window · up ⮕ [i3 "focus up"]
  ☇ word · close ⮕ null
- ☇ words · close ⮕ {"handler":"type","string":"close"}
- ☇ words · hello ⮕ {"handler":"type","string":"hello"}
+ ☇ words · close ⮕ "close"
+ ☇ words · hello ⮕ "hello"
  ☇ yanking · on ⮕ null
 chrome ☇ 's\s\s ⮕ null
 chrome ☇ 's\z\z ⮕ null
@@ -306,9 +306,9 @@ chrome ☇ page · down ⮕ <pagedown>
 chrome ☇ page · up ⮕ <pageup>
 chrome ☇ page ⮕ <pagedown>
 chrome ☇ screen · for ⮕ null
-chrome ☇ screen · four ⮕ {"handler":"i3","command":"workspace 4"}
+chrome ☇ screen · four ⮕ [i3 "workspace 4"]
 chrome ☇ screen · move · five ⮕ null
-chrome ☇ screen · three ⮕ {"handler":"i3","command":"workspace 3"}
+chrome ☇ screen · three ⮕ [i3 "workspace 3"]
 chrome ☇ see ⮕ null
 chrome ☇ slap ⮕ <enter>
 chrome ☇ tab · nine ⮕ <ctrl-9>
@@ -319,8 +319,8 @@ chrome ☇ to ⮕ null
 chrome ☇ wake up ⮕ null
 chrome ☇ will · be ⮕ null
 chrome ☇ window · left · )\right-parenthesis\close paren ⮕ null
-chrome ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
-chrome ☇ window · move · screen · five ⮕ {"handler":"i3","command":"move container to workspace 5"}
+chrome ☇ window · left ⮕ [i3 "focus left"]
+chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ null
 vim vim-insert ☇ 's\s\s ⮕ null
 vim vim-insert ☇ .\dot\dot ⮕ "."
@@ -378,7 +378,7 @@ vim vim-insert ☇ escape ⮕ <escape>
 vim vim-insert ☇ escaped · delete · line ⮕ <escape> "dd"
 vim vim-insert ☇ express ⮕ "express"
 vim vim-insert ☇ extra ⮕ "extra"
-vim vim-insert ☇ first · above · voice · only ⮕ "firstO" {"handler":"mode","enable":["vim-insert"]} "voiceonly"
+vim vim-insert ☇ first · above · voice · only ⮕ "firstO" [mode +vim-insert] "voiceonly"
 vim vim-insert ☇ first · space · commit · space · by · space ⮕ "first commit by "
 vim vim-insert ☇ five · left ⮕ [repeat 5 <left>]
 vim vim-insert ☇ five ⮕ "five"
@@ -409,11 +409,11 @@ vim vim-insert ☇ number · zero ⮕ "0"
 vim vim-insert ☇ offer · bra · those ⮕ "abrathose"
 vim vim-insert ☇ offer · brother · Charlie · Delta · Echo · foxtrot · golf ⮕ "abcdefg"
 vim vim-insert ☇ offer · brother · Charlie ⮕ "abc"
-vim vim-insert ☇ open · incognito ⮕ {"handler":"i3","command":"exec google-chrome -incognito"}
-vim vim-insert ☇ open · number · one\number · zero · zero ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "100"
-vim vim-insert ☇ open · number · one\number ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "1"
+vim vim-insert ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
+vim vim-insert ☇ open · number · one\number · zero · zero ⮕ "o" [mode +vim-insert] "100"
+vim vim-insert ☇ open · number · one\number ⮕ "o" [mode +vim-insert] "1"
 vim vim-insert ☇ require · FS ⮕ "requirefs"
-vim vim-insert ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
+vim vim-insert ☇ screen · one\number ⮕ [i3 "workspace 1"]
 vim vim-insert ☇ slap ⮕ <enter>
 vim vim-insert ☇ soon ⮕ "soon"
 vim vim-insert ☇ sooner ⮕ "z"
@@ -453,11 +453,11 @@ vim ☇ and · do ⮕ "u"
 vim ☇ and ⮕ null
 vim ☇ as ⮕ null
 vim ☇ backspace ⮕ <backspace>
-vim ☇ change · line ⮕ "cc" {"handler":"mode","enable":["vim-insert"]}
-vim ☇ change · until · /\slash\slash ⮕ "ct/" {"handler":"mode","enable":["vim-insert"]}
-vim ☇ change · until · Tango ⮕ "ctt" {"handler":"mode","enable":["vim-insert"]}
+vim ☇ change · line ⮕ "cc" [mode +vim-insert]
+vim ☇ change · until · /\slash\slash ⮕ "ct/" [mode +vim-insert]
+vim ☇ change · until · Tango ⮕ "ctt" [mode +vim-insert]
 vim ☇ change · until · and ⮕ null
-vim ☇ change · word ⮕ "cw" {"handler":"mode","enable":["vim-insert"]}
+vim ☇ change · word ⮕ "cw" [mode +vim-insert]
 vim ☇ copy · line ⮕ null
 vim ☇ daughter ⮕ null
 vim ☇ deep ⮕ null
@@ -476,7 +476,7 @@ vim ☇ dictate · Yankee ⮕ "y"
 vim ☇ dictate · news ⮕ "news"
 vim ☇ dictate · the ⮕ "the"
 vim ☇ dictate · their ⮕ "their"
-vim ☇ dictate · x-ray · insert · Charlie ⮕ "xi" {"handler":"mode","enable":["vim-insert"]} "c"
+vim ☇ dictate · x-ray · insert · Charlie ⮕ "xi" [mode +vim-insert] "c"
 vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ null
 vim ☇ dictate · x-ray · x-ray ⮕ null
 vim ☇ dictate · x-ray ⮕ "x"
@@ -489,7 +489,7 @@ vim ☇ down ⮕ <down>
 vim ☇ downturn ⮕ null
 vim ☇ eight · down ⮕ [repeat 8 <down>]
 vim ☇ eight ⮕ null
-vim ☇ escape · insert ⮕ <escape> "i" {"handler":"mode","enable":["vim-insert"]}
+vim ☇ escape · insert ⮕ <escape> "i" [mode +vim-insert]
 vim ☇ escape ⮕ <escape>
 vim ☇ find · F\letter ⮕ null
 vim ☇ find · link ⮕ <escape> "/link"
@@ -516,33 +516,33 @@ vim ☇ hello · _\underscore\underscore · world ⮕ null
 vim ☇ hello · world ⮕ null
 vim ☇ hello ⮕ null
 vim ☇ in · clan · paste ⮕ null
-vim ☇ insert · Esker ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "esker"
-vim ☇ insert · F\letter ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "f"
-vim ☇ insert · F\uppercase-letter\capital F ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "F"
-vim ☇ insert · Zulu ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "z"
-vim ☇ insert · hello · equals · five ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "hello === five"
-vim ☇ insert · hello ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "hello"
-vim ☇ insert · letter ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "letter"
-vim ☇ insert · sooner ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "z"
-vim ☇ insert · x-ray ⮕ "i" {"handler":"mode","enable":["vim-insert"]} "x"
-vim ☇ insert ⮕ "i" {"handler":"mode","enable":["vim-insert"]}
+vim ☇ insert · Esker ⮕ "i" [mode +vim-insert] "esker"
+vim ☇ insert · F\letter ⮕ "i" [mode +vim-insert] "f"
+vim ☇ insert · F\uppercase-letter\capital F ⮕ "i" [mode +vim-insert] "F"
+vim ☇ insert · Zulu ⮕ "i" [mode +vim-insert] "z"
+vim ☇ insert · hello · equals · five ⮕ "i" [mode +vim-insert] "hello === five"
+vim ☇ insert · hello ⮕ "i" [mode +vim-insert] "hello"
+vim ☇ insert · letter ⮕ "i" [mode +vim-insert] "letter"
+vim ☇ insert · sooner ⮕ "i" [mode +vim-insert] "z"
+vim ☇ insert · x-ray ⮕ "i" [mode +vim-insert] "x"
+vim ☇ insert ⮕ "i" [mode +vim-insert]
 vim ☇ left · left · left ⮕ <left> <left> <left>
 vim ☇ left · left ⮕ <left> <left>
 vim ☇ left ⮕ <left>
 vim ☇ love ⮕ null
 vim ☇ one\pronoun · down ⮕ <down>
 vim ☇ one\pronoun · up ⮕ <up>
-vim ☇ open · _\underscore\underscore ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "_"
-vim ☇ open · above ⮕ "O" {"handler":"mode","enable":["vim-insert"]}
-vim ☇ open · brother ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "b"
-vim ☇ open · chrome ⮕ {"handler":"i3","command":"exec google-chrome"}
-vim ☇ open · hello · _\underscore\underscore · world ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "hello_world"
-vim ☇ open · hello ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "hello"
-vim ☇ open · incognito ⮕ {"handler":"i3","command":"exec google-chrome -incognito"}
-vim ☇ open · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "news.ycombination.com"
-vim ☇ open · number · one\number · zero · zero ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "100"
-vim ☇ open · number · one\number ⮕ "o" {"handler":"mode","enable":["vim-insert"]} "1"
-vim ☇ open ⮕ "o" {"handler":"mode","enable":["vim-insert"]}
+vim ☇ open · _\underscore\underscore ⮕ "o" [mode +vim-insert] "_"
+vim ☇ open · above ⮕ "O" [mode +vim-insert]
+vim ☇ open · brother ⮕ "o" [mode +vim-insert] "b"
+vim ☇ open · chrome ⮕ [i3 "exec google-chrome"]
+vim ☇ open · hello · _\underscore\underscore · world ⮕ "o" [mode +vim-insert] "hello_world"
+vim ☇ open · hello ⮕ "o" [mode +vim-insert] "hello"
+vim ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
+vim ☇ open · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "o" [mode +vim-insert] "news.ycombination.com"
+vim ☇ open · number · one\number · zero · zero ⮕ "o" [mode +vim-insert] "100"
+vim ☇ open · number · one\number ⮕ "o" [mode +vim-insert] "1"
+vim ☇ open ⮕ "o" [mode +vim-insert]
 vim ☇ p.m.\\PM · Key · a\determiner ⮕ null
 vim ☇ page · down · page · down ⮕ <pagedown> <pagedown>
 vim ☇ page · one\number ⮕ null
@@ -555,8 +555,8 @@ vim ☇ right · right ⮕ <right> <right>
 vim ☇ right ⮕ <right>
 vim ☇ save · exit ⮕ <escape> ":wq" <enter>
 vim ☇ save ⮕ <escape> ":w" <enter>
-vim ☇ screen · five ⮕ {"handler":"i3","command":"workspace 5"}
-vim ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
+vim ☇ screen · five ⮕ [i3 "workspace 5"]
+vim ☇ screen · one\number ⮕ [i3 "workspace 1"]
 vim ☇ search · find · Delta ⮕ null
 vim ☇ search ⮕ null
 vim ☇ seven · down ⮕ [repeat 7 <down>]
@@ -583,7 +583,7 @@ vim ☇ up · ten ⮕ null
 vim ☇ up ⮕ <up>
 vim ☇ very · up ⮕ null
 vim ☇ wake up ⮕ null
-vim ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
+vim ☇ window · right ⮕ [i3 "focus right"]
 vim ☇ x-ray · whiskey · Victor ⮕ null
 vim ☇ x-ray ⮕ null
 vim ☇ yank · line ⮕ "yy"

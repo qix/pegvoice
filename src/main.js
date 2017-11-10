@@ -14,7 +14,7 @@ Options:
   --result-log=<filename>    Log results to a file
 `;
 
-const Commander = require('./Commander');
+const Machine = require('./Machine');
 const Parser = require('./Parser');
 
 const binarySplit = require('binary-split');
@@ -22,7 +22,6 @@ const bunyan = require('bunyan');
 const chalk = require('chalk');
 const {docopt} = require('docopt');
 const fs = require('fs');
-const renderCommand = require('./renderCommand');
 
 const http = require('http');
 const {
@@ -97,13 +96,13 @@ const log = bunyan.createLogger({
   name: 'pegvoice',
   streams: bunyanStreams,
 });
-const commander = new Commander(log);
+const machine = new Machine(log);
 const parser = new Parser();
 
 async function executeTranscripts(transcripts) {
   let executed = false;
   let first = true;
-  const mode = await commander.fetchCurrentMode();
+  const mode = await machine.fetchCurrentMode();
   const modeString = Array.from(mode).sort().join(' ') + modeSeperator;
 
   console.log(chalk.white.dim(`[${modeString}]`));
@@ -115,10 +114,10 @@ async function executeTranscripts(transcripts) {
       } else {
         console.log('Execute: %s => %j', transcript, command);
         executed = true;
-        commander.execute(command);
+        command.execute(machine);
 
         if (resultLog) {
-          const commandJson = renderCommand(command);
+          const commandJson = command.render();
           resultLog.write(
             `${modeString}${transcript}${rightArrow}${commandJson}\n`
           );

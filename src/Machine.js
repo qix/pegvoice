@@ -4,20 +4,10 @@ const chalk = require('chalk');
 const i3 = require('i3').createClient();
 const {exec} = require('child_process')
 const {promisify} = require('util');
+const robot = require('robotjs');
 
 const execAsync = promisify(exec);
 
-const robot = require('robotjs');
-
-function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`';
-  const index = map.indexOf(key);
-  if (index >= 0 && index % 2 === 0) {
-    return map.charAt(index + 1);
-  } else {
-    return key.toLowerCase();
-  }
-}
 
 async function getCurrentTitle() {
   const {stdout} = await execAsync('xdotool getwindowfocus getwindowname');
@@ -26,6 +16,7 @@ async function getCurrentTitle() {
 
 class Commander {
   constructor(log) {
+    /*
     [
       'workspace',
       'output',
@@ -47,67 +38,14 @@ class Commander {
         this.handleTitle(title);
       }
     }));
+    */
 
     this.mode = new Set();
     this.lastTitle = null;
-
-    this.handlers = {
-      i3(props) {
-        const {command} = props;
-        i3.command(command);
-      },
-      mode: (props) => {
-        this.trackModeChange(() => {
-          (props.enable || []).forEach(mode => this.mode.add(mode));
-          (props.disable || []).forEach(mode => this.mode.delete(mode));
-        });
-      },
-      multi: (props) => {
-        for (let command of props.commands) {
-          this.execute(command);
-        }
-      },
-      repeat: (props) => {
-        for (let i = 0; i < props.count; i++) {
-          this.execute(props.command);
-        }
-      },
-      key: (props) => {
-        let split = props.key.split('-');
-
-        let key = split.pop();
-        if (key.length === 0) {
-          key = '-';
-          split.pop();
-        }
-
-        key = {
-          semicolon: ';',
-          underscore: '_',
-        }[key] || key;
-
-        const modifiers = split.map(modifier => ({
-          ctrl: 'control',
-        }[modifier] || modifier));
-
-        const lower = lowerKey(key);
-        if (lower !== key) {
-          key = lower;
-          modifiers.push('shift');
-        }
-
-        if (key === 'escape') {
-          this.toggleMode('vim-insert', false);
-        }
-
-        robot.keyTap(key, modifiers);
-      },
-      type(props) {
-        robot.typeString(props.string);
-      },
-      noop() {}
-    };
   }
+
+  i3(command) { i3.command(command); }
+  keyTap(key) { robot.keyTap(key); }
 
   async fetchCurrentMode() {
     this.handleTitle(await getCurrentTitle());
