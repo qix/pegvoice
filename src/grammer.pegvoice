@@ -159,7 +159,6 @@ words :string => {
   append end => multi(type('A'), mode('vim-insert'));
   append => multi(type('a'), mode('vim-insert'));
   insert => multi(type('i'), mode('vim-insert'));
-  change => multi(type('c'), mode('vim-insert'));
 
   paste => type('p');
   undo => type('u');
@@ -168,12 +167,16 @@ words :string => {
 
   tree :folder => vimex(`NERDTree ${folder}`);
 
-  forward c:letter => type(`f${letter}`);
+  forward c:ascii => type(`f${c}`);
   go to? ...{
     top => type('gg');
     bottom => type('G');
   }
 
+  change ...{
+    line => multi(type('cc'), mode('vim-insert'));
+    dir:vim_direction => multi(type(`c${dir}`), mode('vim-insert'));
+  }
   delete ...{
     line => type('dd');
     dir:vim_direction => type(`d${dir}`);
@@ -205,7 +208,7 @@ _vim_direction = inner:(inner _)? dir:(word / _vim_until) {
   }[dir] || dir);
 }
 
-_vim_until = until code:_ascii {
+_vim_until = (to / until) _ code:_ascii {
   return `t${code}`;
 }
 
@@ -268,12 +271,14 @@ _key "<key>"
   / _ascii 
 
 _ascii "<ascii>" = char:(
-  space /
-  underscore /
+  backslash /
+  dash /
   period /
   semicolon /
-  dash /
+  slash /
+  space /
   tab /
+  underscore /
   _digit /
   _phonetic_letter /
   _letter
@@ -284,6 +289,8 @@ _ascii "<ascii>" = char:(
     space: ' ',
     semicolon: ';',
     tab: '\t',
+    slash: '/',
+    backslash: '\\',
   }[char] || `${char}`;
 }
 
@@ -320,6 +327,7 @@ _phonetic_letter = code:(
 
 
 _letter = capital:(capital _)? letter:([a-zA-Z]) (
+  "\\determiner" /
   "\\letter\\letter [A-Z]" /
   "\\letter" /
   "\\pronoun" /
@@ -409,12 +417,17 @@ _string = chars:(.*) {
   return chars.join('');
 }
 
+undo = ("undo"i / and _ do) { return "undo"; }
+
+spell and;
 spell arrow;
+spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
 spell capital;
 spell close / closed;
 spell dash / "-";
 spell dictate / dictates;
+spell do;
 spell dotcom / ".com\\\\dot com";
 spell down;
 spell enter / inter / into / "\\new-line\\new line";
@@ -424,18 +437,20 @@ spell forward;
 spell inner;
 spell key / he;
 spell left;
+spell period / "." / ".\\dot\\dot";
 spell right;
 spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
+spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell tab / "\\tab-key\\tab key";
 spell underscore / "_" / "_\\underscore\\underscore";
-spell period / "." / ".\\dot\\dot";
 spell until;
 spell up;
 spell voice;
 spell window / windows;
 spell word;
+
 spell alfa / alpha / offer;
 spell bravo / brother;
 spell charlie;
