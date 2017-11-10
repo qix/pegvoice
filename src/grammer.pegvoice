@@ -11,6 +11,9 @@
     };
   }
   function repeat(count, command) {
+    if (count === 1) {
+      return command;
+    }
     return {
       handler: 'repeat',
       count,
@@ -103,6 +106,8 @@ open terminal :folder? => i3(
 open editor :folder? => i3(
   `exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`
 );
+open chrome => i3('exec google-chrome');
+open chrome? incognito => i3('exec google-chrome -incognito');
 
 redo => key('ctrl-r');
 
@@ -129,7 +134,10 @@ escape => key('escape');
 }
 
 
-:number :direction => repeat(number, key(direction));
+:count :direction => repeat(count, key(direction));
+
+backspace => key('backspace');
+:count backspace => repeat(count, key('backspace'));
 
 
 i three ...{
@@ -236,7 +244,12 @@ _code = head:_ident tail:(_ _ident &_)* {
   return [head, ...extractList(tail, 1)].join(' ');
 }
 
-_dictate = commands:(_dictate_special / _dictate_key / _dictate_ident)+ {
+_dictate = commands:(
+  _dictate_special /
+  _dictate_number /
+  _dictate_key /
+  _dictate_ident
+)+ {
   return multi(...commands);
 }
 
@@ -251,8 +264,11 @@ _dictate_special = w:(equals / arrow / dotcom) &_ {
 _dictate_ident = w:_ident &_ {
   return type(w);
 }
-_dictate_key = k:_key &_ {
-  return key(k);
+_dictate_key = count:(_count _)? k:_key &_ {
+  return repeat(extractOptional(count, 0, 1), key(k));
+}
+_dictate_number = number _ n:_number &_ {
+  return type(`${n}`);
 }
 
 _ident = word:_word {
@@ -343,10 +359,19 @@ _letter = capital:(capital _)? letter:([a-zA-Z]) (
 };
 
 
+_count = _tuple_length / _number;
 
-_number = _number_hundred;
+_tuple_length = length:(single / double / triple) &_ {
+  return {
+    "single": 1,
+    "double": 2,
+    "triple": 3,
+  }[length];
+}
 
-_number_hundred = hundred:(_number_ten _ "hundred" (_ "and")? _)? ten:_number_ten? {
+_number = _number_hundred / _number_ten;
+
+_number_hundred = hundred:(_number_ten _ "hundred" (_ "and")? _) ten:_number_ten? {
   let number = 0;
   if (hundred) {
     number += hundred[0] * 100;
@@ -429,6 +454,7 @@ spell dash / "-";
 spell dictate / dictates;
 spell do;
 spell dotcom / ".com\\\\dot com";
+spell double;
 spell down;
 spell enter / inter / into / "\\new-line\\new line";
 spell equals;
@@ -437,13 +463,16 @@ spell forward;
 spell inner;
 spell key / he;
 spell left;
+spell number;
 spell period / "." / ".\\dot\\dot";
 spell right;
 spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
+spell single;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell tab / "\\tab-key\\tab key";
+spell triple;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;

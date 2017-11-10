@@ -21,9 +21,10 @@
  ☇ arrow ⮕ " => "
  ☇ at · the · voice ⮕ null
  ☇ at ⮕ null
- ☇ backspace · backspace · backspace · backspace ⮕ null
- ☇ backspace · backspace · dictate · backspace ⮕ null
- ☇ backspace · backspace ⮕ null
+ ☇ backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace>
+ ☇ backspace · backspace · dictate · backspace ⮕ <backspace> <backspace> <backspace>
+ ☇ backspace · backspace ⮕ <backspace> <backspace>
+ ☇ backspace ⮕ <backspace>
  ☇ bad ⮕ null
  ☇ bitch ⮕ null
  ☇ bold · bottom ⮕ null
@@ -37,6 +38,7 @@
  ☇ cities ⮕ null
  ☇ close · buffer ⮕ null
  ☇ close · window ⮕ null
+ ☇ close ⮕ null
  ☇ commit ⮕ null
  ☇ control · C\letter ⮕ <ctrl-c>
  ☇ control · C\letter\letter C ⮕ null
@@ -140,7 +142,7 @@
  ☇ of · the ⮕ null
  ☇ of ⮕ null
  ☇ on ⮕ null
- ☇ one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
+ ☇ one\pronoun · down ⮕ <down>
  ☇ open · above ⮕ null
  ☇ open · at · a\determiner ⮕ null
  ☇ open · editor · voice ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"}
@@ -229,6 +231,7 @@
  ☇ type · semicolon ⮕ ";"
  ☇ type · u\spelling-letter\U ⮕ "u"
  ☇ type ⮕ null
+ ☇ under ⮕ null
  ☇ undo ⮕ null
  ☇ up · a\determiner · hundred ⮕ null
  ☇ up · down · up · up · down ⮕ <up> <down> <up> <up> <down>
@@ -256,6 +259,7 @@
  ☇ words · close ⮕ {"handler":"type","string":"close"}
  ☇ words · hello ⮕ {"handler":"type","string":"hello"}
  ☇ yanking · on ⮕ null
+chrome ☇ 's\s\s ⮕ null
 chrome ☇ 's\z\z ⮕ null
 chrome ☇ Alpha · Delta ⮕ "ad"
 chrome ☇ Charlie ⮕ "c"
@@ -265,6 +269,7 @@ chrome ☇ Delta · marker ⮕ null
 chrome ☇ FS ⮕ null
 chrome ☇ Lima · Papa ⮕ "lp"
 chrome ☇ Link ⮕ <escape> "f"
+chrome ☇ Move · to · wind · five ⮕ null
 chrome ☇ Page · Page · Page · Page ⮕ <pagedown> <pagedown> <pagedown> <pagedown>
 chrome ☇ Page · Page ⮕ <pagedown> <pagedown>
 chrome ☇ Page ⮕ <pagedown>
@@ -273,7 +278,7 @@ chrome ☇ YC ⮕ null
 chrome ☇ \spelling-cap\cap · ten ⮕ null
 chrome ☇ \tab-key\tab key · one\number ⮕ <ctrl-1>
 chrome ☇ \tab-key\tab key · three ⮕ <ctrl-3>
-chrome ☇ \tab-key\tab key ⮕ <ctrl-0>
+chrome ☇ \tab-key\tab key ⮕ null
 chrome ☇ a\determiner · job ⮕ null
 chrome ☇ and ⮕ null
 chrome ☇ big · link ⮕ <escape> "F"
@@ -292,6 +297,9 @@ chrome ☇ escape ⮕ <escape>
 chrome ☇ foxtrot · straight ⮕ null
 chrome ☇ he ⮕ null
 chrome ☇ link ⮕ <escape> "f"
+chrome ☇ move · screen · five ⮕ null
+chrome ☇ move · window · five ⮕ null
+chrome ☇ move · window · screen · five ⮕ null
 chrome ☇ new · tab ⮕ null
 chrome ☇ open · tab ⮕ <ctrl-t>
 chrome ☇ page · down ⮕ <pagedown>
@@ -299,16 +307,20 @@ chrome ☇ page · up ⮕ <pageup>
 chrome ☇ page ⮕ <pagedown>
 chrome ☇ screen · for ⮕ null
 chrome ☇ screen · four ⮕ {"handler":"i3","command":"workspace 4"}
+chrome ☇ screen · move · five ⮕ null
 chrome ☇ screen · three ⮕ {"handler":"i3","command":"workspace 3"}
 chrome ☇ see ⮕ null
 chrome ☇ slap ⮕ <enter>
 chrome ☇ tab · nine ⮕ <ctrl-9>
-chrome ☇ tab ⮕ <ctrl-0>
+chrome ☇ tab ⮕ null
 chrome ☇ table · one\number ⮕ null
 chrome ☇ ten · ten ⮕ null
 chrome ☇ to ⮕ null
 chrome ☇ wake up ⮕ null
 chrome ☇ will · be ⮕ null
+chrome ☇ window · left · )\right-parenthesis\close paren ⮕ null
+chrome ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
+chrome ☇ window · move · screen · five ⮕ {"handler":"i3","command":"move container to workspace 5"}
 chrome ☇ window · three ⮕ null
 vim vim-insert ☇ 's\s\s ⮕ null
 vim vim-insert ☇ .\dot\dot ⮕ "."
@@ -357,6 +369,8 @@ vim vim-insert ☇ brother ⮕ "b"
 vim vim-insert ☇ change · space ⮕ "change "
 vim vim-insert ☇ dictate · hello ⮕ "hello"
 vim vim-insert ☇ dictates · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "news.ycombination.com"
+vim vim-insert ☇ double · backspace ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"backspace"}}
+vim vim-insert ☇ double · under ⮕ "doubleunder"
 vim vim-insert ☇ equals ⮕ " === "
 vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
 vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
@@ -366,7 +380,7 @@ vim vim-insert ☇ extra ⮕ "extra"
 vim vim-insert ☇ first · above · voice · only ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"f"},{"handler":"key","key":"i"},{"handler":"key","key":"r"},{"handler":"key","key":"s"},{"handler":"key","key":"t"}]},{"handler":"multi","commands":[{"handler":"key","key":"O"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"v"},{"handler":"key","key":"o"},{"handler":"key","key":"i"},{"handler":"key","key":"c"},{"handler":"key","key":"e"}]},{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"key","key":"n"},{"handler":"key","key":"l"},{"handler":"key","key":"y"}]}]}
 vim vim-insert ☇ first · space · commit · space · by · space ⮕ "first commit by "
 vim vim-insert ☇ five · left ⮕ {"handler":"repeat","count":5,"command":{"handler":"key","key":"left"}}
-vim vim-insert ☇ five ⮕ "5"
+vim vim-insert ☇ five ⮕ "five"
 vim vim-insert ☇ forward ⮕ "forward"
 vim vim-insert ☇ found ⮕ "found"
 vim vim-insert ☇ hello · _\underscore\underscore · world ⮕ "hello_world"
@@ -388,6 +402,7 @@ vim vim-insert ☇ node ⮕ "node"
 vim vim-insert ☇ offer · bra · those ⮕ "abrathose"
 vim vim-insert ☇ offer · brother · Charlie · Delta · Echo · foxtrot · golf ⮕ "abcdefg"
 vim vim-insert ☇ offer · brother · Charlie ⮕ "abc"
+vim vim-insert ☇ open · incognito ⮕ {"handler":"i3","command":"exec google-chrome -incognito"}
 vim vim-insert ☇ require · FS ⮕ "requirefs"
 vim vim-insert ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
 vim vim-insert ☇ slap ⮕ <enter>
@@ -397,6 +412,7 @@ vim vim-insert ☇ space ⮕ " "
 vim vim-insert ☇ spell · forward ⮕ "spellforward"
 vim vim-insert ☇ string · hello ⮕ "stringhello"
 vim vim-insert ☇ that · it ⮕ "thatit"
+vim vim-insert ☇ the · close · backspace ⮕ "theclose" <backspace>
 vim vim-insert ☇ to ⮕ "to"
 vim vim-insert ☇ up ⮕ <up>
 vim vim-insert ☇ voice · space · only · space ⮕ "voice only "
@@ -427,6 +443,7 @@ vim ☇ alter ⮕ null
 vim ☇ and · do ⮕ "u"
 vim ☇ and ⮕ null
 vim ☇ as ⮕ null
+vim ☇ backspace ⮕ <backspace>
 vim ☇ change · line ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"key","key":"c"}]},{"handler":"mode","enable":["vim-insert"]}]}
 vim ☇ change · until · /\slash\slash ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"key","key":"t"},{"handler":"key","key":"/"}]},{"handler":"mode","enable":["vim-insert"]}]}
 vim ☇ change · until · Tango ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"key","key":"t"},{"handler":"key","key":"t"}]},{"handler":"mode","enable":["vim-insert"]}]}
@@ -455,6 +472,9 @@ vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ null
 vim ☇ dictate · x-ray · x-ray ⮕ null
 vim ☇ dictate · x-ray ⮕ "x"
 vim ☇ dictate ⮕ null
+vim ☇ double · backspace ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"backspace"}}
+vim ☇ double · right ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"right"}}
+vim ☇ double · space ⮕ null
 vim ☇ down · down · down ⮕ <down> <down> <down>
 vim ☇ down ⮕ <down>
 vim ☇ downturn ⮕ null
@@ -491,7 +511,7 @@ vim ☇ insert · Esker ⮕ {"handler":"multi","commands":[{"handler":"multi","c
 vim ☇ insert · F\letter ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"f"}]}
 vim ☇ insert · F\uppercase-letter\capital F ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"F"}]}
 vim ☇ insert · Zulu ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"z"}]}
-vim ☇ insert · hello · equals · five ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]},{"handler":"multi","commands":[{"handler":"key","key":" "},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":" "}]},{"handler":"key","key":"5"}]}
+vim ☇ insert · hello · equals · five ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]},{"handler":"multi","commands":[{"handler":"key","key":" "},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":" "}]},{"handler":"multi","commands":[{"handler":"key","key":"f"},{"handler":"key","key":"i"},{"handler":"key","key":"v"},{"handler":"key","key":"e"}]}]}
 vim ☇ insert · hello ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]}]}
 vim ☇ insert · letter ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"l"},{"handler":"key","key":"e"},{"handler":"key","key":"t"},{"handler":"key","key":"t"},{"handler":"key","key":"e"},{"handler":"key","key":"r"}]}]}
 vim ☇ insert · sooner ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"z"}]}
@@ -501,12 +521,15 @@ vim ☇ left · left · left ⮕ <left> <left> <left>
 vim ☇ left · left ⮕ <left> <left>
 vim ☇ left ⮕ <left>
 vim ☇ love ⮕ null
-vim ☇ one\pronoun · down ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"down"}}
-vim ☇ one\pronoun · up ⮕ {"handler":"repeat","count":1,"command":{"handler":"key","key":"up"}}
+vim ☇ one\pronoun · down ⮕ <down>
+vim ☇ one\pronoun · up ⮕ <up>
+vim ☇ open · _\underscore\underscore ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"_"}]}
 vim ☇ open · above ⮕ {"handler":"multi","commands":[{"handler":"key","key":"O"},{"handler":"mode","enable":["vim-insert"]}]}
 vim ☇ open · brother ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"key","key":"b"}]}
+vim ☇ open · chrome ⮕ {"handler":"i3","command":"exec google-chrome"}
 vim ☇ open · hello · _\underscore\underscore · world ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]},{"handler":"key","key":"_"},{"handler":"multi","commands":[{"handler":"key","key":"w"},{"handler":"key","key":"o"},{"handler":"key","key":"r"},{"handler":"key","key":"l"},{"handler":"key","key":"d"}]}]}
 vim ☇ open · hello ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]}]}
+vim ☇ open · incognito ⮕ {"handler":"i3","command":"exec google-chrome -incognito"}
 vim ☇ open · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"n"},{"handler":"key","key":"e"},{"handler":"key","key":"w"},{"handler":"key","key":"s"}]},{"handler":"key","key":"."},{"handler":"key","key":"y"},{"handler":"multi","commands":[{"handler":"key","key":"c"},{"handler":"key","key":"o"},{"handler":"key","key":"m"},{"handler":"key","key":"b"},{"handler":"key","key":"i"},{"handler":"key","key":"n"},{"handler":"key","key":"a"},{"handler":"key","key":"t"},{"handler":"key","key":"i"},{"handler":"key","key":"o"},{"handler":"key","key":"n"}]},{"handler":"multi","commands":[{"handler":"key","key":"."},{"handler":"key","key":"c"},{"handler":"key","key":"o"},{"handler":"key","key":"m"}]}]}
 vim ☇ open ⮕ {"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]}
 vim ☇ p.m.\\PM · Key · a\determiner ⮕ null
@@ -521,6 +544,7 @@ vim ☇ right · right ⮕ <right> <right>
 vim ☇ right ⮕ <right>
 vim ☇ save · exit ⮕ <escape> ":wq" <enter>
 vim ☇ save ⮕ <escape> ":w" <enter>
+vim ☇ screen · five ⮕ {"handler":"i3","command":"workspace 5"}
 vim ☇ screen · one\number ⮕ {"handler":"i3","command":"workspace 1"}
 vim ☇ search · find · Delta ⮕ null
 vim ☇ search ⮕ null
@@ -539,6 +563,7 @@ vim ☇ three · down ⮕ {"handler":"repeat","count":3,"command":{"handler":"ke
 vim ☇ three · right ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"right"}}
 vim ☇ to · write ⮕ null
 vim ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
+vim ☇ triple · left ⮕ {"handler":"repeat","count":3,"command":{"handler":"key","key":"left"}}
 vim ☇ twenty · up ⮕ {"handler":"repeat","count":20,"command":{"handler":"key","key":"up"}}
 vim ☇ two · down ⮕ {"handler":"repeat","count":2,"command":{"handler":"key","key":"down"}}
 vim ☇ undo ⮕ "u"
@@ -551,3 +576,10 @@ vim ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
 vim ☇ x-ray · whiskey · Victor ⮕ null
 vim ☇ x-ray ⮕ null
 vim ☇ yank · line ⮕ "yy"
+vim ☇ insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ five ⮕ "five"
+vim ☇ open ⮕ {"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ number · five ⮕ "numberfive"
+vim ☇ open ⮕ {"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]}
+vim vim-insert ☇ number · fifty ⮕ "50"
+vim vim-insert ☇ escaped · delete · line ⮕ <escape> "dd"
