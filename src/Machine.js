@@ -45,7 +45,7 @@ class Commander {
   }
 
   i3(command) { i3.command(command); }
-  keyTap(key) { robot.keyTap(key); }
+  keyTap(key, modifiers) { robot.keyTap(key, modifiers); }
 
   async fetchCurrentMode() {
     this.handleTitle(await getCurrentTitle());
@@ -63,6 +63,7 @@ class Commander {
     const vim = vimInsert || vimNormal;
     this.toggleMode('vim', vim);
     this.toggleMode('vim-insert', vimInsert);
+    this.toggleMode('vim-tree', vim && title.startsWith('NERD_tree_'));
     this.toggleMode('chrome', title.endsWith(' - Google Chrome'));
     this.lastTitle = title;
   }

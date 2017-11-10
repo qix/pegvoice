@@ -104,6 +104,7 @@
  ☇ go · top ⮕ null
  ☇ golf · India ⮕ null
  ☇ good · top ⮕ null
+ ☇ hide · windows ⮕ null
  ☇ him ⮕ null
  ☇ hundred ⮕ null
  ☇ in · better · times ⮕ null
@@ -147,6 +148,7 @@
  ☇ open · at · a\determiner ⮕ null
  ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"]
  ☇ open · editor ⮕ [i3 "exec gvim -c ':NERDTree /home/josh'"]
+ ☇ open · ended · out · voice ⮕ null
  ☇ open · escape ⮕ null
  ☇ open · firm ⮕ null
  ☇ open · hello · _\underscore\underscore · world ⮕ null
@@ -430,8 +432,12 @@ vim vim-insert ☇ x-ray · Zulu ⮕ "xz"
 vim vim-insert ☇ x-ray · this ⮕ "xthis"
 vim vim-insert ☇ x-ray · whiskey · Victor ⮕ "xwv"
 vim vim-insert ☇ x-ray ⮕ "x"
+vim vim-tree ☇ change ⮕ "C"
+vim vim-tree ☇ up · change ⮕ <up> "C"
 vim ☇ 's\s\s ⮕ null
 vim ☇ /\slash\forward slash ⮕ null
+vim ☇ C\uppercase-letter\capital C · C\letter ⮕ null
+vim ☇ C\uppercase-letter\capital C ⮕ null
 vim ☇ Delta ⮕ null
 vim ☇ Dick ⮕ null
 vim ☇ Doctor ⮕ null
@@ -471,6 +477,7 @@ vim ☇ delete · until · backspace ⮕ null
 vim ☇ delete · until · see ⮕ null
 vim ☇ delete · until · three ⮕ "dt3"
 vim ☇ delete · word ⮕ "dw"
+vim ☇ dictate · C\uppercase-letter\capital C ⮕ "C"
 vim ☇ dictate · Victor ⮕ "v"
 vim ☇ dictate · Yankee ⮕ "y"
 vim ☇ dictate · news ⮕ "news"
@@ -485,6 +492,8 @@ vim ☇ double · backspace ⮕ [repeat 2 <backspace>]
 vim ☇ double · right ⮕ [repeat 2 <right>]
 vim ☇ double · space ⮕ null
 vim ☇ down · down · down ⮕ <down> <down> <down>
+vim ☇ down · down ⮕ <down> <down>
+vim ☇ down · into ⮕ <down> <enter>
 vim ☇ down ⮕ <down>
 vim ☇ downturn ⮕ null
 vim ☇ eight · down ⮕ [repeat 8 <down>]
@@ -530,6 +539,7 @@ vim ☇ left · left · left ⮕ <left> <left> <left>
 vim ☇ left · left ⮕ <left> <left>
 vim ☇ left ⮕ <left>
 vim ☇ love ⮕ null
+vim ☇ move · window · left ⮕ [i3 "move left"]
 vim ☇ one\pronoun · down ⮕ <down>
 vim ☇ one\pronoun · up ⮕ <up>
 vim ☇ open · _\underscore\underscore ⮕ "o" [mode +vim-insert] "_"
@@ -553,7 +563,10 @@ vim ☇ right · right · right · right ⮕ <right> <right> <right> <right>
 vim ☇ right · right · right ⮕ <right> <right> <right>
 vim ☇ right · right ⮕ <right> <right>
 vim ☇ right ⮕ <right>
+vim ☇ save · excellent ⮕ null
+vim ☇ save · except ⮕ null
 vim ☇ save · exit ⮕ <escape> ":wq" <enter>
+vim ☇ save · quite ⮕ null
 vim ☇ save ⮕ <escape> ":w" <enter>
 vim ☇ screen · five ⮕ [i3 "workspace 5"]
 vim ☇ screen · one\number ⮕ [i3 "workspace 1"]
@@ -584,6 +597,7 @@ vim ☇ up ⮕ <up>
 vim ☇ very · up ⮕ null
 vim ☇ wake up ⮕ null
 vim ☇ window · right ⮕ [i3 "focus right"]
+vim ☇ writer · excellent ⮕ null
 vim ☇ x-ray · whiskey · Victor ⮕ null
 vim ☇ x-ray ⮕ null
 vim ☇ yank · line ⮕ "yy"

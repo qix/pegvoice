@@ -186,6 +186,9 @@ words :string => type(string);
   next => type('n');
 }
 
+&vimTree ...{
+  change => type('C');
+}
 &vimInsert ...{
   :dictate => dictate;
 }
@@ -213,6 +216,9 @@ _vim = &{
 };
 _vimInsert = &{
   return options.mode.has('vim-insert');
+};
+_vimTree = &{
+  return options.mode.has('vim-tree');
 };
 
 _folder = voice {
