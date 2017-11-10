@@ -119,7 +119,15 @@ escape => key('escape');
   l:phonetic_letter => key(l);
   close tab? => key('ctrl-w');
   open tab? => key('ctrl-t');
+  tab => key('tab');
   page down? => key('pagedown');
+}
+&slack ...{
+  pizza party => type(
+    ':party-dino: ' +
+    ':pizzaspin: :pizzaspin2: :antipizza: :pizzaspin3: :pizzaspin4:' +
+    ' :party-dino:'
+  );
 }
 
 
@@ -211,6 +219,9 @@ _vim_until = (to / until) _ code:_ascii {
 _chrome = &{
   return options.mode.has('chrome');
 };
+_slack = &{
+  return options.mode.has('slack');
+};
 _vim = &{
   return options.mode.has('vim');
 };
@@ -290,32 +301,71 @@ _key "<key>"
   / _ascii 
 
 _ascii "<ascii>" = char:(
+  and /
+  at /
   backslash /
+  caret /
   dash /
+  dollar /
+  equal /
+  greater /
+  hash /
+  left_curly /
+  left_paren /
+  left_square /
+  left_triangle /
+  less /
+  percent /
   period /
+  pipe /
+  plus /
+  question /
+  right_curly /
+  right_paren /
+  right_square /
+  right_triangle /
   semicolon /
   slash /
   space /
+  star /
   tab /
+  tilde /
   underscore /
-  greater /
-  less /
-  equal /
   _digit /
   _phonetic_letter /
   _letter
 ) {
   return {
-    greater: '>',
-    less: '<',
-    equal: '=',
-    period: '.',
-    underscore: '_',
-    space: ' ',
-    semicolon: ';',
-    tab: '\t',
-    slash: '/',
+    and: '&',
+    at: '@',
     backslash: '\\',
+    caret: '^',
+    dash: '-',
+    dollar: '$',
+    equal: '=',
+    greater: '>',
+    hash: '#',
+    left_curly: '{',
+    left_paren: '(',
+    left_square: '[',
+    left_triangle: '<',
+    less: '<',
+    percent: '%',
+    period: '.',
+    pipe: '|',
+    plus: '+',
+    question: '?',
+    right_curly: '}',
+    right_paren: ')',
+    right_square: ']',
+    right_triangle: '>',
+    semicolon: ';',
+    slash: '/',
+    space: ' ',
+    star: '*',
+    tab: '\t',
+    tilde: '~',
+    underscore: '_',
   }[char] || `${char}`;
 }
 
@@ -452,17 +502,27 @@ _string = chars:(.*) {
 
 undo = ("undo"i / and _ do) { return "undo"; }
 not_equal = not _ equal { return "not_equal"; }
+left_curly = left _ curly { return "left_curly"; }
+left_paren = left _ paren { return "left_paren"; }
+left_square = left _ square { return "left_square"; }
+left_triangle = left _ triangle { return "left_triangle"; }
+right_curly = right _ curly { return "right_curly"; }
+right_paren = right _ paren { return "right_paren"; }
+right_square = right _ square { return "right_square"; }
+right_triangle = right _ triangle { return "right_triangle"; }
 
 spell and;
-spell not;
 spell arrow;
+spell at;
 spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
 spell capital;
+spell caret;
 spell close / closed;
 spell dash / "-";
 spell dictate / dictates;
 spell do;
+spell dollar;
 spell dotcom / ".com\\\\dot com";
 spell double;
 spell down;
@@ -474,16 +534,26 @@ spell five;
 spell forward;
 spell four;
 spell greater / grader;
+spell hash;
 spell inner;
 spell key / he;
 spell left;
+spell curly;
+spell paren;
+spell square;
+spell triangle;
 spell less;
 spell naught;
 spell nine;
+spell not;
 spell number;
 spell one;
 spell or;
+spell percent;
 spell period / "." / ".\\dot\\dot";
+spell pipe;
+spell plus;
+spell question;
 spell right;
 spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
@@ -492,9 +562,11 @@ spell single;
 spell six;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
+spell star;
 spell tab / "\\tab-key\\tab key";
 spell than;
 spell three;
+spell tilde;
 spell triple;
 spell two;
 spell underscore / "_" / "_\\underscore\\underscore";

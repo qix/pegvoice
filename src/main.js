@@ -110,9 +110,13 @@ async function executeTranscripts(transcripts) {
     try {
       const command = parser.parse(transcript, mode);
       if (executed) {
-        console.log('Skipping: %s => %j', transcript, command);
+        console.log(
+          `${chalk.grey('Skip: ')}${transcript}${chalk.grey(' => ')}${chalk.grey(command.render())}`
+        );
       } else {
-        console.log('Execute: %s => %j', transcript, command);
+        console.log(
+          `Exec: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
+        );
         executed = true;
         command.execute(machine);
 
@@ -124,7 +128,9 @@ async function executeTranscripts(transcripts) {
         }
       }
     } catch (err) {
-      console.log('Failed: %s => null', transcript);
+      console.log(
+        `${chalk.grey('Fail: ')}${transcript}${chalk.grey(' => null')}`
+      );
 
       if (err instanceof Parser.ParseError) {
         if (first) {

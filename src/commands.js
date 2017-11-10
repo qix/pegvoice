@@ -1,7 +1,7 @@
 'use strict';
 
 function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`';
+  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><`~:;';
   const index = map.indexOf(key);
   if (index >= 0 && index % 2 === 0) {
     return map.charAt(index + 1);
@@ -129,8 +129,8 @@ class ModeCommand extends Command {
   }
   execute(machine) {
     machine.trackModeChange(() => {
-      (props.enable || []).forEach(mode => machine.mode.add(mode));
-      (props.disable || []).forEach(mode => machine.mode.delete(mode));
+      (this.enable || []).forEach(mode => machine.mode.add(mode));
+      (this.disable || []).forEach(mode => machine.mode.delete(mode));
     });
   }
   render() {

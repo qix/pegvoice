@@ -65,6 +65,7 @@ class Commander {
     this.toggleMode('vim-insert', vimInsert);
     this.toggleMode('vim-tree', vim && title.startsWith('NERD_tree_'));
     this.toggleMode('chrome', title.endsWith(' - Google Chrome'));
+    this.toggleMode('slack', title.endsWith('Slack - Google Chrome'));
     this.lastTitle = title;
   }
 

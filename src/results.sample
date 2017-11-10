@@ -33,7 +33,7 @@
  ☇ call · function ⮕ "function()" <left>
  ☇ call · hello ⮕ "hello()" <left>
  ☇ call · type ⮕ "type()" <left>
- ☇ capital · and ⮕ null
+ ☇ capital · and ⮕ <shift-&>
  ☇ chest ⮕ null
  ☇ cities ⮕ null
  ☇ close · buffer ⮕ null
@@ -163,6 +163,7 @@
  ☇ page · up ⮕ <pageup>
  ☇ paste · line ⮕ null
  ☇ paste ⮕ null
+ ☇ pizza · party ⮕ null
  ☇ playback ⮕ null
  ☇ prepend ⮕ null
  ☇ redo ⮕ <ctrl-r>
@@ -261,6 +262,16 @@
  ☇ words · close ⮕ "close"
  ☇ words · hello ⮕ "hello"
  ☇ yanking · on ⮕ null
+chrome slack ☇ 's\s\s ⮕ null
+chrome slack ☇ Lima ⮕ "l"
+chrome slack ☇ a\determiner · whole ⮕ null
+chrome slack ☇ delete · delete · delete ⮕ null
+chrome slack ☇ delete ⮕ null
+chrome slack ☇ link ⮕ <escape> "f"
+chrome slack ☇ offer ⮕ "a"
+chrome slack ☇ pizza · party ⮕ ":party-dino: :pizzaspin: :pizzaspin2: :antipizza: :pizzaspin3: :pizzaspin4: :party-dino:"
+chrome slack ☇ tab ⮕ <tab>
+chrome slack ☇ to ⮕ null
 chrome ☇ 's\s\s ⮕ null
 chrome ☇ 's\z\z ⮕ null
 chrome ☇ Alpha · Delta ⮕ "ad"
@@ -280,7 +291,7 @@ chrome ☇ YC ⮕ null
 chrome ☇ \spelling-cap\cap · ten ⮕ null
 chrome ☇ \tab-key\tab key · one\number ⮕ <ctrl-1>
 chrome ☇ \tab-key\tab key · three ⮕ <ctrl-3>
-chrome ☇ \tab-key\tab key ⮕ null
+chrome ☇ \tab-key\tab key ⮕ <tab>
 chrome ☇ a\determiner · job ⮕ null
 chrome ☇ and ⮕ null
 chrome ☇ big · link ⮕ <escape> "F"
@@ -314,7 +325,7 @@ chrome ☇ screen · three ⮕ [i3 "workspace 3"]
 chrome ☇ see ⮕ null
 chrome ☇ slap ⮕ <enter>
 chrome ☇ tab · nine ⮕ <ctrl-9>
-chrome ☇ tab ⮕ null
+chrome ☇ tab ⮕ <tab>
 chrome ☇ table · one\number ⮕ null
 chrome ☇ ten · ten ⮕ null
 chrome ☇ to ⮕ null
@@ -360,7 +371,7 @@ vim vim-insert ☇ _\underscore\underscore · world ⮕ "_world"
 vim vim-insert ☇ _\underscore\underscore ⮕ "_"
 vim vim-insert ☇ a\determiner · row ⮕ "arow"
 vim vim-insert ☇ alpha ⮕ "a"
-vim vim-insert ☇ and ⮕ "and"
+vim vim-insert ☇ and ⮕ "&"
 vim vim-insert ☇ backspace · backspace · backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace> <backspace> <backspace>
 vim vim-insert ☇ backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace>
 vim vim-insert ☇ backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace>
@@ -454,6 +465,7 @@ vim vim-insert ☇ string · hello ⮕ "stringhello"
 vim vim-insert ☇ that · it ⮕ "thatit"
 vim vim-insert ☇ that ⮕ "that"
 vim vim-insert ☇ the · close · backspace ⮕ "theclose" <backspace>
+vim vim-insert ☇ this ⮕ "this"
 vim vim-insert ☇ to · write ⮕ "towrite"
 vim vim-insert ☇ to ⮕ "to"
 vim vim-insert ☇ up ⮕ <up>
@@ -497,7 +509,7 @@ vim ☇ backspace ⮕ <backspace>
 vim ☇ change · line ⮕ "cc" [mode +vim-insert]
 vim ☇ change · until · /\slash\slash ⮕ "ct/" [mode +vim-insert]
 vim ☇ change · until · Tango ⮕ "ctt" [mode +vim-insert]
-vim ☇ change · until · and ⮕ null
+vim ☇ change · until · and ⮕ "ct&" [mode +vim-insert]
 vim ☇ change · word ⮕ "cw" [mode +vim-insert]
 vim ☇ copy · line ⮕ null
 vim ☇ daughter ⮕ null
@@ -582,6 +594,10 @@ vim ☇ left ⮕ <left>
 vim ☇ love ⮕ null
 vim ☇ move · window · left ⮕ [i3 "move left"]
 vim ☇ next ⮕ "n"
+vim ☇ one\number · hundred · \spelling-cap\cap ⮕ null
+vim ☇ one\number · hundred · and · one\number · up ⮕ [repeat 101 <up>]
+vim ☇ one\number · hundred · up ⮕ null
+vim ☇ one\number · up ⮕ <up>
 vim ☇ one\pronoun · down ⮕ <down>
 vim ☇ one\pronoun · up ⮕ <up>
 vim ☇ open · _\underscore\underscore ⮕ "o" [mode +vim-insert] "_"
