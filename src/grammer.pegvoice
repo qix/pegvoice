@@ -120,6 +120,12 @@ escape => key('escape');
 
 &chrome ...{
   tab :number => key(`ctrl-${number}`);
+  link => escaped(key('f'));
+  big link => escaped(key('F'));
+  l:phonetic_letter => key(l);
+  close tab? => key('ctrl-w');
+  open tab? => key('ctrl-t');
+  page down? => key('pagedown');
 }
 
 
@@ -139,6 +145,7 @@ control k:key => key(`ctrl-${k}`);
 shift k:key => key(`shift-${k}`);
 
 type :keys => type(keys);
+dictate :dictate => dictate;
 
 words :string => {
   handler: 'type',
@@ -228,8 +235,9 @@ _dictate = commands:(_dictate_special / _dictate_key / _dictate_ident)+ {
   return multi(...commands);
 }
 
-_dictate_special = w:(equals / arrow) &_ {
+_dictate_special = w:(equals / arrow / dotcom) &_ {
   return type({
+    dotcom: '.com',
     equals: ' === ',
     arrow: ' => ',
   }[w]);
@@ -260,19 +268,54 @@ _key "<key>"
 _ascii "<ascii>" = char:(
   space /
   underscore /
+  period /
   semicolon /
   dash /
   tab /
   _digit /
+  _phonetic_letter /
   _letter
 ) {
   return {
+    period: '.',
     underscore: '_',
     space: ' ',
     semicolon: ';',
     tab: '\t',
   }[char] || `${char}`;
 }
+
+_phonetic_letter = code:(
+  alfa /
+  bravo /
+  charlie /
+  delta /
+  echo /
+  foxtrot /
+  golf /
+  hotel /
+  india /
+  juliett /
+  kilo /
+  lima /
+  mike /
+  november /
+  oscar /
+  papa /
+  quebec /
+  romeo /
+  sierra /
+  tango /
+  uniform /
+  victor /
+  whiskey /
+  xray /
+  yankee /
+  zulu
+) &_ {
+  return code.toLowerCase().charAt(0);
+};
+
 
 _letter = capital:(capital _)? letter:([a-zA-Z]) (
   "\\letter\\letter [A-Z]" /
@@ -369,6 +412,8 @@ spell backspace / back space / that space;
 spell capital;
 spell close / closed;
 spell dash / "-";
+spell dictate / dictates;
+spell dotcom / ".com\\\\dot com";
 spell down;
 spell enter / inter / into / "\\new-line\\new line";
 spell equals;
@@ -380,10 +425,37 @@ spell right;
 spell save / safe;
 spell semicolon / ";\\semicolon\\semicolon";
 spell space;
-spell tab;
+spell tab / "\\tab-key\\tab key";
 spell underscore / "_" / "_\\underscore\\underscore";
+spell period / "." / ".\\dot\\dot";
 spell until;
 spell up;
 spell voice;
 spell window / windows;
 spell word;
+spell alfa / alpha / offer;
+spell bravo / brother;
+spell charlie;
+spell delta;
+spell echo;
+spell foxtrot;
+spell golf;
+spell hotel;
+spell india;
+spell juliett / juliet;
+spell kilo;
+spell lima;
+spell mike;
+spell november;
+spell oscar;
+spell papa;
+spell quebec / "québec";
+spell romeo;
+spell sierra;
+spell tango;
+spell uniform;
+spell victor;
+spell whiskey;
+spell xray / "x-ray";
+spell yankee;
+spell zulu / sooner;

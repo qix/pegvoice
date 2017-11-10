@@ -219,7 +219,6 @@ class PegGenerator {
           if (cmd.handler === 'multi') {
             cmd.commands.forEach(enableModes);
           } else if (cmd.handler === 'mode') {
-            console.log(cmd);
             (cmd.enable || []).forEach(mode => options.mode.add(mode));
             (cmd.disable || []).forEach(mode => options.mode.delete(mode));
           }

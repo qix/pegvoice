@@ -19,6 +19,7 @@ const Parser = require('./Parser');
 
 const binarySplit = require('binary-split');
 const bunyan = require('bunyan');
+const chalk = require('chalk');
 const {docopt} = require('docopt');
 const fs = require('fs');
 const renderCommand = require('./renderCommand');
@@ -99,12 +100,13 @@ const log = bunyan.createLogger({
 const commander = new Commander(log);
 const parser = new Parser();
 
-function executeTranscripts(transcripts) {
+async function executeTranscripts(transcripts) {
   let executed = false;
   let first = true;
-  const mode = commander.getCurrentMode();
-  const modeString = Array.from(mode).sort().join('+') + modeSeperator;
+  const mode = await commander.fetchCurrentMode();
+  const modeString = Array.from(mode).sort().join(' ') + modeSeperator;
 
+  console.log(chalk.white.dim(`[${modeString}]`));
   for (let transcript of transcripts) {
     try {
       const command = parser.parse(transcript, mode);

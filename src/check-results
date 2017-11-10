@@ -39,7 +39,7 @@ for (const oldLine of results.split('\n')) {
   const [modeTranscript, oldResult] = oldLine.split(rightArrow);
   const [modeString, transcript] = modeTranscript.split(modeSeperator);
 
-  const modes = new Set(Array.from(modeString.split('+')));
+  const modes = new Set(Array.from(modeString.split(' ')));
 
   let newResult;
   try {

@@ -2,16 +2,26 @@
 
 const chalk = require('chalk');
 const i3 = require('i3').createClient();
+const {exec} = require('child_process')
+const {promisify} = require('util');
+
+const execAsync = promisify(exec);
+
 const robot = require('robotjs');
 
 function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\ZzV{[}]><~`';
+  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`';
   const index = map.indexOf(key);
   if (index >= 0 && index % 2 === 0) {
     return map.charAt(index + 1);
   } else {
     return key.toLowerCase();
   }
+}
+
+async function getCurrentTitle() {
+  const {stdout} = await execAsync('xdotool getwindowfocus getwindowname');
+  return stdout.trim();
 }
 
 class Commander {
@@ -34,16 +44,13 @@ class Commander {
     i3.on('window', (({change, container}) => {
       if (change === 'focus') {
         const {title} = container.window_properties;
-
-        const vimInsert = title.endsWith(' <vim:i>');
-        const vimNormal = title.endsWith(' <vim>');
-        const vim = vimInsert || vimNormal;
-        this.toggleMode('vim', vim);
-        this.toggleMode('vim-insert', vimInsert);
+        this.handleTitle(title);
       }
     }));
 
     this.mode = new Set();
+    this.lastTitle = null;
+
     this.handlers = {
       i3(props) {
         const {command} = props;
@@ -102,8 +109,24 @@ class Commander {
     };
   }
 
-  getCurrentMode() {
+  async fetchCurrentMode() {
+    this.handleTitle(await getCurrentTitle());
     return this.mode;
+  }
+
+  handleTitle(title) {
+    if (title === this.lastTitle) {
+      return;
+    }
+
+    console.log(chalk.white.dim(`Title: ${title}`));
+    const vimInsert = title.endsWith(' <vim:i>');
+    const vimNormal = title.endsWith(' <vim>');
+    const vim = vimInsert || vimNormal;
+    this.toggleMode('vim', vim);
+    this.toggleMode('vim-insert', vimInsert);
+    this.toggleMode('chrome', title.endsWith(' - Google Chrome'));
+    this.lastTitle = title;
   }
 
   trackModeChange(cb) {
