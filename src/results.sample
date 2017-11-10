@@ -4,8 +4,9 @@
  ☇ ;\semicolon\semicolon ⮕ null
  ☇ D\uppercase-letter\capital D ⮕ null
  ☇ VI · M\letter ⮕ null
- ☇ \new-line\new line ⮕ null
+ ☇ \new-line\new line ⮕ <enter>
  ☇ \no-space\no space ⮕ null
+ ☇ a\determiner ⮕ null
  ☇ acre ⮕ null
  ☇ and · \no-space\no space ⮕ null
  ☇ and ⮕ null
@@ -50,6 +51,7 @@
  ☇ echo ⮕ null
  ☇ editor · open · editor · voice ⮕ null
  ☇ editor · voice ⮕ null
+ ☇ equals ⮕ null
  ☇ escape · delete · line ⮕ null
  ☇ escape · escape ⮕ <escape> <escape>
  ☇ escape ⮕ <escape>
@@ -76,6 +78,7 @@
  ☇ in · it ⮕ null
  ☇ in ⮕ null
  ☇ insert · escape ⮕ null
+ ☇ insert · hello ⮕ null
  ☇ insert ⮕ null
  ☇ into · into ⮕ <enter> <enter>
  ☇ into · next ⮕ null
@@ -113,6 +116,7 @@
  ☇ open · editor ⮕ {"handler":"i3","command":"exec gvim -c ':NERDTree /home/josh'"}
  ☇ open · escape ⮕ null
  ☇ open · firm ⮕ null
+ ☇ open · hello · _\underscore\underscore · world ⮕ null
  ☇ open · terminal · voice ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""}
  ☇ open · terminal ⮕ {"handler":"i3","command":"exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""}
  ☇ open · them ⮕ null
@@ -210,6 +214,7 @@
  ☇ window · float ⮕ {"handler":"i3","command":"floating toggle"}
  ☇ window · left ⮕ {"handler":"i3","command":"focus left"}
  ☇ window · move · left ⮕ {"handler":"i3","command":"move left"}
+ ☇ window · right · window · left ⮕ {"handler":"multi","commands":[{"handler":"i3","command":"focus right"},{"handler":"i3","command":"focus left"}]}
  ☇ window · right ⮕ {"handler":"i3","command":"focus right"}
  ☇ window · up · close · window ⮕ null
  ☇ window · up ⮕ {"handler":"i3","command":"focus up"}
@@ -217,11 +222,48 @@
  ☇ words · close ⮕ {"handler":"type","string":"close"}
  ☇ words · hello ⮕ {"handler":"type","string":"hello"}
  ☇ yanking · on ⮕ null
+vim ☇ 's\s\s ⮕ null
+vim ☇ delete · line ⮕ "dd"
+vim ☇ dictate · their ⮕ null
+vim ☇ escape · insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"escape"},{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}]}
 vim ☇ escape ⮕ <escape>
+vim ☇ hello · _\underscore\underscore · world ⮕ null
+vim ☇ hello · world ⮕ null
+vim ☇ hello ⮕ null
+vim ☇ insert · hello · equals · five ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]},{"handler":"multi","commands":[{"handler":"key","key":" "},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":"="},{"handler":"key","key":" "}]},{"handler":"key","key":"5"}]}
+vim ☇ insert · hello ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]}]}
 vim ☇ insert ⮕ {"handler":"multi","commands":[{"handler":"key","key":"i"},{"handler":"mode","enable":["vim-insert"]}]}
-vim ☇ open ⮕ "o"
+vim ☇ love ⮕ null
+vim ☇ open · hello · _\underscore\underscore · world ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]},{"handler":"key","key":"_"},{"handler":"multi","commands":[{"handler":"key","key":"w"},{"handler":"key","key":"o"},{"handler":"key","key":"r"},{"handler":"key","key":"l"},{"handler":"key","key":"d"}]}]}
+vim ☇ open · hello ⮕ {"handler":"multi","commands":[{"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]},{"handler":"multi","commands":[{"handler":"key","key":"h"},{"handler":"key","key":"e"},{"handler":"key","key":"l"},{"handler":"key","key":"l"},{"handler":"key","key":"o"}]}]}
+vim ☇ open ⮕ {"handler":"multi","commands":[{"handler":"key","key":"o"},{"handler":"mode","enable":["vim-insert"]}]}
+vim ☇ the ⮕ null
 vim ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
+vim ☇ wake up ⮕ null
+vim+vim-insert ☇ ;\semicolon\semicolon ⮕ ";"
+vim+vim-insert ☇ I\pronoun ⮕ "i"
+vim+vim-insert ☇ T\letter ⮕ "t"
+vim+vim-insert ☇ \new-line\new line ⮕ <enter>
+vim+vim-insert ☇ _\underscore\underscore · world ⮕ "_world"
+vim+vim-insert ☇ _\underscore\underscore ⮕ "_"
+vim+vim-insert ☇ a\determiner · row ⮕ null
+vim+vim-insert ☇ dictate · hello ⮕ "dictatehello"
+vim+vim-insert ☇ equals ⮕ " === "
 vim+vim-insert ☇ escape ⮕ <escape>
+vim+vim-insert ☇ five ⮕ "5"
+vim+vim-insert ☇ found ⮕ "found"
+vim+vim-insert ☇ hello · _\underscore\underscore · world ⮕ "hello_world"
+vim+vim-insert ☇ hello · world ⮕ "helloworld"
+vim+vim-insert ☇ hello ⮕ "hello"
+vim+vim-insert ☇ in ⮕ "in"
+vim+vim-insert ☇ into ⮕ <enter>
+vim+vim-insert ☇ is ⮕ "is"
+vim+vim-insert ☇ joke ⮕ "joke"
 vim+vim-insert ☇ node · require · FS ⮕ "const fs = require(" <'> "fs" <'> ");" <enter>
-vim+vim-insert ☇ node ⮕ null
-vim+vim-insert ☇ require · FS ⮕ null
+vim+vim-insert ☇ node ⮕ "node"
+vim+vim-insert ☇ require · FS ⮕ "requirefs"
+vim+vim-insert ☇ space ⮕ " "
+vim+vim-insert ☇ string · hello ⮕ "stringhello"
+vim+vim-insert ☇ that · it ⮕ "thatit"
+vim+vim-insert ☇ to ⮕ "to"
+vim+vim-insert ☇ when ⮕ "when"

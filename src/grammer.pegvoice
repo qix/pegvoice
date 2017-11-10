@@ -104,42 +104,6 @@ open editor :folder? => i3(
   `exec gvim -c ':NERDTree ${optional(folder, '/home/josh')}'`
 );
 
-&vim ...{
-  open above => type('O');
-  open => type('o');
-  above => type('O');
-  append end => type('A');
-  append => type('a');
-  insert => multi(type('i'), mode('vim-insert'));
-
-  paste => type('p');
-  undo => type('u');
-  save exit => vimex('wq');
-  save => vimex('w');
-
-  tree :folder => vimex(`NERDTree ${folder}`);
-
-  go to? ...{
-    top => type('gg');
-    bottom => type('G');
-  }
-
-  delete ...{
-    line => type('dd');
-    dir:vim_direction => type(`d${dir}`);
-  }
-  yank ...{
-    line => type('yy');
-    dir:vim_direction => type(`y${dir}`);
-  }
-
-  node require :ident => typeLine(`const ${ident} = require('${ident}');`);
-  switch buffer => escaped(repeat(2, key('ctrl-w')));
-  close buffer => vimex('bd');
-  find :code? => escaped(type(`/${optional(code, '')}`));
-  next => type('n');
-}
-
 redo => key('ctrl-r');
 
 call :ident => multi(type(`${ident}()`), key('left'));
@@ -181,6 +145,46 @@ words :string => {
   string,
 };
 
+&vim ...{
+  open above => multi(type('O'), mode('vim-insert'));
+  open => multi(type('o'), mode('vim-insert'));
+  above => multi(type('O'), mode('vim-insert'));
+  append end => multi(type('A'), mode('vim-insert'));
+  append => multi(type('a'), mode('vim-insert'));
+  insert => multi(type('i'), mode('vim-insert'));
+
+  paste => type('p');
+  undo => type('u');
+  save exit => vimex('wq');
+  save => vimex('w');
+
+  tree :folder => vimex(`NERDTree ${folder}`);
+
+  go to? ...{
+    top => type('gg');
+    bottom => type('G');
+  }
+
+  delete ...{
+    line => type('dd');
+    dir:vim_direction => type(`d${dir}`);
+  }
+  yank ...{
+    line => type('yy');
+    dir:vim_direction => type(`y${dir}`);
+  }
+
+  node require :ident => typeLine(`const ${ident} = require('${ident}');`);
+  switch buffer => escaped(repeat(2, key('ctrl-w')));
+  close buffer => vimex('bd');
+  find :code? => escaped(type(`/${optional(code, '')}`));
+  next => type('n');
+}
+
+&vimInsert ...{
+  :dictate => dictate;
+}
+
 
 /***
   DEFINITIONS
@@ -202,7 +206,7 @@ _chrome = &{
 _vim = &{
   return options.mode.has('vim');
 };
-_vim_insert = &{
+_vimInsert = &{
   return options.mode.has('vim-insert');
 };
 
@@ -218,6 +222,24 @@ _keys = head:_key "."? tail:(_ _key "."?)* {
 
 _code = head:_ident tail:(_ _ident &_)* {
   return [head, ...extractList(tail, 1)].join(' ');
+}
+
+_dictate = commands:(_dictate_special / _dictate_key / _dictate_ident)+ {
+  return multi(...commands);
+}
+
+_dictate_special = w:(equals / arrow) &_ {
+  return type({
+    equals: ' === ',
+    arrow: ' => ',
+  }[w]);
+}
+
+_dictate_ident = w:_ident &_ {
+  return type(w);
+}
+_dictate_key = k:_key &_ {
+  return key(k);
 }
 
 _ident = word:_word {
@@ -259,7 +281,7 @@ _letter = capital:(capital _)? letter:([a-zA-Z]) (
   ("\\spelling-letter\\letter " [A-Z]) /
   ("\\spelling-letter\\" [A-Z]) /
   ("\\uppercase-letter\\capital " [A-Z])
-)? {
+)? &_ {
   if (text().includes('uppercase-letter')) {
     capital = true;
   }
@@ -342,12 +364,14 @@ _string = chars:(.*) {
   return chars.join('');
 }
 
+spell arrow;
 spell backspace / back space / that space;
 spell capital;
 spell close / closed;
 spell dash / "-";
 spell down;
-spell enter / inter / into;
+spell enter / inter / into / "\\new-line\\new line";
+spell equals;
 spell escape / escaped;
 spell inner;
 spell key / he;
@@ -360,6 +384,6 @@ spell tab;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;
-spell window / windows;
 spell voice;
+spell window / windows;
 spell word;

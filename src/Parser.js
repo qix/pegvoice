@@ -211,7 +211,21 @@ class PegGenerator {
     let rv = '';
     if (ast.type === 'voiceGrammer') {
       if (ast.initializer) {
-        rv += `{\n${ast.initializer.code}\n}\n`;
+        rv += (`{
+        ${ast.initializer.code}
+
+        options.mode = new Set([...options.mode]);
+        function enableModes(cmd) {
+          if (cmd.handler === 'multi') {
+            cmd.commands.forEach(enableModes);
+          } else if (cmd.handler === 'mode') {
+            console.log(cmd);
+            (cmd.enable || []).forEach(mode => options.mode.add(mode));
+            (cmd.disable || []).forEach(mode => options.mode.delete(mode));
+          }
+        }
+        }
+        `);
       }
       const {ruleNames, source} = this.pegRules(ast.rules, 'c_');
       rv += `${source}\n`;
@@ -222,7 +236,11 @@ class PegGenerator {
       }
       rv += (`
       _ = "${wordSeperator}" / __eof__;
-      __command__ "<command>" = ${ruleNames.join(' / ')};
+
+      __command__ "<command>" = result:(${ruleNames.join(' / ')}) {
+        enableModes(result);
+        return result;
+      };
 
       __grammer__ = head:__command__ tail:(_ __command__)* {
         if (!tail.length) {
