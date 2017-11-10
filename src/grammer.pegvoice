@@ -237,6 +237,7 @@ _code = head:_ident tail:(_ _ident &_)* {
 
 _dictate = commands:(
   _dictate_special /
+  _dictate_compare /
   _dictate_number /
   _dictate_key /
   _dictate_ident
@@ -244,10 +245,20 @@ _dictate = commands:(
   return multi(...commands);
 }
 
-_dictate_special = w:(equals / arrow / dotcom) &_ {
+_dictate_compare = w:(greater / less) equal:((_ or)? _ equal)? {
+  return type(' ' + ({
+    greater: '>',
+    less: '<',
+  }[w]) + (equal ? '=' : '') + ' ');
+}
+
+_dictate_special = w:(equal / not_equal / arrow / dotcom) &_ {
   return type({
     dotcom: '.com',
-    equals: ' === ',
+    equal: ' === ',
+    not_equal: ' !== ',
+    greater: ' > ',
+    less: ' < ',
     arrow: ' => ',
   }[w]);
 }
@@ -258,7 +269,8 @@ _dictate_ident = w:_ident &_ {
 _dictate_key = count:(_count _)? k:_key &_ {
   return repeat(extractOptional(count, 0, 1), key(k));
 }
-_dictate_number = number _ head:_number tail:(_ _number)* &_ {
+
+_dictate_number = (number _)? head:_number tail:(_ _number)* &_ {
   return type([head, ...extractList(tail, 1)].join(''));
 }
 
@@ -286,11 +298,17 @@ _ascii "<ascii>" = char:(
   space /
   tab /
   underscore /
+  greater /
+  less /
+  equal /
   _digit /
   _phonetic_letter /
   _letter
 ) {
   return {
+    greater: '>',
+    less: '<',
+    equal: '=',
     period: '.',
     underscore: '_',
     space: ' ',
@@ -433,8 +451,10 @@ _string = chars:(.*) {
 }
 
 undo = ("undo"i / and _ do) { return "undo"; }
+not_equal = not _ equal { return "not_equal"; }
 
 spell and;
+spell not;
 spell arrow;
 spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
@@ -448,18 +468,21 @@ spell double;
 spell down;
 spell eight;
 spell enter / inter / into / "\\new-line\\new line";
-spell equals;
+spell equal / equals;
 spell escape / escaped;
 spell five;
 spell forward;
 spell four;
+spell greater / grader;
 spell inner;
 spell key / he;
 spell left;
+spell less;
 spell naught;
 spell nine;
 spell number;
 spell one;
+spell or;
 spell period / "." / ".\\dot\\dot";
 spell right;
 spell save / safe;
@@ -470,6 +493,7 @@ spell six;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell tab / "\\tab-key\\tab key";
+spell than;
 spell three;
 spell triple;
 spell two;
