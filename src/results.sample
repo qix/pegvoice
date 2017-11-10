@@ -337,6 +337,7 @@ chrome ☇ window · left ⮕ [i3 "focus left"]
 chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ null
 vim vim-insert ☇ 's\s\s ⮕ null
+vim vim-insert ☇ (\left-parenthesis\left paren · )\right-parenthesis\right paren ⮕ null
 vim vim-insert ☇ (\left-parenthesis\left paren ⮕ "("
 vim vim-insert ☇ )\right-parenthesis\right paren ⮕ ")"
 vim vim-insert ☇ .\dot\dot ⮕ "."
@@ -410,10 +411,10 @@ vim vim-insert ☇ express ⮕ "express"
 vim vim-insert ☇ extra ⮕ "extra"
 vim vim-insert ☇ first · above · voice · only ⮕ "firstO" [mode +vim-insert] "voiceonly"
 vim vim-insert ☇ first · space · commit · space · by · space ⮕ "first commit by "
-vim vim-insert ☇ five · backspace ⮕ [repeat 5 <backspace>]
-vim vim-insert ☇ five · left ⮕ [repeat 5 <left>]
+vim vim-insert ☇ five · backspace ⮕ "5" <backspace>
+vim vim-insert ☇ five · left ⮕ "5" <left>
 vim vim-insert ☇ five ⮕ "5"
-vim vim-insert ☇ for · backspace ⮕ [repeat 4 <backspace>]
+vim vim-insert ☇ for · backspace ⮕ "4" <backspace>
 vim vim-insert ☇ forward ⮕ "forward"
 vim vim-insert ☇ found ⮕ "found"
 vim vim-insert ☇ grade · or · equal ⮕ "gradeor === "
@@ -443,8 +444,9 @@ vim vim-insert ☇ key · left ⮕ <left>
 vim vim-insert ☇ key · less ⮕ "<"
 vim vim-insert ☇ key · right · curly ⮕ "}"
 vim vim-insert ☇ key · right ⮕ <right>
-vim vim-insert ☇ left · curly ⮕ <left> "curly"
-vim vim-insert ☇ left · triangle ⮕ <left> "triangle"
+vim vim-insert ☇ left · curly ⮕ "{"
+vim vim-insert ☇ left · triangle · [\left-square-bracket\left square bracket ⮕ "<["
+vim vim-insert ☇ left · triangle ⮕ "<"
 vim vim-insert ☇ left · try ⮕ <left> "try"
 vim vim-insert ☇ left ⮕ <left>
 vim vim-insert ☇ less · space · /\slash\slash · /\slash\slash ⮕ " <  //"
@@ -471,7 +473,7 @@ vim vim-insert ☇ offer · brother · Charlie · Delta · Echo · foxtrot · go
 vim vim-insert ☇ offer · brother · Charlie ⮕ "abc"
 vim vim-insert ☇ open · (\left-parenthesis\left paren · the ⮕ null
 vim vim-insert ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
-vim vim-insert ☇ open · left · triangle ⮕ "o" [mode +vim-insert] <left> "triangle"
+vim vim-insert ☇ open · left · triangle ⮕ "o" [mode +vim-insert] "<"
 vim vim-insert ☇ open · number · one\number · zero · zero ⮕ "o" [mode +vim-insert] "100"
 vim vim-insert ☇ open · number · one\number ⮕ "o" [mode +vim-insert] "1"
 vim vim-insert ☇ our · space · are · space · you · space · today · space ⮕ "our are you today "
@@ -480,8 +482,9 @@ vim vim-insert ☇ period ⮕ "."
 vim vim-insert ☇ plus · question ⮕ "+?"
 vim vim-insert ☇ question ⮕ "?"
 vim vim-insert ☇ require · FS ⮕ "requirefs"
+vim vim-insert ☇ right · triangle · ]\right-square-bracket\right square bracket ⮕ ">]"
 vim vim-insert ☇ screen · one\number ⮕ [i3 "workspace 1"]
-vim vim-insert ☇ six · backspace ⮕ [repeat 6 <backspace>]
+vim vim-insert ☇ six · backspace ⮕ "6" <backspace>
 vim vim-insert ☇ slap · greater · equal ⮕ <enter> " >= "
 vim vim-insert ☇ slap · less · equal ⮕ <enter> " <= "
 vim vim-insert ☇ slap ⮕ <enter>

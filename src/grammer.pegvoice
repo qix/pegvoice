@@ -85,7 +85,7 @@ window ...{
   close => i3('kill');
   move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
 }
-:direction => key(direction);
+
 screen :i3screen => i3(`workspace ${i3screen}`);
 
 open terminal :folder? => i3(
@@ -129,13 +129,6 @@ escape => key('escape');
     ' :party-dino:'
   );
 }
-
-
-:count :direction => repeat(count, key(direction));
-
-backspace => key('backspace');
-:count backspace => repeat(count, key('backspace'));
-
 
 i three ...{
   screen :i3screen => i3(`workspace ${i3screen}`);
@@ -201,6 +194,10 @@ words :string => type(string);
   :dictate => dictate;
 }
 
+:direction => key(direction);
+:count :direction => repeat(count, key(direction));
+backspace => key('backspace');
+:count backspace => repeat(count, key('backspace'));
 
 /***
   DEFINITIONS
