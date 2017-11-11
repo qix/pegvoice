@@ -40,7 +40,7 @@
  ☇ chest ⮕ null
  ☇ cities ⮕ null
  ☇ close · buffer ⮕ null
- ☇ close · window ⮕ null
+ ☇ close · window ⮕ [i3 "kill"]
  ☇ close ⮕ null
  ☇ commit ⮕ null
  ☇ control · C\letter ⮕ <ctrl-c>
@@ -268,7 +268,7 @@
  ☇ window · move · left ⮕ [i3 "move left"]
  ☇ window · right · window · left ⮕ [i3 "focus right"] [i3 "focus left"]
  ☇ window · right ⮕ [i3 "focus right"]
- ☇ window · up · close · window ⮕ null
+ ☇ window · up · close · window ⮕ [i3 "focus up"] [i3 "kill"]
  ☇ window · up ⮕ [i3 "focus up"]
  ☇ word · close ⮕ "close"
  ☇ words · close ⮕ "close"
@@ -347,6 +347,10 @@ chrome ☇ window · left · )\right-parenthesis\close paren ⮕ null
 chrome ☇ window · left ⮕ [i3 "focus left"]
 chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ null
+terminal ☇ control · see ⮕ <ctrl-c>
+terminal ☇ controversy ⮕ null
+terminal ☇ rebase ⮕ "git rebase -i HEAD~25"
+terminal ☇ slap ⮕ <enter>
 vim vim-insert vim-visual ☇ forward · a\determiner ⮕ "forwarda"
 vim vim-insert ☇ "\left-double-quote\begin quote ⮕ <">
 vim vim-insert ☇ 's\s\s ⮕ <'> "s"
@@ -712,7 +716,7 @@ vim ☇ delete · until · /\slash\slash ⮕ "dt/"
 vim ☇ delete · until · Tango ⮕ "dtt"
 vim ☇ delete · until · \backslash\backslash ⮕ "dt\"
 vim ☇ delete · until · backspace ⮕ null
-vim ☇ delete · until · see ⮕ null
+vim ☇ delete · until · see ⮕ "dtc"
 vim ☇ delete · until · three ⮕ "dt3"
 vim ☇ delete · word ⮕ "dw"
 vim ☇ delete ⮕ null
@@ -789,7 +793,7 @@ vim ☇ forward · Tango ⮕ "ft"
 vim ☇ forward · a\determiner ⮕ "fa"
 vim ☇ forward · equals ⮕ "f="
 vim ☇ forward · right · triangle ⮕ "f>"
-vim ☇ forward · see ⮕ null
+vim ☇ forward · see ⮕ "fc"
 vim ☇ forward ⮕ null
 vim ☇ four · left ⮕ "4" <left>
 vim ☇ four ⮕ "4"

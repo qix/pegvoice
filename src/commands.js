@@ -1,7 +1,7 @@
 'use strict';
 
 function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><`~:;"\'';
+  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;"\'';
   const index = map.indexOf(key);
   if (index >= 0 && index % 2 === 0) {
     return map.charAt(index + 1);

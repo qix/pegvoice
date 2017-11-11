@@ -71,6 +71,7 @@ class Commander {
     const vim = vimInsert || vimNormal;
     this.trackModeChange(() => {
       setToggle(this.mode, 'vim', vim);
+      setToggle(this.mode, 'terminal', title.endsWith(' <term>'));
       setToggle(this.mode, 'vim-insert', vimInsert);
       setToggle(this.mode, 'vim-tree', vim && title.startsWith('NERD_tree_'));
       if (!vim) {
