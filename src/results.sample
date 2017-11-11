@@ -393,6 +393,7 @@ vim vim-insert ☇ `\backquote\back tick ⮕ <backtick>
 vim vim-insert ☇ a\determiner · row ⮕ "arow"
 vim vim-insert ☇ a\determiner · space · team · space ⮕ "a team "
 vim vim-insert ☇ alpha ⮕ "a"
+vim vim-insert ☇ and · do ⮕ "&do"
 vim vim-insert ☇ and ⮕ "&"
 vim vim-insert ☇ arrow ⮕ " => "
 vim vim-insert ☇ backspace · ,\comma\comma · space ⮕ <backspace> ", "
@@ -412,12 +413,14 @@ vim vim-insert ☇ big · link ⮕ "biglink"
 vim vim-insert ☇ big · quote ⮕ <">
 vim vim-insert ☇ bravo ⮕ "b"
 vim vim-insert ☇ brother ⮕ "b"
+vim vim-insert ☇ call · key ⮕ "key()" <left>
 vim vim-insert ☇ called · type ⮕ "calledtype"
 vim vim-insert ☇ cat ⮕ "cat"
 vim vim-insert ☇ change · space ⮕ "change "
 vim vim-insert ☇ cue · right · :\colon\colon ⮕ "cue" <right> ":"
-vim vim-insert ☇ delete · delete · delete · delete · delete ⮕ "deletedeletedeletedeletedelete"
-vim vim-insert ☇ delete ⮕ "delete"
+vim vim-insert ☇ delete · arrow ⮕ <delete> " => "
+vim vim-insert ☇ delete · delete · delete · delete · delete ⮕ <delete> <delete> <delete> <delete> <delete>
+vim vim-insert ☇ delete ⮕ <delete>
 vim vim-insert ☇ dictate · hello ⮕ "hello"
 vim vim-insert ☇ dictate · word · one\number · one\number ⮕ "one1"
 vim vim-insert ☇ dictate · word · one\number ⮕ "one"
@@ -432,6 +435,7 @@ vim vim-insert ☇ escape · and · do ⮕ <escape> "u"
 vim vim-insert ☇ escape · append · end ⮕ <escape> "A" [mode +vim-insert]
 vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
 vim vim-insert ☇ escape · for · left ⮕ <escape> "4" <left>
+vim vim-insert ☇ escape · right ⮕ <escape> <right>
 vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
 vim vim-insert ☇ escape · three · left ⮕ <escape> "3" <left>
 vim vim-insert ☇ escape · under ⮕ null
@@ -524,6 +528,7 @@ vim vim-insert ☇ period ⮕ "."
 vim vim-insert ☇ plus · question ⮕ "+?"
 vim vim-insert ☇ question ⮕ "?"
 vim vim-insert ☇ quote ⮕ <'>
+vim vim-insert ☇ quotes · delete · quote ⮕ <'> "delete" <'>
 vim vim-insert ☇ require · FS ⮕ "requirefs"
 vim vim-insert ☇ right · triangle · ]\right-square-bracket\right square bracket ⮕ ">]"
 vim vim-insert ☇ screen · one\number ⮕ [i3 "workspace 1"]
@@ -617,37 +622,40 @@ vim vim-visual ☇ visual ⮕ null
 vim vim-visual ☇ yank · line ⮕ null
 vim vim-visual ☇ yank ⮕ "y" [mode -vim-visual]
 vim ☇ 's\s\s ⮕ null
-vim ☇ (\left-parenthesis\left paren ⮕ null
-vim ☇ /\slash\forward slash ⮕ null
-vim ☇ C\uppercase-letter\capital C · C\letter ⮕ null
-vim ☇ C\uppercase-letter\capital C ⮕ null
-vim ☇ Delta ⮕ null
+vim ☇ (\left-parenthesis\left paren ⮕ "("
+vim ☇ /\slash\forward slash ⮕ "/"
+vim ☇ C\uppercase-letter\capital C · C\letter ⮕ "Cc"
+vim ☇ C\uppercase-letter\capital C ⮕ "C"
+vim ☇ Delta ⮕ "d"
 vim ☇ Dick ⮕ null
 vim ☇ Doctor ⮕ null
-vim ☇ F\letter ⮕ null
+vim ☇ F\letter ⮕ "f"
 vim ☇ Ford · (\left-parenthesis\left paren ⮕ null
 vim ☇ Ford · Ford ⮕ null
 vim ☇ Ford · kilo ⮕ null
 vim ☇ Ford ⮕ null
-vim ☇ J\uppercase-letter\capital J ⮕ null
-vim ☇ Juliet ⮕ null
-vim ☇ K\letter ⮕ null
+vim ☇ J\uppercase-letter\capital J ⮕ "J"
+vim ☇ Juliet ⮕ "j"
+vim ☇ K\letter ⮕ "k"
 vim ☇ Key · J\uppercase-letter\capital J ⮕ "J"
-vim ☇ M\letter · a\determiner ⮕ null
+vim ☇ M\letter · a\determiner ⮕ "ma"
 vim ☇ Mark ⮕ null
 vim ☇ Pixie ⮕ null
-vim ☇ T\letter ⮕ null
-vim ☇ Tab · one\number ⮕ null
+vim ☇ Québec ⮕ "q"
+vim ☇ T\letter ⮕ "t"
+vim ☇ Tab · one\number ⮕ "	1"
 vim ☇ Tate ⮕ null
 vim ☇ \new-line\next line ⮕ null
-vim ☇ ]\right-square-bracket\right square bracket ⮕ null
-vim ☇ ^\caret\caret ⮕ null
+vim ☇ ]\right-square-bracket\right square bracket ⮕ "]"
+vim ☇ ^\caret\caret ⮕ "^"
 vim ☇ alter ⮕ null
 vim ☇ and · do ⮕ "u"
-vim ☇ and ⮕ null
+vim ☇ and · macro ⮕ null
+vim ☇ and ⮕ "&"
 vim ☇ append · end ⮕ "A" [mode +vim-insert]
 vim ☇ append ⮕ "a" [mode +vim-insert]
 vim ☇ as ⮕ null
+vim ☇ at · a\determiner ⮕ "@a"
 vim ☇ back · back ⮕ null
 vim ☇ backspace ⮕ <backspace>
 vim ☇ big · paste ⮕ "P"
@@ -662,6 +670,7 @@ vim ☇ change · word · key · are ⮕ "cw" [mode +vim-insert] "keyare"
 vim ☇ change · word · repeat ⮕ "cw" [mode +vim-insert] "repeat"
 vim ☇ change · word ⮕ "cw" [mode +vim-insert]
 vim ☇ copy · line ⮕ null
+vim ☇ create · macro · x-ray ⮕ "qx"
 vim ☇ curly ⮕ null
 vim ☇ cut ⮕ "x"
 vim ☇ daughter ⮕ null
@@ -696,7 +705,7 @@ vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ "xxxxx"
 vim ☇ dictate · x-ray · x-ray ⮕ "xx"
 vim ☇ dictate · x-ray ⮕ "x"
 vim ☇ dictate ⮕ null
-vim ☇ dollar ⮕ null
+vim ☇ dollar ⮕ "$"
 vim ☇ dominate ⮕ null
 vim ☇ double · backspace ⮕ [repeat 2 <backspace>]
 vim ☇ double · right ⮕ [repeat 2 <right>]
@@ -709,6 +718,7 @@ vim ☇ down ⮕ <down>
 vim ☇ downturn ⮕ null
 vim ☇ eight · down ⮕ "8" <down>
 vim ☇ eight ⮕ "8"
+vim ☇ end · macro ⮕ "q"
 vim ☇ escape · append ⮕ <escape> "a" [mode +vim-insert]
 vim ☇ escape · escape · escape ⮕ <escape> <escape> <escape>
 vim ☇ escape · except ⮕ null
@@ -728,6 +738,8 @@ vim ☇ find · to ⮕ <escape> "/2"
 vim ☇ find · typed · TW ⮕ <escape> "/typedtw"
 vim ☇ find · voice ⮕ <escape> "/voice"
 vim ☇ find ⮕ <escape> "/"
+vim ☇ five · )\right-parenthesis\right paren · a\determiner ⮕ "5)a"
+vim ☇ five · I\pronoun ⮕ "5i"
 vim ☇ five · down ⮕ "5" <down>
 vim ☇ five · forward ⮕ null
 vim ☇ five · right ⮕ "5" <right>
@@ -753,6 +765,10 @@ vim ☇ go · to · a\determiner ⮕ <'> "a"
 vim ☇ go · to · bottom ⮕ "G"
 vim ☇ good · about · them ⮕ null
 vim ☇ good · bottom ⮕ null
+vim ☇ great · macro · X\letter ⮕ "qx"
+vim ☇ great · macro · backs · up ⮕ null
+vim ☇ great · macro · x-ray ⮕ "qx"
+vim ☇ great · macro ⮕ null
 vim ☇ green · brightness · one\number · hundred ⮕ [i3 "exec brightness 100"]
 vim ☇ hello · _\underscore\underscore · world ⮕ null
 vim ☇ hello · world ⮕ null
@@ -770,6 +786,7 @@ vim ☇ insert · letter ⮕ "i" [mode +vim-insert] "letter"
 vim ☇ insert · sooner ⮕ "i" [mode +vim-insert] "z"
 vim ☇ insert · x-ray ⮕ "i" [mode +vim-insert] "x"
 vim ☇ insert ⮕ "i" [mode +vim-insert]
+vim ☇ into ⮕ <enter>
 vim ☇ is ⮕ null
 vim ☇ key · .\dot\dot ⮕ "."
 vim ☇ key · ]\right-square-bracket\right square bracket ⮕ "]"
@@ -808,20 +825,24 @@ vim ☇ open · word · one\number · one\number ⮕ "o" [mode +vim-insert] "one
 vim ☇ open ⮕ "o" [mode +vim-insert]
 vim ☇ p.m.\\PM · Key · a\determiner ⮕ null
 vim ☇ page · down · page · down ⮕ <pagedown> <pagedown>
+vim ☇ page · down ⮕ <pagedown>
 vim ☇ page · one\number ⮕ null
 vim ☇ page · up ⮕ <pageup>
 vim ☇ paste · above ⮕ "pO" [mode +vim-insert]
 vim ☇ paste · paste ⮕ "pp"
 vim ☇ paste ⮕ "p"
-vim ☇ pipe ⮕ null
+vim ☇ pipe ⮕ "|"
+vim ☇ play · X\letter ⮕ "@x"
+vim ☇ play · x-ray ⮕ "@x"
 vim ☇ repeat ⮕ "."
 vim ☇ replace · .\dot\dot ⮕ "r."
 vim ☇ replace · C\letter ⮕ "rc"
 vim ☇ replace · x-ray ⮕ "rx"
 vim ☇ replace ⮕ null
-vim ☇ right · )\right-parenthesis\right bracket ⮕ null
+vim ☇ right · )\right-parenthesis\right bracket ⮕ <right> ")"
 vim ☇ right · eye · drug · right ⮕ null
 vim ☇ right · paste ⮕ <right> "p"
+vim ☇ right · right · replace · Z\letter ⮕ <right> <right> "rz"
 vim ☇ right · right · right · right ⮕ <right> <right> <right> <right>
 vim ☇ right · right · right ⮕ <right> <right> <right>
 vim ☇ right · right ⮕ <right> <right>
@@ -848,7 +869,7 @@ vim ☇ slap · slap · slap · slap ⮕ <enter> <enter> <enter> <enter>
 vim ☇ slap · slap · slap ⮕ <enter> <enter> <enter>
 vim ☇ slap · slap ⮕ <enter> <enter>
 vim ☇ slap ⮕ <enter>
-vim ☇ star ⮕ null
+vim ☇ star ⮕ "*"
 vim ☇ switch · buffer · three · down ⮕ <escape> [repeat 2 <ctrl-w>] "3" <down>
 vim ☇ switch · buffer ⮕ <escape> [repeat 2 <ctrl-w>]
 vim ☇ ten · Ford ⮕ null
@@ -861,8 +882,9 @@ vim ☇ the ⮕ null
 vim ☇ three · down ⮕ "3" <down>
 vim ☇ three · left ⮕ "3" <left>
 vim ☇ three · right ⮕ "3" <right>
+vim ☇ three · up ⮕ "3" <up>
 vim ☇ tight · x-ray · pepper ⮕ null
-vim ☇ to · a\determiner ⮕ null
+vim ☇ to · a\determiner ⮕ "2a"
 vim ☇ to · cut ⮕ "2x"
 vim ☇ to · left ⮕ "2" <left>
 vim ☇ to · write ⮕ null
@@ -903,10 +925,11 @@ vim ☇ wake · up ⮕ [noop]
 vim ☇ window · right ⮕ [i3 "focus right"]
 vim ☇ word · type ⮕ "type"
 vim ☇ writer · excellent ⮕ null
-vim ☇ x-ray · whiskey · Victor ⮕ null
-vim ☇ x-ray ⮕ null
+vim ☇ x-ray · whiskey · Victor ⮕ "xwv"
+vim ☇ x-ray ⮕ "x"
 vim ☇ yank · line · paste · based ⮕ null
 vim ☇ yank · line · paste ⮕ "yyp"
 vim ☇ yank · line ⮕ "yy"
-vim ☇ }\right-curly-bracket\right curly bracket ⮕ null
+vim ☇ yank · word · (\left-parenthesis\left bracket · left · paste ⮕ "yw(" <left> "p"
+vim ☇ }\right-curly-bracket\right curly bracket ⮕ "}"
 vim-visual ☇ test ⮕ null

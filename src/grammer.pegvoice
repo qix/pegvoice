@@ -179,7 +179,12 @@ word :word => type(word);
   big replace => multi(type('R'), mode('vim-insert'));
 
   :number => type(`${number}`);
+
   mark :letter => type(`m${letter}`);
+  create macro :letter => type(`q${letter}`);
+  macro :letter => type(`q${letter}`);
+  play :letter => type(`@${letter}`);
+  end macro => type(`q`);
 
   cut => type('x');
   big paste => type('P');
@@ -193,7 +198,6 @@ word :word => type(word);
   visual line => multi(type('V'), mode('vim-visual'));
   visual => multi(type('v'), mode('vim-visual'));
 
-  macro :phonetic_letter => type(`q${phonetic_letter}`);
   forward c:ascii => type(`f${c}`);
   go to? ...{
     top => type('gg');
@@ -212,6 +216,8 @@ word :word => type(word);
     line => type('yy');
     dir:vim_direction => type(`y${dir}`);
   }
+
+  :ascii => key(ascii);
 }
 
 &vimTree ...{
@@ -219,6 +225,7 @@ word :word => type(word);
 }
 &vimInsert ...{
   node require :ident => typeLine(`const ${ident} = require('${ident}');`);
+  delete => key('delete');
   :dictate => dictate;
 }
 
@@ -394,7 +401,6 @@ _ascii "<ascii>" = char:(
   big_quote /
   _paren /
   _digit /
-  _phonetic_letter /
   _letter
 ) {
   return {
@@ -425,6 +431,8 @@ _ascii "<ascii>" = char:(
     underscore: '_',
   }[char] || `${char}`;
 }
+
+_letter = _phonetic_letter / _alphabet_letter;
 
 _phonetic_letter = capital:((big / capital) _)? code:(
   alfa /
@@ -458,7 +466,7 @@ _phonetic_letter = capital:((big / capital) _)? code:(
   return capital ? letter.toUpperCase() : letter;;
 };
 
-_letter = capital:((big / capital) _)? letter:(
+_alphabet_letter = capital:((big / capital) _)? letter:(
     a / b / c / d / e / f / g / h / i / j / k / l / m /
     n / o / p / q / r / s / t / u / v / w / x / y / z
 ) {
@@ -563,15 +571,21 @@ right_triangle = (right _ triangle / ">" _dragon?) &_ { return "right_triangle";
 
 _dragon = "\\" (!_ [ -~])+ &_;
 
+spell a;
 spell and;
 spell arrow;
 spell at;
+spell b;
 spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
 spell backtick / "`\\backquote\\back tick";
+spell c;
 spell capital;
 spell caret / carrot / "^\\caret\\caret";
 spell close / closed;
+spell create / great;
+spell curly;
+spell d;
 spell dash / "-" / "–\\dash\\dash";
 spell dictate / dictates;
 spell do;
@@ -579,85 +593,80 @@ spell dollar;
 spell dotcom / ".com\\\\dot com";
 spell double;
 spell down;
+spell e;
 spell eight;
 spell enter / inter / into / "\\new-line\\new line";
 spell equal / equals;
 spell escape / escaped;
 spell exclamation;
+spell f;
 spell five;
 spell forward;
 spell four / for;
+spell g;
 spell greater / grader;
+spell h;
 spell hash;
+spell i;
 spell inner;
+spell j;
+spell k;
 spell key / he;
+spell l / al;
 spell left;
-spell curly;
-spell paren;
-spell square;
-spell triangle;
 spell less;
+spell m;
+spell n;
 spell naught / nought;
 spell nine;
 spell not;
 spell number;
 spell one;
+spell o / oh;
 spell or;
+spell p;
+spell paren;
 spell percent;
 spell period / "." / ".\\dot\\dot";
 spell pipe;
 spell plus;
+spell q;
 spell question;
-spell quote;
+spell quote / quotes;
+spell r;
 spell right;
+spell s;
 spell save / safe / saved;
+spell screen / green;
 spell semicolon / ";\\semicolon\\semicolon";
 spell seven;
 spell single;
 spell six;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
+spell square;
 spell star;
+spell t;
 spell tab / "\\tab-key\\tab key";
 spell than;
 spell three;
 spell tilde / "~\\tilde\\tilde";
+spell triangle;
 spell triple;
 spell two / to;
+spell u;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;
+spell v;
 spell voice;
+spell w;
 spell window / windows;
 spell word / words;
-spell zero;
-spell screen / green;
-spell a;
-spell b;
-spell c;
-spell d;
-spell e;
-spell f;
-spell g;
-spell h;
-spell i;
-spell j;
-spell k;
-spell l / al;
-spell m;
-spell n;
-spell o / oh;
-spell p;
-spell q;
-spell r;
-spell s;
-spell t;
-spell u;
-spell v;
-spell w;
 spell x;
 spell y;
 spell z;
+spell zero;
 
 spell alfa / alpha / offer;
 spell bravo / brother;
