@@ -412,7 +412,7 @@ vim vim-insert ☇ equals ⮕ " === "
 vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
 vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
 vim vim-insert ☇ escape ⮕ <escape>
-vim vim-insert ☇ escaped · delete · line ⮕ <escape> "deleteline"
+vim vim-insert ☇ escaped · delete · line ⮕ <escape> "dd"
 vim vim-insert ☇ express ⮕ "express"
 vim vim-insert ☇ extra ⮕ "extra"
 vim vim-insert ☇ first · above · voice · only ⮕ "firstabovevoiceonly"

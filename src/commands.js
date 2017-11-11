@@ -55,6 +55,12 @@ class KeyCommand extends Command {
     super();
     this.key = key;
   }
+  parseExecute(state) {
+    if (this.key === 'escape') {
+      state.mode.delete('vim-insert');
+      state.mode.delete('vim-visual');
+    }
+  }
   execute(machine) {
     let split = this.key.split('-');
 
@@ -81,6 +87,7 @@ class KeyCommand extends Command {
 
     if (key === 'escape') {
       machine.toggleMode('vim-insert', false);
+      machine.toggleMode('vim-visual', false);
     }
 
     machine.keyTap(key, modifiers);
