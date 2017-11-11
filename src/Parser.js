@@ -10,7 +10,7 @@ const {wordSeperator} = require('./symbols');
 const langPath = require.resolve('./lang.pegjs');
 const grammerPath = require.resolve('./grammer.pegvoice');
 
-function buildParser() {
+function buildParser(options={}) {
   const read = path => fs.readFileSync(path).toString('utf-8');
 
   console.log('Compiling language');
@@ -26,6 +26,7 @@ function buildParser() {
   fs.writeFileSync(grammerPath + '.out', source);
   console.log('Creating parser');
   return tryParse(source, s => peg.generate(s, {
+    ...options,
     allowedStartRules: ['__grammer__'],
   }));
 }
@@ -247,8 +248,9 @@ class PegGenerator {
 }
 
 class Parser {
-  constructor() {
-    this.parser = buildParser();
+  constructor(options={}) {
+    this.parser = buildParser(options.parserOptions || {});
+    this.options = options;
   }
 
   tryParse(transcript, mode=null) {

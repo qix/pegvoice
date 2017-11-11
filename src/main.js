@@ -10,6 +10,8 @@ Usage:
   pegvoice --command=<command> [options]
 
 Options:
+  --trace                    Enable peg tracing
+  --noop                     Disable actual command execution
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
 `;
@@ -32,6 +34,35 @@ const {
 
 const options = docopt(doc);
 
+const bunyanStreams = [];
+if (options['--debug-log']) {
+  bunyanStreams.push({
+    level: 'debug',
+    path: options['--debug-log'],
+  });
+}
+
+let resultLog = null;
+if (options['--result-log']) {
+  resultLog = fs.createWriteStream(options['--result-log'], {
+    flags : 'a',
+  });
+}
+
+const log = bunyan.createLogger({
+  name: 'pegvoice',
+  streams: bunyanStreams,
+});
+const machine = new Machine(log);
+const parser = new Parser({
+  parserOptions: {
+    trace: options['--trace'],
+  },
+});
+
+function splitWords(string) {
+  return string.trim().split(' ').join(wordSeperator);
+}
 if (options['--kaldi']) {
   process.stdin.pipe(binarySplit()).on('data', line => {
     const transcript = kaldiParser(line);
@@ -44,13 +75,13 @@ if (options['--kaldi']) {
 }
 
 if (options['--command']) {
-  executeTranscripts([options['--command'].trim()]);
+  executeTranscripts([splitWords(options['--command'])]);
 }
 
 if (options['--stdin']) {
   process.stdin.pipe(binarySplit()).on('data', line => {
     executeTranscripts([
-      line.toString('utf-8').trim().split(' ').join(wordSeperator),
+      splitWords(line.toString('utf-8')),
     ]);
   });
 }
@@ -77,27 +108,7 @@ if (options['--server']) {
   server.listen(9099);
 }
 
-const bunyanStreams = [];
-if (options['--debug-log']) {
-  bunyanStreams.push({
-    level: 'debug',
-    path: options['--debug-log'],
-  });
-}
-
-let resultLog = null;
-if (options['--result-log']) {
-  resultLog = fs.createWriteStream(options['--result-log'], {
-    flags : 'a',
-  });
-}
-
-const log = bunyan.createLogger({
-  name: 'pegvoice',
-  streams: bunyanStreams,
-});
-const machine = new Machine(log);
-const parser = new Parser();
+const noop = options['--noop'];
 
 async function executeTranscripts(transcripts) {
   let executed = false;
@@ -114,11 +125,14 @@ async function executeTranscripts(transcripts) {
           `${chalk.grey('Skip: ')}${transcript}${chalk.grey(' => ')}${chalk.grey(command.render())}`
         );
       } else {
+        const word = noop ? 'NoOp' : 'Exec';
         console.log(
-          `Exec: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
+          `${word}: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
         );
         executed = true;
-        command.execute(machine);
+        if (!noop) {
+          command.execute(machine);
+        }
 
         if (resultLog) {
           const commandJson = command.render();

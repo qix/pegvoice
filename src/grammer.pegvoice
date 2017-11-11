@@ -145,7 +145,7 @@ shift k:key => key(`shift-${k}`);
 
 type :keys => type(keys);
 dictate :dictate => dictate;
-words :string => type(string);
+word :word => type(word);
 
 &vimVisual ...{
   change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
@@ -275,15 +275,17 @@ _code = head:_ident tail:(_ _ident &_)* {
   return [head, ...extractList(tail, 1)].join(' ');
 }
 
-_dictate = commands:(
-  _dictate_special /
-  _dictate_compare /
-  _dictate_number /
-  _dictate_key /
-  _dictate_ident
-)+ {
-  return multi(...commands);
+_dictate = head:_dictate_command tail:(_ _dictate_command &_)* {
+  return multi(head, ...extractList(tail, 1));
 }
+
+_dictate_command
+  = _dictate_special
+  / _dictate_compare
+  / _dictate_word
+  / _dictate_number
+  / _dictate_key
+  / _dictate_ident;
 
 _dictate_compare = w:(greater / less) equal:((_ or)? _ equal)? {
   return type(' ' + ({
@@ -310,6 +312,10 @@ _dictate_key = count:(_count _)? k:_key &_ {
   return repeat(extractOptional(count, 0, 1), key(k));
 }
 
+_dictate_word = word _ word:_word {
+  return type(word);
+}
+
 _dictate_number = (number _)? head:_number tail:(_ _number)* &_ {
   return type([head, ...extractList(tail, 1)].join(''));
 }
@@ -318,8 +324,9 @@ _ident = word:_word {
   return word.toLowerCase();
 }
 
-_word = [A-Za-z]+ {
-  return text();
+_word = (!_ .)+ &_ {
+  // Take the first entry dragon returns
+  return text().split('\\')[0];
 }
 
 _key "<key>" 
@@ -409,7 +416,7 @@ _ascii "<ascii>" = char:(
   }[char] || `${char}`;
 }
 
-_phonetic_letter = code:(
+_phonetic_letter = capital:((big / capital) _)? code:(
   alfa /
   bravo /
   charlie /
@@ -437,19 +444,11 @@ _phonetic_letter = code:(
   yankee /
   zulu
 ) &_ {
-  return code.toLowerCase().charAt(0);
+  const letter = code.charAt(0).toLowerCase();
+  return capital ? letter.toUpperCase() : letter;;
 };
 
-
-_letter = capital:(capital _)? letter:([a-zA-Z]) (
-  "\\determiner" /
-  "\\letter\\letter [A-Z]" /
-  "\\letter" /
-  "\\pronoun" /
-  ("\\spelling-letter\\letter " [A-Z]) /
-  ("\\spelling-letter\\" [A-Z]) /
-  ("\\uppercase-letter\\capital " [A-Z])
-)? &_ {
+_letter = capital:((big / capital) _)? letter:([a-zA-Z]) _dragon? &_ {
   if (text().includes('uppercase-letter')) {
     capital = true;
   }
@@ -519,7 +518,7 @@ _digit = word:(
   one / two / three / four / five /
   six / seven / eight / nine / naught / zero /
   "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9" / "0"
-) ("\\number" / "\\pronoun")? {
+) _dragon? {
   const digits = {
     "one": 1,
     "two": 2,
@@ -552,7 +551,7 @@ right_square   = (right _ square   / "]" _dragon?) &_ { return "right_square"; }
 right_triangle = (right _ triangle / ">" _dragon?) &_ { return "right_triangle"; }
 
 
-_dragon = "\\" [ -~]+ &_;
+_dragon = "\\" (!_ [ -~])+ &_;
 
 spell and;
 spell arrow;
@@ -619,7 +618,7 @@ spell until;
 spell up;
 spell voice;
 spell window / windows;
-spell word;
+spell word / words;
 spell zero;
 spell screen / green;
 

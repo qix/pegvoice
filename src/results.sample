@@ -42,7 +42,7 @@
  ☇ close ⮕ null
  ☇ commit ⮕ null
  ☇ control · C\letter ⮕ <ctrl-c>
- ☇ control · C\letter\letter C ⮕ null
+ ☇ control · C\letter\letter C ⮕ <ctrl-c>
  ☇ control · D\letter ⮕ <ctrl-d>
  ☇ control · K\letter ⮕ <ctrl-k>
  ☇ control · W\letter · control · W\letter ⮕ <ctrl-w> <ctrl-w>
@@ -55,16 +55,16 @@
  ☇ delete · line ⮕ null
  ☇ delete · word ⮕ null
  ☇ dictate · Delta ⮕ "d"
- ☇ dictate · India · dictate · Tango ⮕ "it"
- ☇ dictate · ad · space · .\dot\dot ⮕ null
+ ☇ dictate · India · dictate · Tango ⮕ "idictatet"
+ ☇ dictate · ad · space · .\dot\dot ⮕ "ad ."
  ☇ dictate · ad ⮕ "ad"
  ☇ dictate · backspace ⮕ <backspace>
  ☇ dictate · commit ⮕ "commit"
- ☇ dictate · golf · India · Tango · space ⮕ null
+ ☇ dictate · golf · India · Tango · space ⮕ "git "
  ☇ dictate · golf ⮕ "g"
  ☇ dictate · push ⮕ "push"
- ☇ dictate · space · dictate · .\dot\dot ⮕ " ."
- ☇ dictate · space · dictate · –\dash\dash ⮕ " -"
+ ☇ dictate · space · dictate · .\dot\dot ⮕ " dictate."
+ ☇ dictate · space · dictate · –\dash\dash ⮕ " dictate-"
  ☇ dictate · space ⮕ " "
  ☇ dictate · the ⮕ "the"
  ☇ dictate · –\dash\dash ⮕ "-"
@@ -147,6 +147,7 @@
  ☇ of ⮕ null
  ☇ on ⮕ null
  ☇ one\pronoun · down ⮕ <down>
+ ☇ open · Incognito ⮕ [i3 "exec google-chrome -incognito"]
  ☇ open · above ⮕ null
  ☇ open · at · a\determiner ⮕ null
  ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice'"]
@@ -155,6 +156,7 @@
  ☇ open · escape ⮕ null
  ☇ open · firm ⮕ null
  ☇ open · hello · _\underscore\underscore · world ⮕ null
+ ☇ open · it · will · need ⮕ null
  ☇ open · terminal · voice ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/voice-code/pegvoice\""]
  ☇ open · terminal ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""]
  ☇ open · them ⮕ null
@@ -265,7 +267,7 @@
  ☇ window · right ⮕ [i3 "focus right"]
  ☇ window · up · close · window ⮕ null
  ☇ window · up ⮕ [i3 "focus up"]
- ☇ word · close ⮕ null
+ ☇ word · close ⮕ "close"
  ☇ words · close ⮕ "close"
  ☇ words · hello ⮕ "hello"
  ☇ yanking · on ⮕ null
@@ -308,9 +310,9 @@ chrome ☇ close · tab ⮕ <ctrl-w>
 chrome ☇ close ⮕ <ctrl-w>
 chrome ☇ dictate · I\pronoun ⮕ "i"
 chrome ☇ dictate · golf ⮕ "g"
-chrome ☇ dictate · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ null
+chrome ☇ dictate · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "news.ycombination.com"
 chrome ☇ dictate · news ⮕ "news"
-chrome ☇ dictates · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ null
+chrome ☇ dictates · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "news.ycombination.com"
 chrome ☇ down · down · slap ⮕ <down> <down> <enter>
 chrome ☇ escape · escape ⮕ <escape> <escape>
 chrome ☇ escape ⮕ <escape>
@@ -343,17 +345,17 @@ chrome ☇ window · left ⮕ [i3 "focus left"]
 chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ null
 vim vim-insert vim-visual ☇ forward · a\determiner ⮕ "forwarda"
-vim vim-insert ☇ 's\s\s ⮕ null
-vim vim-insert ☇ (\left-parenthesis\left paren · )\right-parenthesis\right paren ⮕ null
+vim vim-insert ☇ 's\s\s ⮕ <'> "s"
+vim vim-insert ☇ (\left-parenthesis\left paren · )\right-parenthesis\right paren ⮕ "()"
 vim vim-insert ☇ (\left-parenthesis\left paren ⮕ "("
 vim vim-insert ☇ )\right-parenthesis\right paren ⮕ ")"
 vim vim-insert ☇ .\dot\dot ⮕ "."
 vim vim-insert ☇ .com\\dot com ⮕ ".com"
 vim vim-insert ☇ /\slash\slash · the ⮕ "/the"
 vim vim-insert ☇ /\slash\slash ⮕ "/"
-vim vim-insert ☇ :\colon\colon · letter ⮕ null
+vim vim-insert ☇ :\colon\colon · letter ⮕ ":letter"
 vim vim-insert ☇ ;\semicolon\semicolon · /\slash\slash · space · star · tab ⮕ ";/ *	"
-vim vim-insert ☇ ;\semicolon\semicolon · slap ⮕ ";" <enter>
+vim vim-insert ☇ ;\semicolon\semicolon · slap ⮕ ";slap"
 vim vim-insert ☇ ;\semicolon\semicolon ⮕ ";"
 vim vim-insert ☇ ABCD · EFG ⮕ "abcdefg"
 vim vim-insert ☇ Alpha ⮕ "a"
@@ -390,8 +392,8 @@ vim vim-insert ☇ a\determiner · row ⮕ "arow"
 vim vim-insert ☇ a\determiner · space · team · space ⮕ "a team "
 vim vim-insert ☇ alpha ⮕ "a"
 vim vim-insert ☇ and ⮕ "&"
-vim vim-insert ☇ backspace · ,\comma\comma · space ⮕ null
-vim vim-insert ☇ backspace · ?\question-mark\question mark ⮕ null
+vim vim-insert ☇ backspace · ,\comma\comma · space ⮕ <backspace> ", "
+vim vim-insert ☇ backspace · ?\question-mark\question mark ⮕ <backspace> "?"
 vim vim-insert ☇ backspace · backspace · backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace> <backspace> <backspace>
 vim vim-insert ☇ backspace · backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace> <backspace>
 vim vim-insert ☇ backspace · backspace · backspace ⮕ <backspace> <backspace> <backspace>
@@ -399,20 +401,27 @@ vim vim-insert ☇ backspace · backspace · based ⮕ <backspace> <backspace> "
 vim vim-insert ☇ backspace · backspace ⮕ <backspace> <backspace>
 vim vim-insert ☇ backspace · space ⮕ <backspace> " "
 vim vim-insert ☇ backspace ⮕ <backspace>
+vim vim-insert ☇ big · alpha ⮕ "A"
 vim vim-insert ☇ big · link ⮕ "biglink"
 vim vim-insert ☇ bravo ⮕ "b"
 vim vim-insert ☇ brother ⮕ "b"
 vim vim-insert ☇ change · space ⮕ "change "
-vim vim-insert ☇ cue · right · :\colon\colon ⮕ null
+vim vim-insert ☇ cue · right · :\colon\colon ⮕ "cue" <right> ":"
+vim vim-insert ☇ delete · delete · delete · delete · delete ⮕ "deletedeletedeletedeletedelete"
 vim vim-insert ☇ dictate · hello ⮕ "hello"
+vim vim-insert ☇ dictate · word · one\number · one\number ⮕ "one1"
+vim vim-insert ☇ dictate · word · one\number ⮕ "one"
+vim vim-insert ☇ dictate ⮕ "dictate"
 vim vim-insert ☇ dictates · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "news.ycombination.com"
 vim vim-insert ☇ double · backspace ⮕ [repeat 2 <backspace>]
 vim vim-insert ☇ double · under ⮕ "doubleunder"
 vim vim-insert ☇ equal ⮕ " === "
 vim vim-insert ☇ equals ⮕ " === "
+vim vim-insert ☇ escape · and · do ⮕ <escape> "u"
 vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
 vim vim-insert ☇ escape · for · left ⮕ <escape> [repeat 4 <left>]
 vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
+vim vim-insert ☇ escape · under ⮕ null
 vim vim-insert ☇ escape ⮕ <escape>
 vim vim-insert ☇ escaped · delete · line ⮕ <escape> "dd"
 vim vim-insert ☇ express ⮕ "express"
@@ -464,7 +473,7 @@ vim vim-insert ☇ less ⮕ " < "
 vim vim-insert ☇ letter ⮕ "letter"
 vim vim-insert ☇ macro · alpha ⮕ "macroa"
 vim vim-insert ☇ macro · over ⮕ "macroover"
-vim vim-insert ☇ news · .\dot\dot · Y\letter · ,\comma\comma · needed ⮕ null
+vim vim-insert ☇ news · .\dot\dot · Y\letter · ,\comma\comma · needed ⮕ "news.y,needed"
 vim vim-insert ☇ news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "news.ycombination.com"
 vim vim-insert ☇ news · .\dot\dot · Y\letter · combination ⮕ "news.ycombination"
 vim vim-insert ☇ news · .\dot\dot ⮕ "news."
@@ -483,7 +492,10 @@ vim vim-insert ☇ of · trial ⮕ "oftrial"
 vim vim-insert ☇ offer · bra · those ⮕ "abrathose"
 vim vim-insert ☇ offer · brother · Charlie · Delta · Echo · foxtrot · golf ⮕ "abcdefg"
 vim vim-insert ☇ offer · brother · Charlie ⮕ "abc"
-vim vim-insert ☇ open · (\left-parenthesis\left paren · the ⮕ null
+vim vim-insert ☇ one\number · ;\semicolon\semicolon ⮕ "1;"
+vim vim-insert ☇ one\number · one\number ⮕ "11"
+vim vim-insert ☇ one\number · word · one\number · one\number ⮕ "1one1"
+vim vim-insert ☇ open · (\left-parenthesis\left paren · the ⮕ "open(the"
 vim vim-insert ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
 vim vim-insert ☇ open · left · triangle ⮕ "open<"
 vim vim-insert ☇ open · number · one\number · zero · zero ⮕ "open100"
@@ -505,13 +517,15 @@ vim vim-insert ☇ slap ⮕ <enter>
 vim vim-insert ☇ soon ⮕ "soon"
 vim vim-insert ☇ sooner ⮕ "z"
 vim vim-insert ☇ space · /\slash\slash · space ⮕ " / "
-vim vim-insert ☇ space · less · ;\semicolon\semicolon · slap ⮕ "  < ;" <enter>
+vim vim-insert ☇ space · less · ;\semicolon\semicolon · slap ⮕ "  < ;slap"
 vim vim-insert ☇ space · less ⮕ "  < "
 vim vim-insert ☇ space ⮕ " "
 vim vim-insert ☇ spell · forward ⮕ "spellforward"
 vim vim-insert ☇ spell · that ⮕ "spellthat"
 vim vim-insert ☇ spell · then ⮕ "spellthen"
 vim vim-insert ☇ spell ⮕ "spell"
+vim vim-insert ☇ spells · space ⮕ "spells "
+vim vim-insert ☇ spelt ⮕ "spelt"
 vim vim-insert ☇ squad · [\left-square-bracket\left square bracket ⮕ "squad["
 vim vim-insert ☇ string · hello ⮕ "stringhello"
 vim vim-insert ☇ tab ⮕ "	"
@@ -523,7 +537,10 @@ vim vim-insert ☇ to · write ⮕ "towrite"
 vim vim-insert ☇ to ⮕ "to"
 vim vim-insert ☇ up ⮕ <up>
 vim vim-insert ☇ voice · space · only · space ⮕ "voice only "
+vim vim-insert ☇ were · tallow ⮕ "weretallow"
 vim vim-insert ☇ when ⮕ "when"
+vim vim-insert ☇ word · one\number · one\number ⮕ "one1"
+vim vim-insert ☇ word · one\number ⮕ "one"
 vim vim-insert ☇ x-ray · Zulu ⮕ "xz"
 vim vim-insert ☇ x-ray · this ⮕ "xthis"
 vim vim-insert ☇ x-ray · whiskey · Victor ⮕ "xwv"
@@ -536,14 +553,17 @@ vim vim-insert ☇ ~\tilde\tilde ⮕ "~"
 vim vim-insert ☇ –\dash\dash ⮕ "-"
 vim vim-tree ☇ change ⮕ "C"
 vim vim-tree ☇ five · down ⮕ [repeat 5 <down>]
+vim vim-tree ☇ six · up ⮕ [repeat 6 <up>]
 vim vim-tree ☇ slap ⮕ <enter>
 vim vim-tree ☇ three · down · slap ⮕ [repeat 3 <down>] <enter>
+vim vim-tree ☇ to · up · slap ⮕ null
 vim vim-tree ☇ up · change ⮕ <up> "C"
 vim vim-tree ☇ up · up · change ⮕ <up> <up> "C"
+vim vim-tree ☇ up · up · slap ⮕ <up> <up> <enter>
 vim vim-visual ☇ D\letter ⮕ null
 vim vim-visual ☇ change · exclamation ⮕ "c" [mode -vim-visual] [mode +vim-insert] "!"
 vim vim-visual ☇ change ⮕ "c" [mode -vim-visual] [mode +vim-insert]
-vim vim-visual ☇ dictate · D\letter\letter D ⮕ null
+vim vim-visual ☇ dictate · D\letter\letter D ⮕ "d"
 vim vim-visual ☇ dictate · QED ⮕ "qed"
 vim vim-visual ☇ dictate · of ⮕ "of"
 vim vim-visual ☇ dictate · the ⮕ "the"
@@ -580,7 +600,9 @@ vim ☇ J\uppercase-letter\capital J ⮕ null
 vim ☇ Juliet ⮕ null
 vim ☇ K\letter ⮕ null
 vim ☇ Key · J\uppercase-letter\capital J ⮕ "J"
+vim ☇ M\letter · a\determiner ⮕ null
 vim ☇ Mark ⮕ null
+vim ☇ Pixie ⮕ null
 vim ☇ T\letter ⮕ null
 vim ☇ Tab · one\number ⮕ null
 vim ☇ Tate ⮕ null
@@ -591,6 +613,7 @@ vim ☇ alter ⮕ null
 vim ☇ and · do ⮕ "u"
 vim ☇ and ⮕ null
 vim ☇ as ⮕ null
+vim ☇ back · back ⮕ null
 vim ☇ backspace ⮕ <backspace>
 vim ☇ big · replace ⮕ "R" [mode +vim-insert]
 vim ☇ change · line ⮕ "cc" [mode +vim-insert]
@@ -603,11 +626,13 @@ vim ☇ change · word · repeat ⮕ "cw" [mode +vim-insert] "repeat"
 vim ☇ change · word ⮕ "cw" [mode +vim-insert]
 vim ☇ copy · line ⮕ null
 vim ☇ curly ⮕ null
+vim ☇ cut ⮕ null
 vim ☇ daughter ⮕ null
 vim ☇ deep ⮕ null
 vim ☇ delete · line · up ⮕ "dd" <up>
 vim ☇ delete · line ⮕ "dd"
 vim ☇ delete · to · Tango ⮕ "dtt"
+vim ☇ delete · to · space ⮕ "dt "
 vim ☇ delete · until · /\slash\slash ⮕ "dt/"
 vim ☇ delete · until · Tango ⮕ "dtt"
 vim ☇ delete · until · \backslash\backslash ⮕ "dt\"
@@ -616,14 +641,21 @@ vim ☇ delete · until · see ⮕ null
 vim ☇ delete · until · three ⮕ "dt3"
 vim ☇ delete · word ⮕ "dw"
 vim ☇ dictate · C\uppercase-letter\capital C ⮕ "C"
+vim ☇ dictate · Mike · alpha ⮕ "ma"
+vim ☇ dictate · Pixie ⮕ "pixie"
 vim ☇ dictate · Victor ⮕ "v"
 vim ☇ dictate · Yankee ⮕ "y"
+vim ☇ dictate · hello ⮕ "hello"
 vim ☇ dictate · news ⮕ "news"
+vim ☇ dictate · nine ⮕ "9"
+vim ☇ dictate · one\pronoun · word ⮕ "1word"
 vim ☇ dictate · the ⮕ "the"
 vim ☇ dictate · their ⮕ "their"
-vim ☇ dictate · x-ray · insert · Charlie ⮕ "xi" [mode +vim-insert] "c"
-vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ null
-vim ☇ dictate · x-ray · x-ray ⮕ null
+vim ☇ dictate · twenty ⮕ "20"
+vim ☇ dictate · word · one\number ⮕ "one"
+vim ☇ dictate · x-ray · insert · Charlie ⮕ "xinsertc"
+vim ☇ dictate · x-ray · x-ray · x-ray · x-ray · x-ray ⮕ "xxxxx"
+vim ☇ dictate · x-ray · x-ray ⮕ "xx"
 vim ☇ dictate · x-ray ⮕ "x"
 vim ☇ dictate ⮕ null
 vim ☇ dollar ⮕ null
@@ -637,11 +669,14 @@ vim ☇ down ⮕ <down>
 vim ☇ downturn ⮕ null
 vim ☇ eight · down ⮕ [repeat 8 <down>]
 vim ☇ eight ⮕ null
+vim ☇ escape · escape · escape ⮕ <escape> <escape> <escape>
+vim ☇ escape · except ⮕ null
 vim ☇ escape · insert ⮕ <escape> "i" [mode +vim-insert]
 vim ☇ escape · visual ⮕ <escape> "v" [mode +vim-visual]
 vim ☇ escape ⮕ <escape>
 vim ☇ favourite · as ⮕ null
-vim ☇ find · F\letter ⮕ null
+vim ☇ find · F\letter ⮕ <escape> "/f"
+vim ☇ find · and · do ⮕ <escape> "/and do"
 vim ☇ find · equal · slap ⮕ <escape> "/equal slap"
 vim ☇ find · equal ⮕ <escape> "/equal"
 vim ☇ find · equals ⮕ <escape> "/equals"
@@ -679,6 +714,7 @@ vim ☇ insert · F\letter ⮕ "i" [mode +vim-insert] "f"
 vim ☇ insert · F\uppercase-letter\capital F ⮕ "i" [mode +vim-insert] "F"
 vim ☇ insert · Zulu ⮕ "i" [mode +vim-insert] "z"
 vim ☇ insert · a\determiner · space · team · space ⮕ "i" [mode +vim-insert] "a team "
+vim ☇ insert · big · Z\letter ⮕ "i" [mode +vim-insert] "Z"
 vim ☇ insert · hello · equals · five ⮕ "i" [mode +vim-insert] "hello === 5"
 vim ☇ insert · hello ⮕ "i" [mode +vim-insert] "hello"
 vim ☇ insert · letter ⮕ "i" [mode +vim-insert] "letter"
@@ -707,12 +743,14 @@ vim ☇ open · _\underscore\underscore ⮕ "o" [mode +vim-insert] "_"
 vim ☇ open · above ⮕ "O" [mode +vim-insert]
 vim ☇ open · brother ⮕ "o" [mode +vim-insert] "b"
 vim ☇ open · chrome ⮕ [i3 "exec google-chrome"]
+vim ☇ open · dictate · one\pronoun · word ⮕ "o" [mode +vim-insert] "1word"
 vim ☇ open · hello · _\underscore\underscore · world ⮕ "o" [mode +vim-insert] "hello_world"
 vim ☇ open · hello ⮕ "o" [mode +vim-insert] "hello"
 vim ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
 vim ☇ open · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "o" [mode +vim-insert] "news.ycombination.com"
 vim ☇ open · number · one\number · zero · zero ⮕ "o" [mode +vim-insert] "100"
 vim ☇ open · number · one\number ⮕ "o" [mode +vim-insert] "1"
+vim ☇ open · word · one\number · one\number ⮕ "o" [mode +vim-insert] "one1"
 vim ☇ open ⮕ "o" [mode +vim-insert]
 vim ☇ p.m.\\PM · Key · a\determiner ⮕ null
 vim ☇ page · down · page · down ⮕ <pagedown> <pagedown>
@@ -742,6 +780,7 @@ vim ☇ search · find · Delta ⮕ null
 vim ☇ search ⮕ null
 vim ☇ seven · down ⮕ [repeat 7 <down>]
 vim ☇ seven · up ⮕ [repeat 7 <up>]
+vim ☇ six · up ⮕ [repeat 6 <up>]
 vim ☇ slap · slap · slap · slap ⮕ <enter> <enter> <enter> <enter>
 vim ☇ slap · slap · slap ⮕ <enter> <enter> <enter>
 vim ☇ slap · slap ⮕ <enter> <enter>
@@ -759,6 +798,7 @@ vim ☇ three · down ⮕ [repeat 3 <down>]
 vim ☇ three · right ⮕ [repeat 3 <right>]
 vim ☇ tight · x-ray · pepper ⮕ null
 vim ☇ to · write ⮕ null
+vim ☇ to ⮕ null
 vim ☇ told ⮕ null
 vim ☇ tree · voice ⮕ <escape> ":NERDTree /home/josh/voice-code/pegvoice" <enter>
 vim ☇ triangle ⮕ null
@@ -770,7 +810,9 @@ vim ☇ type · X\letter · P\letter ⮕ "xp"
 vim ☇ type · polo · x-ray ⮕ null
 vim ☇ type · x-ray · Papa ⮕ "xp"
 vim ☇ type · x-ray · pepper ⮕ "xp"
+vim ☇ under ⮕ null
 vim ☇ undo ⮕ "u"
+vim ☇ up · forward · space · append ⮕ <up> "f a" [mode +vim-insert]
 vim ☇ up · right ⮕ <up> <right>
 vim ☇ up · ten ⮕ null
 vim ☇ up · up ⮕ <up> <up>
