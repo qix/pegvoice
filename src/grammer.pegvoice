@@ -156,7 +156,9 @@ word :word => type(word);
 &vimVisual ...{
   change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
   delete => multi(key('d'), modeOff('vim-visual'));
+  sort => multi(type(':!sort\n'), modeOff('vim-visual'));
   yank => multi(key('y'), modeOff('vim-visual'));
+  unique => multi(type(':!sort\ngv:!uniq\n'), modeOff('vim-visual'));
 }
 
 &vim ...{
@@ -167,6 +169,23 @@ word :word => type(word);
 
   switch buffer => escaped(repeat(2, key('ctrl-w')));
   close buffer => vimex('bd');
+}
+
+&vimNotInsert ...{
+  f:vim_find empty line => type(`${f}^$\n`);
+  f:vim_find :dictate? => multi(type(f), optional(dictate, noop()));
+  previous => type('N');
+  next => type('n');
+
+  forward c:ascii => type(`f${c}`);
+  back c:ascii => type(`F${c}`);
+
+  mark :letter => type(`m${letter}`);
+  go to? ...{
+    top => type('gg');
+    bottom => type('G');
+    :letter => type(`'${letter}`);
+  }
 }
 
 &vimNormal ...{
@@ -180,7 +199,6 @@ word :word => type(word);
 
   :number => type(`${number}`);
 
-  mark :letter => type(`m${letter}`);
   create macro :letter => type(`q${letter}`);
   macro :letter => type(`q${letter}`);
   play :letter => type(`@${letter}`);
@@ -197,20 +215,11 @@ word :word => type(word);
   visual block => multi(key('ctrl-v'), mode('vim-visual'));
   visual line => multi(type('V'), mode('vim-visual'));
   visual => multi(type('v'), mode('vim-visual'));
+  reselect => multi(type('gv'), mode('vim-visual'));
 
   tree :folder? => vimex(`NERDTree ${optional(folder, '/home/josh')}`);
   file :folder? => vimex(`FZF ${optional(folder, '/home/josh')}`);
 
-  find :dictate? => escaped(multi(type('/'), optional(dictate, noop())));
-  next => type('n');
-
-  forward c:ascii => type(`f${c}`);
-  back c:ascii => type(`F${c}`);
-  go to? ...{
-    top => type('gg');
-    bottom => type('G');
-    :letter => type(`'${letter}`);
-  }
   change ...{
     line => multi(type('cc'), mode('vim-insert'));
     dir:vim_direction => multi(type(`c${dir}`), mode('vim-insert'));
@@ -230,6 +239,9 @@ word :word => type(word);
 &vimTree ...{
   change => type('C');
 }
+&vimRebase ...{
+  cmd:rebase_command => multi(type(`cw${cmd}`), key('escape'), key('enter'));
+}
 &vimInsert ...{
   node require :ident => typeLine(`const ${ident} = require('${ident}');`);
   delete => key('delete');
@@ -244,6 +256,10 @@ backspace => key('backspace');
 /***
   DEFINITIONS
 ***/
+
+_vim_find = find prev:(_ previous)? {
+  return prev ? '?' : '/';
+}
 
 _vim_direction = pos:((_vim_inside / _vim_around) _)? dir:(
   word / _paren / _vim_until / _right_paren
@@ -276,6 +292,12 @@ _vimNormal = &{
     !options.mode.has('vim-visual')
   );
 };
+_vimNotInsert = &{
+  return (
+    options.mode.has('vim') &&
+    !options.mode.has('vim-insert')
+  );
+};
 _terminal = &{
   return options.mode.has('terminal');
 };
@@ -287,6 +309,9 @@ _vimVisual = &{
 };
 _vimTree = &{
   return options.mode.has('vim-tree');
+};
+_vimRebase = &{
+  return options.mode.has('vim-rebase');
 };
 
 _folder = voice {
@@ -352,6 +377,8 @@ _word = (!_ .)+ &_ {
   // Take the first entry dragon returns
   return text().split('\\')[0];
 }
+
+_rebase_command = (pick / squash / reword / edit / drop);
 
 _key "<key>" 
   = enter
@@ -611,11 +638,11 @@ spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
 spell backtick / "`\\backquote\\back tick";
 spell b / be;
-spell c / see;
 spell capital;
 spell caret / carrot / "^\\caret\\caret";
 spell close / closed;
 spell create / great;
+spell c / see;
 spell curly;
 spell d;
 spell dash / "-" / "–\\dash\\dash";
@@ -625,13 +652,16 @@ spell dollar;
 spell dotcom / ".com\\\\dot com";
 spell double;
 spell down;
+spell drop;
 spell e;
+spell edit;
 spell eight;
 spell enter / inter / into / "\\new-line\\new line";
 spell equal / equals;
 spell escape / escaped;
 spell exclamation;
 spell f;
+spell find;
 spell five;
 spell forward;
 spell four / for;
@@ -650,6 +680,7 @@ spell key / he;
 spell l / al;
 spell left;
 spell less;
+spell line / lines;
 spell m;
 spell n;
 spell naught / nought;
@@ -664,12 +695,15 @@ spell p;
 spell paren;
 spell percent;
 spell period / "." / ".\\dot\\dot";
+spell pick / pip;
 spell pipe;
 spell plus;
 spell q;
 spell question;
 spell quote / quotes;
 spell r;
+spell rebase / "we base";
+spell reword;
 spell right;
 spell s;
 spell save / safe / saved;
@@ -681,6 +715,7 @@ spell six;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell square;
+spell squash;
 spell star;
 spell t;
 spell tab / "\\tab-key\\tab key";

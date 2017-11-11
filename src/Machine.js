@@ -74,6 +74,7 @@ class Commander {
       setToggle(this.mode, 'terminal', title.endsWith(' <term>'));
       setToggle(this.mode, 'vim-insert', vimInsert);
       setToggle(this.mode, 'vim-tree', vim && title.startsWith('NERD_tree_'));
+      setToggle(this.mode, 'vim-rebase', vim && title.startsWith('git-rebase-todo '));
       if (!vim) {
         this.mode.delete('vim-visual');
       }
