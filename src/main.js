@@ -12,6 +12,7 @@ Usage:
 Options:
   --trace                    Enable peg tracing
   --noop                     Disable actual command execution
+  --mode=<mode>              Start with mode enabled
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
 `;
@@ -60,6 +61,11 @@ const parser = new Parser({
   },
 });
 
+(options['--mode'] || '').split(' ').forEach(mode => {
+  if (mode) {
+    machine.toggleMode(mode, true);
+  }
+});
 function splitWords(string) {
   if (string.includes(wordSeperator)) {
     return string.trim();

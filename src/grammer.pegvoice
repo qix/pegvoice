@@ -159,14 +159,8 @@ word :word => type(word);
   save as => escaped(type(':w '));
   save => vimex('w');
 
-
-
-  tree :folder => vimex(`NERDTree ${folder}`);
-
   switch buffer => escaped(repeat(2, key('ctrl-w')));
   close buffer => vimex('bd');
-  find :dictate? => escaped(multi(type('/'), optional(dictate, noop())));
-  next => type('n');
 }
 
 &vimNormal ...{
@@ -198,7 +192,14 @@ word :word => type(word);
   visual line => multi(type('V'), mode('vim-visual'));
   visual => multi(type('v'), mode('vim-visual'));
 
+  tree :folder? => vimex(`NERDTree ${optional(folder, '/home/josh')}`);
+  file :folder? => vimex(`FZF ${optional(folder, '/home/josh')}`);
+
+  find :dictate? => escaped(multi(type('/'), optional(dictate, noop())));
+  next => type('n');
+
   forward c:ascii => type(`f${c}`);
+  back c:ascii => type(`F${c}`);
   go to? ...{
     top => type('gg');
     bottom => type('G');
@@ -238,11 +239,16 @@ backspace => key('backspace');
   DEFINITIONS
 ***/
 
-_vim_direction = inner:(inner _)? dir:(word / _vim_until) {
-  return (inner ? 'i' : '') + ({
+_vim_direction = pos:((_vim_inside / _vim_around) _)? dir:(
+  word / _paren / _vim_until / _right_paren
+) {
+  return extractOptional(pos, 0, '') + ({
     word: 'w',
   }[dir] || dir);
 }
+
+_vim_inside = (inner / inside / in) { return 'i'; }
+_vim_around = (around / outside) { return 'a'; }
 
 _vim_until = (to / until) _ code:_ascii {
   return `t${code}`;
@@ -275,7 +281,7 @@ _vimTree = &{
 };
 
 _folder = voice {
-  return "/home/josh/voice-code/pegvoice";
+  return "/home/josh/voice-code/pegvoice/src";
 }
 _direction = (up / down / left / right);
 _i3screen = _number;
@@ -488,14 +494,15 @@ _tuple_length = length:(single / double / triple) &_ {
   }[length];
 }
 
-_number = _number_hundred / _number_ten;
+_number = _number_hundred_word / _number_hundred / _number_ten;
 
-_number_hundred = hundred:(_number_ten _ "hundred" (_ "and")? _) ten:_number_ten? {
+_number_hundred_word = a _ hundred { return 100; }
+_number_hundred = hundred:(_number_ten _ "hundred" (_ "and")?) ten:(_ _number_ten)? {
   let number = 0;
   if (hundred) {
     number += hundred[0] * 100;
   }
-  return number + (ten || 0);
+  return number + (ten ? ten[1] : 0);
 }
 
 
@@ -556,9 +563,24 @@ _digit = word:(
   return digits.hasOwnProperty(word) ? digits[word] : parseInt(word, 10);
 }
 
-undo = ("undo"i / and _ do) { return "undo"; }
+undo = ("undo"i / and _ do / under) { return "undo"; }
 not_equal = not _ equal { return "not_equal"; }
 big_quote = big _ quote { return "big_quote"; }
+
+_right_paren = char:(
+  curly /
+  paren /
+  square /
+  triangle
+) &_ {
+  return {
+    this_is_neded_for_curly_syntax: '{',
+    curly: '}',
+    paren: ')',
+    square: ']',
+    triangle: '>',
+  }[char];
+}
 left_curly    = (left _ curly    / "{" _dragon?) &_ { return "left_curly"; }
 left_paren    = (left _ paren    / "(" _dragon?) &_ { return "left_paren"; }
 left_square   = (left _ square   / "[" _dragon?) &_ { return "left_square"; }
@@ -573,12 +595,13 @@ _dragon = "\\" (!_ [ -~])+ &_;
 
 spell a;
 spell and;
+spell around;
 spell arrow;
 spell at;
-spell b;
 spell backslash / "\\" / "\\backslash\\backslash";
 spell backspace / back space / that space;
 spell backtick / "`\\backquote\\back tick";
+spell b / be;
 spell c;
 spell capital;
 spell caret / carrot / "^\\caret\\caret";
@@ -607,8 +630,11 @@ spell g;
 spell greater / grader;
 spell h;
 spell hash;
+spell hundred;
 spell i;
+spell in;
 spell inner;
+spell inside;
 spell j;
 spell k;
 spell key / he;
@@ -624,6 +650,7 @@ spell number;
 spell one;
 spell o / oh;
 spell or;
+spell outside;
 spell p;
 spell paren;
 spell percent;
@@ -655,6 +682,7 @@ spell triangle;
 spell triple;
 spell two / to;
 spell u;
+spell under;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;
