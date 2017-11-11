@@ -14,6 +14,14 @@ async function getCurrentTitle() {
   return stdout.trim();
 }
 
+function setToggle(set, value, test) {
+  if (test) {
+    set.add(value);
+  } else {
+    set.delete(value);
+  }
+}
+
 class Commander {
   constructor(log) {
     /*
@@ -61,11 +69,16 @@ class Commander {
     const vimInsert = title.endsWith(' <vim:i>');
     const vimNormal = title.endsWith(' <vim>');
     const vim = vimInsert || vimNormal;
-    this.toggleMode('vim', vim);
-    this.toggleMode('vim-insert', vimInsert);
-    this.toggleMode('vim-tree', vim && title.startsWith('NERD_tree_'));
-    this.toggleMode('chrome', title.endsWith(' - Google Chrome'));
-    this.toggleMode('slack', title.endsWith('Slack - Google Chrome'));
+    this.trackModeChange(() => {
+      setToggle(this.mode, 'vim', vim);
+      setToggle(this.mode, 'vim-insert', vimInsert);
+      setToggle(this.mode, 'vim-tree', vim && title.startsWith('NERD_tree_'));
+      if (!vim) {
+        this.mode.delete('vim-visual');
+      }
+      setToggle(this.mode, 'chrome', title.endsWith(' - Google Chrome'));
+      setToggle(this.mode, 'slack', title.endsWith('Slack - Google Chrome'));
+    });
     this.lastTitle = title;
   }
 

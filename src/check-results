@@ -59,8 +59,13 @@ for (const oldLine of results.split('\n')) {
   newResults.push(newLine);
 
   if (newLine !== oldLine) {
-    console.log(`${transcript}${rightArrow}${chalk.red(oldResult)}`);
-    console.log(`${transcript}${rightArrow}${chalk.green(newResult)}`);
+    const prefix = (
+      (modeString ? `${chalk.grey(modeString + ':')} ` : '') +
+      transcript +
+      chalk.grey(rightArrow)
+    );
+    console.log(`${prefix}${chalk.red(oldResult)}`);
+    console.log(`${prefix}${chalk.green(newResult)}`);
   }
 }
 

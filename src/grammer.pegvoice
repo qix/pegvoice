@@ -87,6 +87,7 @@ window ...{
 }
 
 screen :i3screen => i3(`workspace ${i3screen}`);
+screen brightness :number => i3(`exec brightness ${number}`);
 
 open terminal :folder? => i3(
   `exec gnome-terminal --hide-menubar ` +
@@ -146,7 +147,29 @@ type :keys => type(keys);
 dictate :dictate => dictate;
 words :string => type(string);
 
+&vimVisual ...{
+  change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
+  delete => multi(key('d'), modeOff('vim-visual'));
+  yank => multi(key('y'), modeOff('vim-visual'));
+}
+
 &vim ...{
+
+  save exit => vimex('wq');
+  save as => escaped(type(':w '));
+  save => vimex('w');
+
+
+
+  tree :folder => vimex(`NERDTree ${folder}`);
+
+  switch buffer => escaped(repeat(2, key('ctrl-w')));
+  close buffer => vimex('bd');
+  find :code? => escaped(type(`/${optional(code, '')}`));
+  next => type('n');
+}
+
+&vimNormal ...{
   open above => multi(type('O'), mode('vim-insert'));
   open => multi(type('o'), mode('vim-insert'));
   above => multi(type('O'), mode('vim-insert'));
@@ -156,17 +179,17 @@ words :string => type(string);
 
   paste => type('p');
   undo => type('u');
-  save exit => vimex('wq');
-  save => vimex('w');
 
-  tree :folder => vimex(`NERDTree ${folder}`);
+  visual block => multi(key('ctrl-v'), mode('vim-visual'));
+  visual line => multi(type('V'), mode('vim-visual'));
+  visual => multi(type('v'), mode('vim-visual'));
 
+  macro :phonetic_letter => type(`q${phonetic_letter}`);
   forward c:ascii => type(`f${c}`);
   go to? ...{
     top => type('gg');
     bottom => type('G');
   }
-
   change ...{
     line => multi(type('cc'), mode('vim-insert'));
     dir:vim_direction => multi(type(`c${dir}`), mode('vim-insert'));
@@ -179,18 +202,13 @@ words :string => type(string);
     line => type('yy');
     dir:vim_direction => type(`y${dir}`);
   }
-
-  node require :ident => typeLine(`const ${ident} = require('${ident}');`);
-  switch buffer => escaped(repeat(2, key('ctrl-w')));
-  close buffer => vimex('bd');
-  find :code? => escaped(type(`/${optional(code, '')}`));
-  next => type('n');
 }
 
 &vimTree ...{
   change => type('C');
 }
 &vimInsert ...{
+  node require :ident => typeLine(`const ${ident} = require('${ident}');`);
   :dictate => dictate;
 }
 
@@ -222,8 +240,18 @@ _slack = &{
 _vim = &{
   return options.mode.has('vim');
 };
+_vimNormal = &{
+  return (
+    options.mode.has('vim') &&
+    !options.mode.has('vim-insert') &&
+    !options.mode.has('vim-visual')
+  );
+};
 _vimInsert = &{
   return options.mode.has('vim-insert');
+};
+_vimVisual = &{
+  return options.mode.has('vim-visual');
 };
 _vimTree = &{
   return options.mode.has('vim-tree');
@@ -328,6 +356,7 @@ _ascii "<ascii>" = char:(
   caret /
   dash /
   dollar /
+  exclamation /
   equal /
   greater /
   hash /
@@ -357,6 +386,7 @@ _ascii "<ascii>" = char:(
     dash: '-',
     dollar: '$',
     equal: '=',
+    exclamation: '!',
     greater: '>',
     hash: '#',
     less: '<',
@@ -540,6 +570,7 @@ spell eight;
 spell enter / inter / into / "\\new-line\\new line";
 spell equal / equals;
 spell escape / escaped;
+spell exclamation;
 spell five;
 spell forward;
 spell four / for;
@@ -565,7 +596,7 @@ spell pipe;
 spell plus;
 spell question;
 spell right;
-spell save / safe;
+spell save / safe / saved;
 spell semicolon / ";\\semicolon\\semicolon";
 spell seven;
 spell single;
@@ -586,6 +617,7 @@ spell voice;
 spell window / windows;
 spell word;
 spell zero;
+spell screen / green;
 
 spell alfa / alpha / offer;
 spell bravo / brother;
