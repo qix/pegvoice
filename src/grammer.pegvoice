@@ -176,9 +176,13 @@ words :string => type(string);
   append end => multi(type('A'), mode('vim-insert'));
   append => multi(type('a'), mode('vim-insert'));
   insert => multi(type('i'), mode('vim-insert'));
+  big replace => multi(type('R'), mode('vim-insert'));
 
   paste => type('p');
+  repeat => type('.');
   undo => type('u');
+
+  replace k:key => multi(key('r'), key(k));
 
   visual block => multi(key('ctrl-v'), mode('vim-visual'));
   visual line => multi(type('V'), mode('vim-visual'));
@@ -634,7 +638,7 @@ spell lima;
 spell mike;
 spell november;
 spell oscar;
-spell papa;
+spell papa / pepper;
 spell quebec / "québec";
 spell romeo;
 spell sierra;
