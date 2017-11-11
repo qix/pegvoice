@@ -127,6 +127,13 @@ escape => key('escape');
 
 &terminal ...{
   rebase => type('git rebase -i HEAD~25');
+  commit all => multi(type('git commit -a -m \'\''), key('left'));
+  commit => multi(type('git commit -m \'\''), key('left'));
+  copy => key('ctrl-shift-c');
+  paste => key('ctrl-shift-v');
+  delete line => multi(key('home'), key('ctrl-k'));
+  control k:key => key(`ctrl-${k}`);
+  :dictate => dictate;
 }
 
 &slack ...{
@@ -375,7 +382,7 @@ _ident = word:_word {
 
 _word = (!_ .)+ &_ {
   // Take the first entry dragon returns
-  return text().split('\\')[0];
+  return text().split('\\')[0].toLowerCase();
 }
 
 _rebase_command = (pick / squash / reword / edit / drop);
@@ -693,6 +700,7 @@ spell or;
 spell outside;
 spell p;
 spell paren;
+spell paste / based;
 spell percent;
 spell period / "." / ".\\dot\\dot";
 spell pick / pip;
@@ -737,7 +745,7 @@ spell window / windows;
 spell word / words;
 spell x;
 spell y;
-spell z;
+spell z / said;
 spell zero;
 
 spell alfa / alpha / offer;

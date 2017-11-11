@@ -348,14 +348,53 @@ chrome ☇ window · left · )\right-parenthesis\close paren ⮕ null
 chrome ☇ window · left ⮕ [i3 "focus left"]
 chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ null
-terminal ☇ control · see · we · base · slap ⮕ null
+terminal ☇ 's\s\s ⮕ <'> "s"
+terminal ☇ Becker ⮕ "becker"
+terminal ☇ Echo ⮕ "e"
+terminal ☇ Rees ⮕ "rees"
+terminal ☇ and ⮕ "&"
+terminal ☇ arrow ⮕ " => "
+terminal ☇ based ⮕ <ctrl-shift-v>
+terminal ☇ commit · all ⮕ "git commit -a -m " <'> <'> <left>
+terminal ☇ commit ⮕ "git commit -m " <'> <'> <left>
+terminal ☇ control · K\letter ⮕ <ctrl-k>
+terminal ☇ control · Z\letter ⮕ <ctrl-z>
+terminal ☇ control · clear ⮕ "controlclear"
+terminal ☇ control · said ⮕ <ctrl-z>
+terminal ☇ control · see · we · base · slap ⮕ <ctrl-c> "webaseslap"
 terminal ☇ control · see ⮕ <ctrl-c>
-terminal ☇ controversy ⮕ null
-terminal ☇ glossy ⮕ null
+terminal ☇ controversy ⮕ "controversy"
+terminal ☇ copy · based ⮕ <ctrl-shift-c> <ctrl-shift-v>
+terminal ☇ copy · paste ⮕ <ctrl-shift-c> <ctrl-shift-v>
+terminal ☇ copy ⮕ <ctrl-shift-c>
+terminal ☇ croquet ⮕ "croquet"
+terminal ☇ delete · line ⮕ <home> <ctrl-k>
+terminal ☇ escape ⮕ <escape>
+terminal ☇ five · left ⮕ "5" <left>
+terminal ☇ glossy ⮕ "glossy"
+terminal ☇ hello · world ⮕ "helloworld"
+terminal ☇ is ⮕ "is"
+terminal ☇ kill ⮕ "kill"
+terminal ☇ left · control · pay ⮕ <left> "controlpay"
+terminal ☇ left · five ⮕ <left> "5"
+terminal ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/voice-code/pegvoice/src'"]
+terminal ☇ open · editor ⮕ [i3 "exec gvim -c ':NERDTree /home/josh'"]
+terminal ☇ open-air · voice ⮕ "open-airvoice"
+terminal ☇ paste ⮕ <ctrl-shift-v>
+terminal ☇ people · on ⮕ "peopleon"
 terminal ☇ rebase ⮕ "git rebase -i HEAD~25"
+terminal ☇ reset ⮕ "reset"
 terminal ☇ slap ⮕ <enter>
-terminal ☇ to · up ⮕ [repeat 2 <up>]
-terminal ☇ we · base ⮕ null
+terminal ☇ space ⮕ " "
+terminal ☇ the · line ⮕ "theline"
+terminal ☇ the ⮕ "the"
+terminal ☇ them · at ⮕ "them@"
+terminal ☇ to · up ⮕ "2" <up>
+terminal ☇ too · little ⮕ "toolittle"
+terminal ☇ wake up ⮕ "wake up"
+terminal ☇ we · base ⮕ "webase"
+terminal ☇ with · an · editor · voice ⮕ "withaneditorvoice"
+terminal ☇ word · Echo ⮕ "echo"
 vim vim-insert vim-visual ☇ forward · a\determiner ⮕ "forwarda"
 vim vim-insert ☇ "\left-double-quote\begin quote ⮕ <">
 vim vim-insert ☇ 's\s\s ⮕ <'> "s"
@@ -612,9 +651,12 @@ vim vim-rebase ☇ up ⮕ <up>
 vim vim-tree ☇ change ⮕ "C"
 vim vim-tree ☇ five · down ⮕ "5" <down>
 vim vim-tree ☇ five · up ⮕ "5" <up>
+vim vim-tree ☇ move · window · left ⮕ [i3 "move left"]
 vim vim-tree ☇ one\pronoun · up · slap ⮕ "1" <up> <enter>
+vim vim-tree ☇ save · X\letter · at ⮕ <escape> ":w" <enter> "x@"
 vim vim-tree ☇ six · up ⮕ "6" <up>
 vim vim-tree ☇ slap ⮕ <enter>
+vim vim-tree ☇ switch · buffer ⮕ <escape> [repeat 2 <ctrl-w>]
 vim vim-tree ☇ three · down · slap ⮕ "3" <down> <enter>
 vim vim-tree ☇ to · up · slap ⮕ "2" <up> <enter>
 vim vim-tree ☇ up · change ⮕ <up> "C"
@@ -695,6 +737,7 @@ vim ☇ T\letter ⮕ "t"
 vim ☇ Tab · one\number ⮕ "	1"
 vim ☇ Tate ⮕ null
 vim ☇ \new-line\next line ⮕ null
+vim ☇ \spelling-cap\cap next · next ⮕ null
 vim ☇ ]\right-square-bracket\right square bracket ⮕ "]"
 vim ☇ ^\caret\caret · dollar ⮕ "^$"
 vim ☇ ^\caret\caret ⮕ "^"
@@ -717,6 +760,7 @@ vim ☇ big · paste ⮕ "P"
 vim ☇ big · replace ⮕ "R" [mode +vim-insert]
 vim ☇ brightness · hundred ⮕ null
 vim ☇ but · bottom ⮕ null
+vim ☇ certified · previous · and · line ⮕ null
 vim ☇ change · )\right-parenthesis\right bracket ⮕ "c)" [mode +vim-insert]
 vim ☇ change · around · )\right-parenthesis\right paren ⮕ "ca)" [mode +vim-insert]
 vim ☇ change · around · curly ⮕ "ca}" [mode +vim-insert]
@@ -795,6 +839,7 @@ vim ☇ escape · append ⮕ <escape> "a" [mode +vim-insert]
 vim ☇ escape · escape · escape ⮕ <escape> <escape> <escape>
 vim ☇ escape · except ⮕ null
 vim ☇ escape · insert ⮕ <escape> "i" [mode +vim-insert]
+vim ☇ escape · reselect · sort ⮕ <escape> "gv" [mode +vim-visual] ":!sort" <enter> [mode -vim-visual]
 vim ☇ escape · visual ⮕ <escape> "v" [mode +vim-visual]
 vim ☇ escape ⮕ <escape>
 vim ☇ excellent ⮕ null
@@ -804,6 +849,7 @@ vim ☇ file ⮕ <escape> ":FZF /home/josh" <enter>
 vim ☇ find · F\letter ⮕ "/f"
 vim ☇ find · and · do ⮕ "/&do"
 vim ☇ find · deadline ⮕ "/deadline"
+vim ☇ find · dictate ⮕ "/dictate"
 vim ☇ find · empty · line ⮕ "/^$" <enter>
 vim ☇ find · equal · slap ⮕ "/ === slap"
 vim ☇ find · equal ⮕ "/ === "
@@ -812,6 +858,8 @@ vim ☇ find · find ⮕ "/find"
 vim ☇ find · link ⮕ "/link"
 vim ☇ find · normal ⮕ "/normal"
 vim ☇ find · previous · and · \new-line\new line ⮕ "?&" <enter>
+vim ☇ find · previous · empty · line ⮕ "?^$" <enter>
+vim ☇ find · terminal ⮕ "/terminal"
 vim ☇ find · to ⮕ "/2"
 vim ☇ find · typed · TW ⮕ "/typedtw"
 vim ☇ find · voice ⮕ "/voice"
@@ -878,10 +926,12 @@ vim ☇ left · left ⮕ <left> <left>
 vim ☇ left · paste ⮕ <left> "p"
 vim ☇ left · visual ⮕ <left> "v" [mode +vim-visual]
 vim ☇ left ⮕ <left>
+vim ☇ line ⮕ null
 vim ☇ love ⮕ null
 vim ☇ machine ⮕ null
 vim ☇ mark · a\determiner ⮕ "ma"
 vim ☇ move · window · left ⮕ [i3 "move left"]
+vim ☇ next · next ⮕ "nn"
 vim ☇ next ⮕ "n"
 vim ☇ nought · up ⮕ "0" <up>
 vim ☇ nought ⮕ "0"
@@ -918,6 +968,7 @@ vim ☇ paste ⮕ "p"
 vim ☇ pipe ⮕ "|"
 vim ☇ play · X\letter ⮕ "@x"
 vim ☇ play · x-ray ⮕ "@x"
+vim ☇ previous · MD · line ⮕ null
 vim ☇ previous ⮕ "N"
 vim ☇ reflect ⮕ null
 vim ☇ repeat ⮕ "."
@@ -948,12 +999,15 @@ vim ☇ screen · brightness · screen · brightness · hundred ⮕ null
 vim ☇ screen · five ⮕ [i3 "workspace 5"]
 vim ☇ screen · one\number ⮕ [i3 "workspace 1"]
 vim ☇ search · and · are · escape · good · of · a\determiner ⮕ null
+vim ☇ search · dictate · find · dictate ⮕ null
 vim ☇ search · find · Delta ⮕ null
 vim ☇ search ⮕ null
+vim ☇ selected ⮕ null
 vim ☇ seven · down ⮕ "7" <down>
 vim ☇ seven · up ⮕ "7" <up>
 vim ☇ six · cut ⮕ "6x"
 vim ☇ six · up ⮕ "6" <up>
+vim ☇ slap · next ⮕ <enter> "n"
 vim ☇ slap · slap · he · alkaline ⮕ null
 vim ☇ slap · slap · slap · slap ⮕ <enter> <enter> <enter> <enter>
 vim ☇ slap · slap · slap ⮕ <enter> <enter> <enter>
@@ -964,6 +1018,7 @@ vim ☇ star ⮕ "*"
 vim ☇ switch · buffer · three · down ⮕ <escape> [repeat 2 <ctrl-w>] "3" <down>
 vim ☇ switch · buffer ⮕ <escape> [repeat 2 <ctrl-w>]
 vim ☇ ten · Ford ⮕ null
+vim ☇ ten · down · next ⮕ "10" <down> "n"
 vim ☇ ten · down ⮕ "10" <down>
 vim ☇ ten · left ⮕ "10" <left>
 vim ☇ ten · right ⮕ "10" <right>
@@ -978,7 +1033,9 @@ vim ☇ three · up ⮕ "3" <up>
 vim ☇ tight · x-ray · pepper ⮕ null
 vim ☇ to · a\determiner ⮕ "2a"
 vim ☇ to · cut ⮕ "2x"
+vim ☇ to · down · paste ⮕ "2" <down> "p"
 vim ☇ to · left ⮕ "2" <left>
+vim ☇ to · next ⮕ "2n"
 vim ☇ to · write ⮕ null
 vim ☇ to ⮕ "2"
 vim ☇ told ⮕ null
@@ -1019,13 +1076,15 @@ vim ☇ visual ⮕ "v" [mode +vim-visual]
 vim ☇ wake up ⮕ null
 vim ☇ wake · up ⮕ [noop]
 vim ☇ window · right ⮕ [i3 "focus right"]
+vim ☇ with · right ⮕ null
 vim ☇ word · type ⮕ "type"
 vim ☇ writer · excellent ⮕ null
 vim ☇ x-ray · whiskey · Victor ⮕ "xwv"
 vim ☇ x-ray ⮕ "x"
-vim ☇ yank · line · paste · based ⮕ null
+vim ☇ yank · line · paste · based ⮕ "yypp"
 vim ☇ yank · line · paste ⮕ "yyp"
 vim ☇ yank · line ⮕ "yy"
 vim ☇ yank · word · (\left-parenthesis\left bracket · left · paste ⮕ "yw(" <left> "p"
+vim ☇ yank ⮕ null
 vim ☇ }\right-curly-bracket\right curly bracket ⮕ "}"
 vim-visual ☇ test ⮕ null
