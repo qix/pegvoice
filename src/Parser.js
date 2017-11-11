@@ -93,6 +93,16 @@ function matchToId(match) {
   }).join('_');
 }
 
+function spellRule(word, alt=[]) {
+  const byLength = (a, b) => b.length - a.length;
+  const options = [word, ...alt].map(words => {
+    return JSON.stringify(words) + 'i';
+  }).sort(byLength);
+  return (
+    `${word} "${word}" = ` +
+    `(${options.join(' / ')}) _dragon? &_ { return "${word}" };\n`
+  )
+};
 class PegGenerator {
   constructor() {
     this.words = new Set();
@@ -180,7 +190,6 @@ class PegGenerator {
   }
 
   pegRules(rules, prefix) {
-    const byLength = (a, b) => b.length - a.length;
     const ruleNames = [];
     let source = '';
     for (const ruleAst of rules) {
@@ -194,13 +203,7 @@ class PegGenerator {
         source += `${ruleAst.code}\n`;
       } else if (ruleAst.type === 'spell') {
         const {word} = ruleAst;
-        const options = [word, ...ruleAst.alt].map(words => {
-          return JSON.stringify(words) + 'i';
-        }).sort(byLength);
-        source += (
-          `${word} "${word}" = ` +
-          `(${options.join(' / ')}) { return "${word}" };\n`
-        );
+        source += spellRule(word, ruleAst.alt);;
         this.defined.add(word);
       } else {
         throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
@@ -219,7 +222,7 @@ class PegGenerator {
       rv += `${source}\n`;
       for (let word of this.words) {
         if (!this.defined.has(word)) {
-          rv += `${word} = "${word}"i;\n`;
+          rv += spellRule(word, []);
         }
       }
       rv += (`

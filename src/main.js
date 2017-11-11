@@ -61,6 +61,9 @@ const parser = new Parser({
 });
 
 function splitWords(string) {
+  if (string.includes(wordSeperator)) {
+    return string.trim();
+  }
   return string.trim().split(' ').join(wordSeperator);
 }
 if (options['--kaldi']) {

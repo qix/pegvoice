@@ -1,7 +1,7 @@
 'use strict';
 
 function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><`~:;';
+  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><`~:;"\'';
   const index = map.indexOf(key);
   if (index >= 0 && index % 2 === 0) {
     return map.charAt(index + 1);
@@ -171,6 +171,8 @@ class MultiCommand extends Command {
     while (cmdList.length) {
       if (cmdList[0] instanceof MultiCommand) {
         cmdList.unshift(...cmdList.shift().commands);
+      } else if (cmdList[0] instanceof NoopCommand) {
+        cmdList.shift();
       } else if (first.length === 0) {
         first.push(cmdList.shift());
       } else if (first[0].constructor === cmdList[0].constructor) {
@@ -178,6 +180,10 @@ class MultiCommand extends Command {
       } else {
         break;
       }
+    }
+
+    if (!first.length) {
+      return '[noop]';
     }
 
     let rendered = (first[0].constructor.renderMany || Command.renderMany)(first);

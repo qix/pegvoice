@@ -143,7 +143,7 @@ control alt k:key => key(`ctrl-alt-${k}`);
 control k:key => key(`ctrl-${k}`);
 shift k:key => key(`shift-${k}`);
 
-type :keys => type(keys);
+type :ascii_string => type(ascii_string);
 dictate :dictate => dictate;
 word :word => type(word);
 
@@ -165,7 +165,7 @@ word :word => type(word);
 
   switch buffer => escaped(repeat(2, key('ctrl-w')));
   close buffer => vimex('bd');
-  find :code? => escaped(type(`/${optional(code, '')}`));
+  find :dictate? => escaped(multi(type('/'), optional(dictate, noop())));
   next => type('n');
 }
 
@@ -178,6 +178,11 @@ word :word => type(word);
   insert => multi(type('i'), mode('vim-insert'));
   big replace => multi(type('R'), mode('vim-insert'));
 
+  :number => type(`${number}`);
+  mark :letter => type(`m${letter}`);
+
+  cut => type('x');
+  big paste => type('P');
   paste => type('p');
   repeat => type('.');
   undo => type('u');
@@ -193,6 +198,7 @@ word :word => type(word);
   go to? ...{
     top => type('gg');
     bottom => type('G');
+    :letter => type(`'${letter}`);
   }
   change ...{
     line => multi(type('cc'), mode('vim-insert'));
@@ -269,10 +275,6 @@ _i3screen = _number;
 
 _keys = head:_key "."? tail:(_ _key "."?)* {
   return [head, ...extractList(tail, 1)];
-}
-
-_code = head:_ident tail:(_ _ident &_)* {
-  return [head, ...extractList(tail, 1)].join(' ');
 }
 
 _dictate = head:_dictate_command tail:(_ _dictate_command &_)* {
@@ -359,6 +361,10 @@ _paren = char:(
   }[char];
 }
 
+_ascii_string = head:_ascii tail:(_ _ascii)* {
+  return [head, ...extractList(tail, 1)].join('');
+}
+
 _ascii "<ascii>" = char:(
   and /
   at /
@@ -384,6 +390,8 @@ _ascii "<ascii>" = char:(
   tab /
   tilde /
   underscore /
+  quote /
+  big_quote /
   _paren /
   _digit /
   _phonetic_letter /
@@ -393,6 +401,7 @@ _ascii "<ascii>" = char:(
     and: '&',
     at: '@',
     backslash: '\\',
+    big_quote: '"',
     caret: '^',
     dash: '-',
     dollar: '$',
@@ -406,6 +415,7 @@ _ascii "<ascii>" = char:(
     pipe: '|',
     plus: '+',
     question: '?',
+    quote: '\'',
     semicolon: ';',
     slash: '/',
     space: ' ',
@@ -448,7 +458,10 @@ _phonetic_letter = capital:((big / capital) _)? code:(
   return capital ? letter.toUpperCase() : letter;;
 };
 
-_letter = capital:((big / capital) _)? letter:([a-zA-Z]) _dragon? &_ {
+_letter = capital:((big / capital) _)? letter:(
+    a / b / c / d / e / f / g / h / i / j / k / l / m /
+    n / o / p / q / r / s / t / u / v / w / x / y / z
+) {
   if (text().includes('uppercase-letter')) {
     capital = true;
   }
@@ -535,12 +548,9 @@ _digit = word:(
   return digits.hasOwnProperty(word) ? digits[word] : parseInt(word, 10);
 }
 
-_string = chars:(.*) {
-  return chars.join('');
-}
-
 undo = ("undo"i / and _ do) { return "undo"; }
 not_equal = not _ equal { return "not_equal"; }
+big_quote = big _ quote { return "big_quote"; }
 left_curly    = (left _ curly    / "{" _dragon?) &_ { return "left_curly"; }
 left_paren    = (left _ paren    / "(" _dragon?) &_ { return "left_paren"; }
 left_square   = (left _ square   / "[" _dragon?) &_ { return "left_square"; }
@@ -598,6 +608,7 @@ spell period / "." / ".\\dot\\dot";
 spell pipe;
 spell plus;
 spell question;
+spell quote;
 spell right;
 spell save / safe / saved;
 spell semicolon / ";\\semicolon\\semicolon";
@@ -612,7 +623,7 @@ spell than;
 spell three;
 spell tilde / "~\\tilde\\tilde";
 spell triple;
-spell two;
+spell two / to;
 spell underscore / "_" / "_\\underscore\\underscore";
 spell until;
 spell up;
@@ -621,6 +632,32 @@ spell window / windows;
 spell word / words;
 spell zero;
 spell screen / green;
+spell a;
+spell b;
+spell c;
+spell d;
+spell e;
+spell f;
+spell g;
+spell h;
+spell i;
+spell j;
+spell k;
+spell l / al;
+spell m;
+spell n;
+spell o / oh;
+spell p;
+spell q;
+spell r;
+spell s;
+spell t;
+spell u;
+spell v;
+spell w;
+spell x;
+spell y;
+spell z;
 
 spell alfa / alpha / offer;
 spell bravo / brother;
