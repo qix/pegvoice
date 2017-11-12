@@ -107,6 +107,7 @@ class PegGenerator {
   constructor() {
     this.words = new Set();
     this.defined = new Set();
+    this.nextPriority = 1;
   }
 
   pegExpr(ast, prefix) {
@@ -169,8 +170,13 @@ class PegGenerator {
     }).join('');
 
     if (ast.expr.type === 'code') {
+      const code = (`
+      return new PriorityCommand(${this.nextPriority++}, (function(){
+        ${ast.expr.code}
+      })());
+      `);
       return (
-        `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n${ast.expr.code}\n}\n`
+        `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n${code}\n}\n`
       );
     } else if (ast.expr.type === 'rules') {
       const {

@@ -35,6 +35,22 @@ class I3Command extends Command {
     machine.i3(this.command);
   }
 }
+class PriorityCommand extends Command {
+  constructor(priority, command) {
+    super();
+    this.priority = priority;
+    this.command = command;
+  }
+  render() {
+    return this.command.render();
+  }
+  execute(machine) {
+    return this.command.execute(machine);
+  }
+  parseExecute(state) {
+    this.command.parseExecute(state);
+  }
+}
 class RepeatCommand extends Command {
   constructor(count, command) {
     super();
@@ -47,6 +63,11 @@ class RepeatCommand extends Command {
   execute(machine) {
     for (let i = 0; i < this.count; i++) {
       this.command.execute(machine);
+    }
+  }
+  parseExecute(state) {
+    for (let i = 0; i < this.count; i++) {
+      this.command.parseExecute(state);
     }
   }
 }
@@ -226,12 +247,13 @@ class MultiCommand extends Command {
 }
 
 module.exports = {
-  NoopCommand,
   ClickCommand,
   I3Command,
-  RepeatCommand,
   KeyCommand,
   ModeCommand,
   MultiCommand,
+  NoopCommand,
+  PriorityCommand,
   RecordCommand,
+  RepeatCommand,
 };

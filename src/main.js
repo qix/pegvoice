@@ -126,6 +126,7 @@ async function executeTranscripts(transcripts) {
 
   console.log(chalk.white.dim(`[${modeString}]`));
 
+  const {grey, green, yellow} = chalk;
 
   let executed = '';
   let executeCommand = null;
@@ -133,23 +134,24 @@ async function executeTranscripts(transcripts) {
     const N = `${idx + 1}. `;
     try {
       const command = parser.parse(transcript, mode);
+      const priority = command.priority || null;
+      const rendered = command.render();
       if (executed) {
         console.log(
-          `${chalk.grey(`${N} Skip: `)}${transcript}${chalk.grey(' => ')}${chalk.grey(command.render())}`
+          `${grey(`${N} Skip: `)}${transcript}${grey(' => ')}${grey(rendered)} ${grey(priority)}`
         );
       } else {
         const word = noop ? 'NoOp' : 'Exec';
         executed = (
-          `${N}${word}: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
+          `${N}${word}: ${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
         );
         if (!noop) {
           executeCommand = command;
         }
 
         if (resultLog && machine.record) {
-          const commandJson = command.render();
           resultLog.write(
-            `${modeString}${transcript}${rightArrow}${commandJson}\n`
+            `${modeString}${transcript}${rightArrow}${rendered}\n`
           );
         }
       }

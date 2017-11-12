@@ -24,8 +24,9 @@ const {
 } = require('./symbols');
 
 const parser = new Parser();
+const resultFilename = options['--result-log'];
 
-const results = fs.readFileSync('results.sample').toString('utf-8');
+const results = fs.readFileSync(resultFilename).toString('utf-8');
 const newResults = [];
 
 
@@ -73,5 +74,5 @@ if (options['--write']) {
   if (options['--sorted']) {
     output = Array.from(new Set(output)).sort();
   }
-  fs.writeFileSync('results.sample', output.join('\n') + '\n');
+  fs.writeFileSync(resultFilename, output.join('\n') + '\n');
 }

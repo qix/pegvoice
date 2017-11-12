@@ -3,4 +3,4 @@
 ROOT="$(dirname $0)"
 
 nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
-  "$ROOT/main.js" --command="$1" --mode="$2" --noop --trace
+  "$ROOT/src/main.js" --command="$1" --mode="$2" --noop --trace
