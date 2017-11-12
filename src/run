@@ -2,8 +2,7 @@
 
 ROOT="$(dirname $0)"
 
-python ~/silvius/stream/mic.py -s localhost -d 4 | \
-  nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
-  "$ROOT/main.js" --server \
-    --debug-log="$(dirname $0)/debug.log" \
-    --result-log="$(dirname $0)/results.sample"
+nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
+"$ROOT/main.js" --server \
+  --debug-log="$(dirname $0)/debug.log" \
+  --result-log="$(dirname $0)/results.sample"

@@ -1088,3 +1088,82 @@ vim ☇ yank · word · (\left-parenthesis\left bracket · left · paste ⮕ "yw
 vim ☇ yank ⮕ null
 vim ☇ }\right-curly-bracket\right curly bracket ⮕ "}"
 vim-visual ☇ test ⮕ null
+vim ☇ delete · including · space ⮕ "df "
+vim ☇ under ⮕ "u"
+vim ☇ 's\s\s ⮕ null
+vim ☇ four · equals ⮕ "4="
+vim ☇ forward · equals ⮕ "f="
+vim ☇ forward · equals ⮕ "f="
+vim ☇ space · space ⮕ "  "
+vim ☇ delete · including · space ⮕ "df "
+vim ☇ for · cut ⮕ "4x"
+vim ☇ save ⮕ <escape> ":w" <enter>
+vim vim-insert ☇ for · left ⮕ [repeat 4 <left>]
+vim ☇ five · backspace ⮕ "5" <backspace>
+vim ☇ is ⮕ null
+vim ☇ for · left ⮕ "4" <left>
+vim ☇ insert ⮕ "i" [mode +vim-insert]
+vim vim-insert ☇ for · left ⮕ [repeat 4 <left>]
+vim vim-insert ☇ for · the · school ⮕ "4theschool"
+vim vim-insert ☇ escape · under ⮕ <escape> "u"
+vim ☇ insert · for · _\underscore\underscore ⮕ "i" [mode +vim-insert] "4_"
+vim vim-insert ☇ escape · under ⮕ <escape> "u"
+chrome ☇ wake up ⮕ null
+ ☇ wake up ⮕ null
+ ☇ job ⮕ null
+ ☇ screen · one\number ⮕ [i3 "workspace 1"]
+chrome ☇ page ⮕ <pagedown>
+chrome ☇ a\determiner · job ⮕ null
+terminal ☇ love ⮕ "love"
+ ☇ record · on ⮕ [record true]
+ ☇ up ⮕ <up>
+ ☇ an ⮕ null
+vim ☇ record · off ⮕ [record false]
+vim ☇ up ⮕ <up>
+vim ☇ down ⮕ <down>
+vim ☇ record · off ⮕ [record false]
+vim ☇ slide ⮕ null
+vim vim-tree ☇ record · off ⮕ [record false]
+terminal ☇ the ⮕ null
+terminal ☇ pillow ⮕ null
+ ☇ click ⮕ null
+chrome ☇ on ⮕ null
+chrome ☇ is ⮕ null
+ ☇ link ⮕ null
+ ☇ click ⮕ null
+vim ☇ click ⮕ null
+chrome ☇ that ⮕ null
+chrome ☇ as ⮕ null
+chrome ☇ S\letter ⮕ null
+vim ☇ windscreen · six ⮕ null
+vim ☇ screened ⮕ null
+chrome ☇ ticket · SL ⮕ null
+chrome ☇ at · Al ⮕ null
+chrome ☇ 's\s\s ⮕ null
+chrome ☇ 's\s\s ⮕ null
+vim ☇ 's\s\s ⮕ null
+chrome ☇ double ⮕ null
+chrome ☇ and ⮕ null
+chrome ☇ type · the · IDS ⮕ null
+chrome ☇ the · IDS ⮕ null
+chrome ☇ type · of · the · IDS ⮕ null
+chrome ☇ vets ⮕ null
+chrome ☇ type · the · IDS ⮕ null
+chrome ☇ type · the · type · I\pronoun · ID · Titus ⮕ null
+chrome ☇ big ⮕ null
+chrome ☇ to ⮕ null
+ ☇ to ⮕ null
+ ☇ to ⮕ null
+vim ☇ the · bottom ⮕ null
+vim ☇ forty ⮕ null
+vim ☇ and · bash ⮕ null
+ ☇ –\dash\dash · bank · bash ⮕ null
+vim ☇ –\dash\dash · bank ⮕ null
+vim ☇ control · shift · the ⮕ null
+vim vim-insert ☇ escape · right · big · delete ⮕ null
+vim ☇ bluebottle ⮕ null
+vim ☇ open · paste ⮕ "o" [mode +vim-insert] <ctrl-shift-v>
+vim ☇ open ⮕ "o" [mode +vim-insert]
+vim vim-insert ☇ paste ⮕ <ctrl-shift-v>
+vim ☇ liquid · paste ⮕ null
+vim ☇ big · quote · based ⮕ <"> "p"

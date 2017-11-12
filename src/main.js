@@ -120,30 +120,33 @@ if (options['--server']) {
 const noop = options['--noop'];
 
 async function executeTranscripts(transcripts) {
-  let executed = false;
   let first = true;
   const mode = await machine.fetchCurrentMode();
   const modeString = Array.from(mode).sort().join(' ') + modeSeperator;
 
   console.log(chalk.white.dim(`[${modeString}]`));
-  for (let transcript of transcripts) {
+
+
+  let executed = '';
+  let executeCommand = null;
+  transcripts.forEach((transcript, idx) => {
+    const N = `${idx + 1}. `;
     try {
       const command = parser.parse(transcript, mode);
       if (executed) {
         console.log(
-          `${chalk.grey('Skip: ')}${transcript}${chalk.grey(' => ')}${chalk.grey(command.render())}`
+          `${chalk.grey(`${N} Skip: `)}${transcript}${chalk.grey(' => ')}${chalk.grey(command.render())}`
         );
       } else {
         const word = noop ? 'NoOp' : 'Exec';
-        console.log(
-          `${word}: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
+        executed = (
+          `${N}${word}: ${chalk.yellow(transcript)} => ${chalk.green(command.render())}`
         );
-        executed = true;
         if (!noop) {
-          command.execute(machine);
+          executeCommand = command;
         }
 
-        if (resultLog) {
+        if (resultLog && machine.record) {
           const commandJson = command.render();
           resultLog.write(
             `${modeString}${transcript}${rightArrow}${commandJson}\n`
@@ -152,7 +155,7 @@ async function executeTranscripts(transcripts) {
       }
     } catch (err) {
       console.log(
-        `${chalk.grey('Fail: ')}${transcript}${chalk.grey(' => null')}`
+        `${chalk.grey(`${N}Fail: `)}${transcript}${chalk.grey(' => null')}`
       );
 
       if (err instanceof Parser.ParseError) {
@@ -164,9 +167,12 @@ async function executeTranscripts(transcripts) {
       }
     }
     first = false;
-  }
+  });
 
-  if (!executed && transcripts.length) {
+  if (executed) {
+    console.log(executed);
+    executeCommand.execute(machine);
+  } else if (transcripts.length) {
     if (resultLog) {
       resultLog.write(`${modeString}${transcripts[0]}${rightArrow}null\n`);
     }

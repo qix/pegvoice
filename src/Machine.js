@@ -50,10 +50,13 @@ class Commander {
 
     this.mode = new Set();
     this.lastTitle = null;
+    this.record = false;
   }
 
+  setRecord(flag) { this.record = flag; }
   i3(command) { i3.command(command); }
   keyTap(key, modifiers) { robot.keyTap(key, modifiers); }
+  click() { robot.mouseClick(); }
 
   async fetchCurrentMode() {
     this.handleTitle(await getCurrentTitle());

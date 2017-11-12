@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+exec nodemon --ext 'js,pegjs,pegvoice' -w ~/pegvoice \
+  --exec "$(dirname $0)/src/main.js" \
+    --server \
+    --debug-log="$(dirname $0)/debug.log" \
+    --result-log="$(dirname $0)/samples/josh.sample"
+

@@ -154,6 +154,30 @@ class ModeCommand extends Command {
     (this.disable || []).forEach(mode => state.mode.delete(mode));
   }
 }
+
+class ClickCommand extends Command {
+  execute(machine) {
+    machine.click();
+  }
+  render() {
+    return '[click]';
+  }
+}
+
+class RecordCommand extends Command {
+  constructor(flag) {
+    super();
+    this.flag = flag;
+  }
+
+  execute(machine) {
+    machine.setRecord(this.flag);
+  }
+  render() {
+    return `[record ${this.flag}]`;
+  }
+}
+
 class MultiCommand extends Command {
   constructor(commands) {
     super();
@@ -203,9 +227,11 @@ class MultiCommand extends Command {
 
 module.exports = {
   NoopCommand,
+  ClickCommand,
   I3Command,
   RepeatCommand,
   KeyCommand,
   ModeCommand,
   MultiCommand,
+  RecordCommand,
 };

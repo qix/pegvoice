@@ -3,11 +3,10 @@
 
 const doc = `
 Usage:
-  check-results [--write] [--sorted]
+  check-results [--write] [--sorted] --result-log=<filename> [options]
 
 Options:
   --debug-log=<filename>     Add a debug log
-  --result-log=<filename>    Log results to a file
 `;
 
 const {docopt} = require('docopt');

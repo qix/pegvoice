@@ -6,6 +6,8 @@
     KeyCommand,
     ModeCommand,
     MultiCommand,
+    ClickCommand,
+    RecordCommand,
   } = options.commands;
 
   function noop() {
@@ -73,6 +75,11 @@
 wake up => noop();
 go to sleep => noop();
 
+record on => new RecordCommand(true);
+record off => new RecordCommand(false);
+
+click => new ClickCommand();
+
 page down => key('pagedown');
 page up => key('pageup');
 
@@ -108,8 +115,6 @@ console log => type('console.log(');
 arrow function => multi(type(' => '), key('shift-['), key('enter'));
 arrow => type(' => ');
 
-endvim => noop();
-
 slap it? => key('enter');
 enter => key('enter');
 escape => key('escape');
@@ -118,11 +123,11 @@ escape => key('escape');
   tab :number => key(`ctrl-${number}`);
   link => escaped(key('f'));
   big link => escaped(key('F'));
-  l:phonetic_letter => key(l);
   close tab? => key('ctrl-w');
   open tab? => key('ctrl-t');
   tab => key('tab');
   page down? => key('pagedown');
+  l:letter => key(l);
 }
 
 &terminal ...{
@@ -159,6 +164,7 @@ shift k:key => key(`shift-${k}`);
 type :ascii_string => type(ascii_string);
 dictate :dictate => dictate;
 word :word => type(word);
+
 
 &vimVisual ...{
   change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
@@ -212,12 +218,14 @@ word :word => type(word);
   end macro => type(`q`);
 
   cut => type('x');
+  replace k:key => multi(key('r'), key(k));
+
+  paste from k:ascii => type(`${k}+p`);
   big paste => type('P');
   paste => type('p');
+
   repeat => type('.');
   undo => type('u');
-
-  replace k:key => multi(key('r'), key(k));
 
   visual block => multi(key('ctrl-v'), mode('vim-visual'));
   visual line => multi(type('V'), mode('vim-visual'));
@@ -227,14 +235,17 @@ word :word => type(word);
   tree :folder? => vimex(`NERDTree ${optional(folder, '/home/josh')}`);
   file :folder? => vimex(`FZF ${optional(folder, '/home/josh')}`);
 
+  big change => key('C');
   change ...{
     line => multi(type('cc'), mode('vim-insert'));
     dir:vim_direction => multi(type(`c${dir}`), mode('vim-insert'));
   }
+  big delete => key('D');
   delete ...{
     line => type('dd');
     dir:vim_direction => type(`d${dir}`);
   }
+  big yank => key('Y');
   yank ...{
     line => type('yy');
     dir:vim_direction => type(`y${dir}`);
@@ -245,6 +256,7 @@ word :word => type(word);
 
 &vimTree ...{
   change => type('C');
+  open => type('o');
 }
 &vimRebase ...{
   cmd:rebase_command => multi(type(`cw${cmd}`), key('escape'), key('enter'));
@@ -252,6 +264,7 @@ word :word => type(word);
 &vimInsert ...{
   node require :ident => typeLine(`const ${ident} = require('${ident}');`);
   delete => key('delete');
+  paste => key('ctrl-shift-v');
   :dictate => dictate;
 }
 
@@ -269,7 +282,7 @@ _vim_find = find prev:(_ previous)? {
 }
 
 _vim_direction = pos:((_vim_inside / _vim_around) _)? dir:(
-  word / _paren / _vim_until / _right_paren
+  word / _paren / _vim_until / _vim_including / _right_paren
 ) {
   return extractOptional(pos, 0, '') + ({
     word: 'w',
@@ -279,6 +292,9 @@ _vim_direction = pos:((_vim_inside / _vim_around) _)? dir:(
 _vim_inside = (inner / inside / in) { return 'i'; }
 _vim_around = (around / outside) { return 'a'; }
 
+_vim_including = (including) _ code:_ascii {
+  return `f${code}`;
+}
 _vim_until = (to / until) _ code:_ascii {
   return `t${code}`;
 }
@@ -322,10 +338,15 @@ _vimRebase = &{
 };
 
 _folder = voice {
-  return "/home/josh/voice-code/pegvoice/src";
+  return "/home/josh/pegvoice/src";
 }
 _direction = (up / down / left / right);
-_i3screen = _number;
+_i3screen = screen:(_number / dash / equal) {
+  return {
+    dash: '-',
+    equal: '=',
+  }[screen] || screen;
+};
 
 _keys = head:_key "."? tail:(_ _key "."?)* {
   return [head, ...extractList(tail, 1)];
@@ -339,6 +360,7 @@ _dictate_command
   = _dictate_special
   / _dictate_compare
   / _dictate_word
+  / _dictate_count_direction
   / _dictate_number
   / _dictate_key
   / _dictate_ident;
@@ -364,8 +386,12 @@ _dictate_special = w:(equal / not_equal / arrow / dotcom) &_ {
 _dictate_ident = w:_ident &_ {
   return type(w);
 }
-_dictate_key = count:(_count _)? k:_key &_ {
-  return repeat(extractOptional(count, 0, 1), key(k));
+
+_dictate_count_direction = count:_count _ d:_direction {
+  return repeat(count, key(d));
+}
+_dictate_key = k:_key {
+  return key(k);
 }
 
 _dictate_word = word _ word:_word {
@@ -391,6 +417,8 @@ _key "<key>"
   = enter
   / escape
   / backspace
+  / home
+  / end
   / _paren
   / _direction
   / _ascii;
@@ -662,7 +690,7 @@ spell down;
 spell drop;
 spell e;
 spell edit;
-spell eight;
+spell eight / it;
 spell enter / inter / into / "\\new-line\\new line";
 spell equal / equals;
 spell escape / escaped;
@@ -679,6 +707,7 @@ spell hash;
 spell hundred;
 spell i;
 spell in;
+spell including;
 spell inner;
 spell inside;
 spell j;
@@ -745,8 +774,10 @@ spell window / windows;
 spell word / words;
 spell x;
 spell y;
-spell z / said;
 spell zero;
+spell z / said;
+spell end;
+spell home;
 
 spell alfa / alpha / offer;
 spell bravo / brother;
