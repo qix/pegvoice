@@ -54,7 +54,9 @@ const log = bunyan.createLogger({
   name: 'pegvoice',
   streams: bunyanStreams,
 });
-const machine = new Machine(log);
+const machine = new Machine(log, {
+  disableTitleWatch: !!options['--mode'],
+});
 const parser = new Parser({
   parserOptions: {
     trace: options['--trace'],
@@ -128,52 +130,61 @@ async function executeTranscripts(transcripts) {
 
   const {grey, green, yellow} = chalk;
 
-  let executed = '';
-  let executeCommand = null;
-  transcripts.forEach((transcript, idx) => {
-    const N = `${idx + 1}. `;
+  let firstError = null;
+
+  const commands = transcripts.map(transcript => {
     try {
-      const command = parser.parse(transcript, mode);
-      const priority = command.priority || null;
-      const rendered = command.render();
-      if (executed) {
-        console.log(
-          `${grey(`${N} Skip: `)}${transcript}${grey(' => ')}${grey(rendered)} ${grey(priority)}`
-        );
-      } else {
-        const word = noop ? 'NoOp' : 'Exec';
-        executed = (
-          `${N}${word}: ${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
-        );
-        if (!noop) {
-          executeCommand = command;
-        }
-
-        if (resultLog && machine.record) {
-          resultLog.write(
-            `${modeString}${transcript}${rightArrow}${rendered}\n`
-          );
-        }
-      }
+      return parser.parse(transcript, mode);
     } catch (err) {
-      console.log(
-        `${chalk.grey(`${N}Fail: `)}${transcript}${chalk.grey(' => null')}`
-      );
-
       if (err instanceof Parser.ParseError) {
-        if (first) {
-          console.error(err.toString());
-        }
+        firstError = firstError || err.toString();
       } else {
         throw err;
       }
     }
-    first = false;
   });
 
-  if (executed) {
-    console.log(executed);
-    executeCommand.execute(machine);
+  const priorities = commands.map(cmd => {
+    return (cmd && cmd.priority) || null;
+  });
+
+  const executeIndex = priorities.indexOf(Math.min(...priorities) || 0);
+
+  transcripts.forEach((transcript, idx) => {
+    if (idx === executeIndex) {
+      return;
+    }
+
+    const N = `${idx + 1}. `;
+    const command = commands[idx];
+    const rendered = command ? command.render() : 'null';
+    const priority = priorities[idx];
+    console.log(
+      grey(`${N} Skip: `) +
+      transcript +
+      grey(` => ${rendered} ${priority}`)
+    );
+  });
+
+  if (executeIndex >= 0) {
+    const transcript = transcripts[executeIndex];
+    const command = commands[executeIndex];
+    const rendered = command.render();
+    const priority = priorities[executeIndex];
+
+    const word = noop ? 'NoOp' : 'Exec';
+    console.log(
+      `${executeIndex + 1} ${word}: ` +
+      `${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
+    );
+    if (!noop) {
+      command.execute(machine);
+    }
+    if (resultLog && machine.record) {
+      resultLog.write(
+        `${modeString}${transcript}${rightArrow}${rendered}\n`
+      );
+    }
   } else if (transcripts.length) {
     if (resultLog) {
       resultLog.write(`${modeString}${transcripts[0]}${rightArrow}null\n`);

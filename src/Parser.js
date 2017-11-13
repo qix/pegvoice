@@ -93,21 +93,34 @@ function matchToId(match) {
   }).join('_');
 }
 
-function spellRule(word, alt=[]) {
-  const byLength = (a, b) => b.length - a.length;
-  const options = [word, ...alt].map(words => {
-    return JSON.stringify(words) + 'i';
-  }).sort(byLength);
-  return (
-    `${word} "${word}" = ` +
-    `(${options.join(' / ')}) _dragon? &_ { return "${word}" };\n`
-  )
-};
 class PegGenerator {
   constructor() {
     this.words = new Set();
     this.defined = new Set();
     this.nextPriority = 1;
+  }
+
+  spellRule(word, alt=[]) {
+    const byLength = (a, b) => b.length - a.length;
+
+
+    const options = [
+      JSON.stringify(word) + 'i _dragon? &_',
+      ...alt.map(words => {
+        return words.map(w => {
+          if (/^[a-z]+$/.test(w)) {
+            this.words.add(w);
+            return w;
+          }
+          return JSON.stringify(w) + 'i _dragon? &_';
+        }).join(' _ ');
+      })
+    ];
+
+    return (
+      `${word} "${word}" = ` +
+      `(${options.join(' / ')}) { return "${word}" };\n`
+    )
   }
 
   pegExpr(ast, prefix) {
@@ -209,7 +222,7 @@ class PegGenerator {
         source += `${ruleAst.code}\n`;
       } else if (ruleAst.type === 'spell') {
         const {word} = ruleAst;
-        source += spellRule(word, ruleAst.alt);;
+        source += this.spellRule(word, ruleAst.alt);;
         this.defined.add(word);
       } else {
         throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
@@ -226,11 +239,13 @@ class PegGenerator {
       }
       const {ruleNames, source} = this.pegRules(ast.rules, 'c_');
       rv += `${source}\n`;
+
       for (let word of this.words) {
         if (!this.defined.has(word)) {
-          rv += spellRule(word, []);
+          rv += this.spellRule(word, []);
         }
       }
+
       rv += (`
       _ = "${wordSeperator}" / __eof__;
 
@@ -243,9 +258,12 @@ class PegGenerator {
         if (!tail.length) {
           return head;
         }
-        return new options.commands.MultiCommand([
-          head, ...tail.map(match => match[1])
-        ]);
+        return new options.commands.PriorityCommand(
+          head.priority || null,
+          new options.commands.MultiCommand([
+            head, ...tail.map(match => match[1])
+          ])
+        );;
       }
       __eof__ = !.;
       `);

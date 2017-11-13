@@ -95,7 +95,7 @@ window ...{
   move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
 }
 
-screen :i3screen => i3(`workspace ${i3screen}`);
+screen :i3screen => i3(`workspace ${i3screen}, focus tiling`);
 screen brightness :number => i3(`exec brightness ${number}`);
 
 open terminal :folder? => i3(
@@ -134,8 +134,10 @@ escape => key('escape');
   big link => escaped(key('F'));
   close tab? => key('ctrl-w');
   open tab? => key('ctrl-t');
+  undo => key('ctrl-z');
   tab => key('tab');
   page down? => key('pagedown');
+  go to reddit :dictate => multi(key('ctrl-t'), type('https://reddit.com/r/'), dictate, key('enter'));
   l:letter => key(l);
   k:modified_key => key(k);
   :dictate => dictate;
@@ -152,10 +154,6 @@ escape => key('escape');
   :dictate => dictate;
 }
 
-i three ...{
-  screen :i3screen => i3(`workspace ${i3screen}`);
-}
-
 key k:key => key(k);
 k:modified_key => key(k);
 
@@ -167,6 +165,10 @@ word :word => type(word);
 &vimVisual ...{
   change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
   delete => multi(key('d'), modeOff('vim-visual'));
+  indent => multi(key('>'), modeOff('vim-visual'));
+  dedent => multi(key('<'), modeOff('vim-visual'));
+  format => multi(key('='), modeOff('vim-visual'));
+  replace k:key => multi(key('r'), key(k), modeOff('vim-visual'));
   sort => multi(type(':!sort\n'), modeOff('vim-visual'));
   yank => multi(key('y'), modeOff('vim-visual'));
   unique => multi(type(':!sort\ngv:!uniq\n'), modeOff('vim-visual'));
@@ -248,6 +250,15 @@ word :word => type(word);
   yank ...{
     line => type('yy');
     dir:vim_direction => type(`y${dir}`);
+  }
+
+  indent ...{
+    line => type('>>');
+    dir:vim_direction => type(`>${dir}`);
+  }
+  dedent ...{
+    line => type('<<');
+    dir:vim_direction => type(`<${dir}`);
   }
 
   :ascii => key(ascii);
@@ -343,8 +354,11 @@ _vimRebase = &{
   return options.mode.has('vim-rebase');
 };
 
-_folder = voice {
-  return "/home/josh/pegvoice/src";
+_folder = word:(voice / box) {
+  return {
+    box: "/home/josh/authbox",
+    voice: "/home/josh/pegvoice/src",
+  }[word];
 }
 _direction = (up / down / left / right);
 _i3screen = screen:(_number / dash / equal) {
@@ -457,6 +471,7 @@ _ascii "<ascii>" = char:(
   backslash /
   backtick /
   caret /
+  comma /
   dash /
   dollar /
   exclamation /
@@ -488,6 +503,7 @@ _ascii "<ascii>" = char:(
     backslash: '\\',
     big_quote: '"',
     caret: '^',
+    comma: ',',
     dash: '-',
     dollar: '$',
     equal: '=',
@@ -781,8 +797,10 @@ spell x;
 spell y;
 spell zero;
 spell z / said;
+spell box;
+spell comma / ",";
 
-spell alfa / alpha / offer;
+spell alfa / alpha / offer / of the;
 spell bravo / brother;
 spell charlie;
 spell delta;

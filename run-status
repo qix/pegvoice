@@ -1,7 +1,10 @@
 #!/bin/bash
 
 
-exec nodemon --ext 'js,pegjs,pegvoice' -w ~/pegvoice \
+exec nodemon \
+  --ext 'js,pegjs,pegvoice' \
+  --delay 100ms \
+  -w ~/pegvoice \
   --exec "$(dirname $0)/src/main.js" \
     --server \
     --debug-log="$(dirname $0)/debug.log" \

@@ -23,7 +23,7 @@ function setToggle(set, value, test) {
 }
 
 class Commander {
-  constructor(log) {
+  constructor(log, options={}) {
     /*
     [
       'workspace',
@@ -51,6 +51,7 @@ class Commander {
     this.mode = new Set();
     this.lastTitle = null;
     this.record = false;
+    this.titleWatch = !options.disableTitleWatch;
   }
 
   setRecord(flag) { this.record = flag; }
@@ -59,7 +60,9 @@ class Commander {
   click() { robot.mouseClick(); }
 
   async fetchCurrentMode() {
-    this.handleTitle(await getCurrentTitle());
+    if (this.titleWatch) {
+      this.handleTitle(await getCurrentTitle());
+    }
     return this.mode;
   }
 

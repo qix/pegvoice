@@ -50,7 +50,7 @@ SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)* EOS {
 }
 
 Words = head:Word tail:(__ Word)* {
-  return [head, ...extractList(tail, 1)].map(word => word.word).join(' ');
+  return [head, ...extractList(tail, 1)].map(word => word.word);
 }
 
 VoiceRule
