@@ -82,6 +82,14 @@ class KeyCommand extends Command {
       state.mode.delete('vim-visual');
     }
   }
+
+  static tryToAscii(name) {
+    return {
+      semicolon: ';',
+      underscore: '_',
+      space: ' ',
+    }[name] || name;
+  }
   execute(machine) {
     let split = this.key.split('-');
 
@@ -91,10 +99,7 @@ class KeyCommand extends Command {
       split.pop();
     }
 
-    key = {
-      semicolon: ';',
-      underscore: '_',
-    }[key] || key;
+    key = KeyCommand.tryToAscii(key);
 
     const modifiers = split.map(modifier => ({
       ctrl: 'control',
@@ -119,7 +124,7 @@ class KeyCommand extends Command {
   }
 
   static renderMany(commands) {
-    const keys = commands.map(cmd => cmd.key);
+    const keys = commands.map(cmd => KeyCommand.tryToAscii(cmd.key));
 
     const escaped = [
       '"', "'",
@@ -185,6 +190,19 @@ class ClickCommand extends Command {
   }
 }
 
+class SleepCommand extends Command {
+  constructor(flag) {
+    super();
+    this.flag = flag;
+  }
+
+  execute(machine) {
+    machine.setSleep(this.flag);
+  }
+  render() {
+    return `[${this.flag ? 'sleep' : 'wake up'}]`;
+  }
+}
 class RecordCommand extends Command {
   constructor(flag) {
     super();
@@ -256,4 +274,5 @@ module.exports = {
   PriorityCommand,
   RecordCommand,
   RepeatCommand,
+  SleepCommand,
 };

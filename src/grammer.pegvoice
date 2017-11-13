@@ -1,14 +1,15 @@
 {
   const {
-    NoopCommand,
-    PriorityCommand,
+    ClickCommand,
     I3Command,
-    RepeatCommand,
     KeyCommand,
     ModeCommand,
     MultiCommand,
-    ClickCommand,
+    NoopCommand,
+    PriorityCommand,
     RecordCommand,
+    RepeatCommand,
+    SleepCommand,
   } = options.commands;
 
   function noop() {
@@ -73,8 +74,8 @@
   }
 }
 
-wake up => noop();
-go to sleep => noop();
+wake up => new SleepCommand(false);
+go to sleep => new SleepCommand(true);
 
 record on => new RecordCommand(true);
 record off => new RecordCommand(false);
@@ -95,6 +96,10 @@ window ...{
   move screen? :i3screen => i3(`move container to workspace ${i3screen}`);
 }
 
+focus floating => i3('focus floating');
+focus tiling => i3('focus tiling');
+
+screen lock => multi(i3('exec lock'), new SleepCommand(true));
 screen :i3screen => i3(`workspace ${i3screen}, focus tiling`);
 screen brightness :number => i3(`exec brightness ${number}`);
 
@@ -137,7 +142,7 @@ escape => key('escape');
   undo => key('ctrl-z');
   tab => key('tab');
   page down? => key('pagedown');
-  go to reddit :dictate => multi(key('ctrl-t'), type('https://reddit.com/r/'), dictate, key('enter'));
+  go to :website => multi(key('ctrl-t'), type(website), key('enter'));
   l:letter => key(l);
   k:modified_key => key(k);
   :dictate => dictate;
@@ -261,6 +266,7 @@ word :word => type(word);
     dir:vim_direction => type(`<${dir}`);
   }
 
+  :editor_movement => editor_movement;
   :ascii => key(ascii);
 }
 
@@ -278,10 +284,7 @@ word :word => type(word);
   :dictate => dictate;
 }
 
-:direction => key(direction);
-:count :direction => repeat(count, key(direction));
-backspace => key('backspace');
-:count backspace => repeat(count, key('backspace'));
+:editor_movement => editor_movement;
 
 /***
   DEFINITIONS
@@ -293,6 +296,23 @@ _modified_key
   / control _ alt _ k:_key { return `ctrl-alt-${k}`; }
   / control _ k:_key { return `ctrl-${k}`; }
   / shift k_ :_key { return `shift-${k}`; }
+
+_editor_movement = count:(_count _) k:(_direction / backspace / space / slap) {
+  return repeat(extractOptional(count, 0, 1), key({
+    slap: 'enter',
+  }[k] || k));
+}
+
+_website
+  = gmail { return "https://mail.google.com" }
+  / reddit word:(_ _word) {
+    return "https://www.reddit.com" + (word ? `/r/${word[1]}` : '');
+  };
+
+:direction => key(direction);
+:count :direction => repeat(count, key(direction));
+backspace => key('backspace');
+:count backspace => repeat(count, key('backspace'));
 
 _vim_find = find prev:(_ previous)? {
   return prev ? '?' : '/';
@@ -354,12 +374,23 @@ _vimRebase = &{
   return options.mode.has('vim-rebase');
 };
 
-_folder = word:(voice / box) {
+_folder = folder:(voice / _authbox) {
   return {
-    box: "/home/josh/authbox",
     voice: "/home/josh/pegvoice/src",
-  }[word];
+  }[folder] || folder;
 }
+
+_authbox = box sub:(_ _authbox_subfolder)? {
+  return "/home/josh/authbox" + extractOptional(sub, 1, '');
+}
+
+_authbox_subfolder 
+  = lib { return "/authbox-api/lib"; }
+  / tests { return "/authbox-api/tests"; }
+  / apps { return "/apps"; }
+  / (s / sierra) { return "/apps/s"; }
+  / config { return "/config"; }
+
 _direction = (up / down / left / right);
 _i3screen = screen:(_number / dash / equal) {
   return {
@@ -383,9 +414,10 @@ _dictate_command
   / type _ s:_ascii_string { return type(s); }
   / key _ k:_key { return key(k); }
   / k:_modified_key { return key(k); }
-  / _dictate_count_direction
+  / c:_count _ v:_dictate_repeatable { return repeat(c, v); }
   / _dictate_number
   / k:_key { return key(k); }
+  / _dictate_repeatable
   / _dictate_ident;
 
 _dictate_compare = w:(greater / less) equal:((_ or)? _ equal)? {
@@ -395,14 +427,17 @@ _dictate_compare = w:(greater / less) equal:((_ or)? _ equal)? {
   }[w]) + (equal ? '=' : '') + ' ');
 }
 
-_dictate_special = w:(equal / not_equal / arrow / dotcom) &_ {
+_dictate_special = w:(equal_to / equal / not_equal / arrow / dotcom) &_ {
   return type({
     dotcom: '.com',
-    equal: ' === ',
+    equal_to: ' === ',
+    equal: ' = ',
     not_equal: ' !== ',
     greater: ' > ',
     less: ' < ',
     arrow: ' => ',
+    or: ' || ',
+    and: ' && ',
   }[w]);
 }
 
@@ -410,8 +445,10 @@ _dictate_ident = w:_ident &_ {
   return type(w);
 }
 
-_dictate_count_direction = count:_count _ d:(_direction / backspace / space) {
-  return repeat(count, key(d));
+_dictate_repeatable = k:(_direction / backspace / space / slap) {
+  return key({
+    slap: 'enter',
+  }[k] || k);
 }
 
 _dictate_number = (number _)? head:_number tail:(_ _number)* &_ {
@@ -616,8 +653,8 @@ _number_ten_word = word:(
 };
 
 _number_ten_combo = word:(
-  "ten"i / "twenty"i / "thirty"i / "fourty"i / "fifty"i /
-  "sixty"i / "seventy"i / "eighty"i / "ninety"i
+  ten / twenty / thirty / fourty / fifty /
+  sixty / seventy / eighty / ninety
 ) digit:(_ _digit)? {
   return {
     twenty: 20,
@@ -678,49 +715,58 @@ right_triangle = (right _ triangle / ">" _dragon?) &_ { return "right_triangle";
 exit = ("exit"i / x _ it) { return "exit"; }
 undo = ("undo"i / and _ do / under) { return "undo"; }
 not_equal = not _ equal { return "not_equal"; }
+equal_to = equal _ to { return "equal_to"; }
 big_quote = big _ quote { return "big_quote"; }
 
 spell a;
 spell alt;
 spell and;
+spell apps;
 spell around;
 spell arrow;
 spell at;
 spell backslash / "\\" / "\\backslash\\backslash";
-spell backspace / back space / that space;
+spell backspace / back space / that space / backtrace;
 spell backtick / "`\\backquote\\back tick";
 spell b / be;
+spell box;
 spell capital;
 spell caret / carrot / "^\\caret\\caret";
 spell close / closed;
+spell comma / ",";
+spell config;
 spell control;
 spell create / great;
 spell c / see;
 spell curly;
 spell d;
 spell dash / "-" / "–\\dash\\dash";
+spell dedent / decent / "didn't" / the dent;
 spell dictate / dictates;
 spell do;
 spell dollar;
 spell dotcom / ".com\\\\dot com";
 spell double;
-spell down;
+spell down / dance;
 spell drop;
 spell e;
 spell edit;
 spell eight / it;
+spell eighty;
 spell end;
 spell enter / inter / into / "\\new-line\\new line";
 spell equal / equals;
 spell escape / escaped;
 spell exclamation;
 spell f;
+spell fifty;
 spell find;
 spell five;
 spell forward;
 spell four / for;
+spell fourty / forty;
 spell g;
-spell greater / grader;
+spell greater / grader / grade or;
 spell h;
 spell hash;
 spell home;
@@ -736,11 +782,13 @@ spell key / he;
 spell l / al;
 spell left;
 spell less;
+spell lib / lab;
 spell line / lines;
 spell m;
 spell n;
 spell naught / nought;
 spell nine;
+spell ninety;
 spell not;
 spell number;
 spell one;
@@ -767,9 +815,11 @@ spell save / safe / saved;
 spell screen / green;
 spell semicolon / ";\\semicolon\\semicolon";
 spell seven;
+spell seventy;
 spell shift;
 spell single;
 spell six;
+spell sixty;
 spell slash / "/" / "/\\slash\\slash";
 spell space;
 spell square;
@@ -777,11 +827,17 @@ spell squash;
 spell star;
 spell t;
 spell tab / "\\tab-key\\tab key";
+spell ten;
+spell tests;
 spell than;
+spell thirty;
 spell three;
 spell tilde / "~\\tilde\\tilde";
+spell to / do;
+spell tree / treat;
 spell triangle;
 spell triple;
+spell twenty;
 spell two / to;
 spell u;
 spell under;
@@ -797,8 +853,8 @@ spell x;
 spell y;
 spell zero;
 spell z / said;
-spell box;
-spell comma / ",";
+spell gmail;
+spell reddit;
 
 spell alfa / alpha / offer / of the;
 spell bravo / brother;

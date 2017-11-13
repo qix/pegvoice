@@ -148,7 +148,8 @@ async function executeTranscripts(transcripts) {
     return (cmd && cmd.priority) || null;
   });
 
-  const executeIndex = priorities.indexOf(Math.min(...priorities) || 0);
+  const lowestPriority = Math.min(...priorities.filter(v => v)) || 0;
+  const executeIndex = priorities.indexOf(lowestPriority);
 
   transcripts.forEach((transcript, idx) => {
     if (idx === executeIndex) {
