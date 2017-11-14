@@ -812,6 +812,7 @@ vim vim-visual ☇ dictate · the ⮕ "the"
 vim vim-visual ☇ down · down · yank ⮕ <down> <down> "y" [mode -vim-visual]
 vim vim-visual ☇ down · three ⮕ null
 vim vim-visual ☇ down ⮕ <down>
+vim vim-visual ☇ escape · visual · block ⮕ <escape> <ctrl-v> [mode +vim-visual]
 vim vim-visual ☇ escape ⮕ <escape>
 vim vim-visual ☇ find · ^\caret\caret · dollar ⮕ "/^$"
 vim vim-visual ☇ find · empty · line ⮕ "/^$" <enter>
@@ -821,6 +822,7 @@ vim vim-visual ☇ find ⮕ "/"
 vim vim-visual ☇ five · right ⮕ [repeat 5 <right>]
 vim vim-visual ☇ front · ^\caret\caret · dollar ⮕ null
 vim vim-visual ☇ go · to · see ⮕ <'> "c"
+vim vim-visual ☇ is ⮕ null
 vim vim-visual ☇ key · x-ray ⮕ "x"
 vim vim-visual ☇ left ⮕ <left>
 vim vim-visual ☇ official · line ⮕ null
@@ -832,6 +834,10 @@ vim vim-visual ☇ search · find · empty ⮕ null
 vim vim-visual ☇ six · left ⮕ [repeat 6 <left>]
 vim vim-visual ☇ slap · sort ⮕ <enter> ":!sort" <enter> [mode -vim-visual]
 vim vim-visual ☇ sort ⮕ ":!sort" <enter> [mode -vim-visual]
+vim vim-visual ☇ swap · corner · swap ⮕ "O" "o"
+vim vim-visual ☇ swap · corner · to · left ⮕ "O" [repeat 2 <left>]
+vim vim-visual ☇ swap · corner ⮕ "O"
+vim vim-visual ☇ swap ⮕ "o"
 vim vim-visual ☇ ten · accuracy ⮕ null
 vim vim-visual ☇ ten · up ⮕ [repeat 10 <up>]
 vim vim-visual ☇ the · dent ⮕ "<" [mode -vim-visual]
@@ -839,8 +845,13 @@ vim vim-visual ☇ the · place · a\determiner ⮕ null
 vim vim-visual ☇ the ⮕ null
 vim vim-visual ☇ three · down ⮕ [repeat 3 <down>]
 vim vim-visual ☇ three · left ⮕ [repeat 3 <left>]
+vim vim-visual ☇ three · right · one\pronoun · up ⮕ [repeat 3 <right>] <up>
 vim vim-visual ☇ three · right ⮕ [repeat 3 <right>]
+vim vim-visual ☇ three · up · for · right ⮕ [repeat 3 <up>] [repeat 4 <right>]
+vim vim-visual ☇ three · up ⮕ [repeat 3 <up>]
+vim vim-visual ☇ throughout · one\pronoun · up ⮕ null
 vim vim-visual ☇ to · left · visual · three · left · key · x-ray ⮕ null
+vim vim-visual ☇ to · trot · one\pronoun · up ⮕ null
 vim vim-visual ☇ to · write ⮕ null
 vim vim-visual ☇ two · left ⮕ [repeat 2 <left>]
 vim vim-visual ☇ unique ⮕ ":!sort" <enter> "gv:!uniq" <enter> [mode -vim-visual]
@@ -848,6 +859,7 @@ vim vim-visual ☇ up · twenty · five ⮕ null
 vim vim-visual ☇ up · up ⮕ <up> <up>
 vim vim-visual ☇ up · yank ⮕ <up> "y" [mode -vim-visual]
 vim vim-visual ☇ up ⮕ <up>
+vim vim-visual ☇ visual · line · escape ⮕ null
 vim vim-visual ☇ visual · line ⮕ null
 vim vim-visual ☇ visual · three · left ⮕ null
 vim vim-visual ☇ visual · wine ⮕ null

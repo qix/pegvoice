@@ -121,10 +121,6 @@ console log => type('console.log(');
 arrow function => multi(type(' => '), key('shift-['), key('enter'));
 arrow => type(' => ');
 
-slap it? => key('enter');
-enter => key('enter');
-escape => key('escape');
-
 &slack ...{
   pizza party => type(
     ':party-dino: ' +
@@ -187,12 +183,16 @@ word :word => type(word);
 
 
 &vimVisual ...{
+  swap corner => key('O');
+  swap => key('o');
+
   change => multi(key('c'), modeOff('vim-visual'), mode('vim-insert'));
   delete => multi(key('d'), modeOff('vim-visual'));
   indent => multi(key('>'), modeOff('vim-visual'));
   dedent => multi(key('<'), modeOff('vim-visual'));
   format => multi(key('='), modeOff('vim-visual'));
   replace k:key => multi(key('r'), key(k), modeOff('vim-visual'));
+
   sort => multi(type(':!sort\n'), modeOff('vim-visual'));
   yank => multi(key('y'), modeOff('vim-visual'));
   unique => multi(type(':!sort\ngv:!uniq\n'), modeOff('vim-visual'));
@@ -242,6 +242,7 @@ word :word => type(word);
   play :letter => type(`@${letter}`);
   end macro => type(`q`);
 
+  big cut => type('X');
   cut => type('x');
   replace k:key => multi(key('r'), key(k));
 
@@ -303,8 +304,13 @@ word :word => type(word);
   node require :ident => typeLine(`const ${ident} = require('${ident}');`);
   delete => key('delete');
   paste => key('ctrl-shift-v');
+  escape => key('escape');
   :dictate => dictate;
 }
+
+slap it? => key('enter');
+enter => key('enter');
+escape => key('escape');
 
 
 folder = ...{
