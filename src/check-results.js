@@ -48,6 +48,7 @@ for (const oldLine of results.split('\n')) {
     if (err instanceof Parser.ParseError) {
       newResult = 'null';
     } else {
+      console.error('Failure during: %s', transcript);
       throw err;
     }
   }

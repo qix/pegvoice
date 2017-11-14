@@ -74,7 +74,7 @@
   }
 }
 
-wake up => new SleepCommand(false);
+wake_up => new SleepCommand(false);
 go to sleep => new SleepCommand(true);
 
 record on => new RecordCommand(true);
@@ -135,14 +135,33 @@ escape => key('escape');
 
 &chrome ...{
   tab :number => key(`ctrl-${number}`);
+  switch tab => key('ctrl-9');
+
+  search => key('ctrl-k');
+
   link => escaped(key('f'));
   big link => escaped(key('F'));
   close tab? => key('ctrl-w');
+  open tab? :website => multi(key('ctrl-t'), type(website), key('enter'));
   open tab? => key('ctrl-t');
   undo => key('ctrl-z');
   tab => key('tab');
   page down? => key('pagedown');
-  go to :website => multi(key('ctrl-t'), type(website), key('enter'));
+  go_to ...{
+    top => type('gg');
+    bottom => type('G');
+    :website => multi(key('ctrl-l'), type(website), key('enter'));
+    :dictate => multi(key('ctrl-l'), dictate);
+  }
+  new tab :website => multi(key('ctrl-t'), type(website), key('enter'));
+  new tab => key('ctrl-t');
+
+  next tab => key('ctrl-tab');
+  previous tab => key('ctrl-shift-tab');
+  reopen tab => key('ctrl-shift-t');
+  reopened at => key('ctrl-shift-t');
+
+  refresh => key('ctrl-r');
   l:letter => key(l);
   k:modified_key => key(k);
   :dictate => dictate;
@@ -200,7 +219,7 @@ word :word => type(word);
   back c:ascii => type(`F${c}`);
 
   mark :letter => type(`m${letter}`);
-  go to? ...{
+  go_to ...{
     top => type('gg');
     bottom => type('G');
     :letter => type(`'${letter}`);
@@ -272,7 +291,10 @@ word :word => type(word);
 
 &vimTree ...{
   change => type('C');
+  open :number => type(`:${number}\no`);
   open => type('o');
+
+  tree :folder? => vimex(`NERDTree ${optional(folder, '/home/josh')}`);
 }
 &vimRebase ...{
   cmd:rebase_command => multi(type(`cw${cmd}`), key('escape'), key('enter'));
@@ -282,6 +304,37 @@ word :word => type(word);
   delete => key('delete');
   paste => key('ctrl-shift-v');
   :dictate => dictate;
+}
+
+
+folder = ...{
+  box :authbox_folder => `/home/josh/authbox${authbox_folder}`;
+  box => `/home/josh/authbox`;
+  voice => "/home/josh/pegvoice/src";
+}
+
+authbox_folder = ...{
+  lib => "/authbox-api/lib";
+  tests => "/authbox-api/tests";
+  apps => "/apps";
+  s => "/apps/s";
+  sierra => "/apps/s";
+  config => "/config";
+}
+
+i3screen = ...{
+  dash => '-';
+  equal => '=';
+  :number => number;
+}
+
+website = ...{
+  calendar => 'https://google.com/calendar';
+  news => 'https://news.ycombinator.com';
+  gmail => 'https://mail.google.com';
+  reddit :word? => (
+    "https://www.reddit.com" + (word ? `/r/${optional(word)}` : '')
+  );
 }
 
 :editor_movement => editor_movement;
@@ -303,11 +356,6 @@ _editor_movement = count:(_count _) k:(_direction / backspace / space / slap) {
   }[k] || k));
 }
 
-_website
-  = gmail { return "https://mail.google.com" }
-  / reddit word:(_ _word) {
-    return "https://www.reddit.com" + (word ? `/r/${word[1]}` : '');
-  };
 
 :direction => key(direction);
 :count :direction => repeat(count, key(direction));
@@ -349,6 +397,7 @@ _vimNormal = &{
   return (
     options.mode.has('vim') &&
     !options.mode.has('vim-insert') &&
+    !options.mode.has('vim-tree') &&
     !options.mode.has('vim-visual')
   );
 };
@@ -374,30 +423,7 @@ _vimRebase = &{
   return options.mode.has('vim-rebase');
 };
 
-_folder = folder:(voice / _authbox) {
-  return {
-    voice: "/home/josh/pegvoice/src",
-  }[folder] || folder;
-}
-
-_authbox = box sub:(_ _authbox_subfolder)? {
-  return "/home/josh/authbox" + extractOptional(sub, 1, '');
-}
-
-_authbox_subfolder 
-  = lib { return "/authbox-api/lib"; }
-  / tests { return "/authbox-api/tests"; }
-  / apps { return "/apps"; }
-  / (s / sierra) { return "/apps/s"; }
-  / config { return "/config"; }
-
 _direction = (up / down / left / right);
-_i3screen = screen:(_number / dash / equal) {
-  return {
-    dash: '-',
-    equal: '=',
-  }[screen] || screen;
-};
 
 _keys = head:_key "."? tail:(_ _key "."?)* {
   return [head, ...extractList(tail, 1)];
@@ -476,93 +502,54 @@ _key "<key>"
   / _direction
   / _ascii;
 
-_paren = char:(
-  left_curly /
-  left_paren /
-  left_square /
-  left_triangle /
-  right_curly /
-  right_paren /
-  right_square /
-  right_triangle
-) &_ {
-  return {
-    left_curly: '{',
-    left_paren: '(',
-    left_square: '[',
-    left_triangle: '<',
-    right_curly: '}',
-    right_paren: ')',
-    right_square: ']',
-    right_triangle: '>',
-  }[char];
+paren = ...{
+  left_curly => '{' || 'balance }';
+  left_paren => '(';
+  left_square => '[';
+  left_triangle => '<';
+  right_curly => !'balance {' || '}';
+  right_paren => ')';
+  right_square => ']';
+  right_triangle => '>';
 }
 
 _ascii_string = head:_ascii tail:(_ _ascii)* {
   return [head, ...extractList(tail, 1)].join('');
 }
 
-_ascii "<ascii>" = char:(
-  and /
-  at /
-  backslash /
-  backtick /
-  caret /
-  comma /
-  dash /
-  dollar /
-  exclamation /
-  equal /
-  greater /
-  hash /
-  less /
-  percent /
-  period /
-  pipe /
-  plus /
-  question /
-  semicolon /
-  slash /
-  space /
-  star /
-  tab /
-  tilde /
-  underscore /
-  quote /
-  big_quote /
-  _paren /
-  _digit /
-  _letter
-) {
-  return {
-    and: '&',
-    at: '@',
-    backslash: '\\',
-    big_quote: '"',
-    caret: '^',
-    comma: ',',
-    dash: '-',
-    dollar: '$',
-    equal: '=',
-    exclamation: '!',
-    greater: '>',
-    hash: '#',
-    less: '<',
-    percent: '%',
-    period: '.',
-    pipe: '|',
-    plus: '+',
-    question: '?',
-    quote: '\'',
-    semicolon: ';',
-    slash: '/',
-    space: ' ',
-    star: '*',
-    tab: '\t',
-    tilde: '~',
-    underscore: '_',
-  }[char] || `${char}`;
+ascii "<ascii>" = ...{
+  and => '&';
+  at => '@';
+  backslash => '\\';
+  backtick => '`';
+  big_quote => '"';
+  caret => '^';
+  comma => ',';
+  dash => '-';
+  dollar => '$';
+  equal => '=';
+  exclamation => '!';
+  greater => '>';
+  hash => '#';
+  less => '<';
+  percent => '%';
+  period => '.';
+  pipe => '|';
+  plus => '+';
+  question => '?';
+  quote => '\'';
+  semicolon => ';';
+  slash => '/';
+  space => ' ';
+  star => '*';
+  tab => '\t';
+  tilde => '~';
+  underscore => '_';
+  :paren => paren;
+  :digit => digit;
+  :letter => letter;
 }
+
 
 _letter = _phonetic_letter / _alphabet_letter;
 
@@ -634,38 +621,32 @@ _number_hundred = hundred:(_number_ten _ "hundred" (_ "and")?) ten:(_ _number_te
 
 _number_ten = _number_ten_word / _number_ten_combo / _digit;
 
-_number_ten_word = word:(
-    "ten"i / "eleven"i / "twelve"i / "thirteen"i / "fourteen"i / "fifteen"i /
-    "sixteen"i / "seventeen"i / "eighteen"i / "nineteen"i
-) {
-  return {
-    "ten": 10,
-    "eleven": 11,
-    "twelve": 12,
-    "thirteen": 13,
-    "fourteen": 14,
-    "fifteen": 15,
-    "sixteen": 16,
-    "seventeen": 17,
-    "eighteen": 18,
-    "nineteen": 19,
-  }[word.toLowerCase()];
-};
+number_ten_word = ...{
+  ten => 10;
+  eleven => 11;
+  twelve => 12;
+  thirteen => 13;
+  fourteen => 14;
+  fifteen => 15;
+  sixteen => 16;
+  seventeen => 17;
+  eighteen => 18;
+  nineteen => 19;
+}
 
-_number_ten_combo = word:(
-  ten / twenty / thirty / fourty / fifty /
-  sixty / seventy / eighty / ninety
-) digit:(_ _digit)? {
-  return {
-    twenty: 20,
-    thirty: 30,
-    fourty: 40,
-    fifty: 50,
-    sixty: 60,
-    seventy: 70,
-    eighty: 80,
-    ninety: 90,
-  }[word.toLowerCase()] + (extractOptional(digit, 1) || 0);
+number_ten_combo_word = ...{
+  twenty => 20;
+  thirty => 30;
+  fourty => 40;
+  fifty => 50;
+  sixty => 60;
+  seventy => 70;
+  eighty => 80;
+  ninety => 90;
+}
+
+_number_ten_combo = word:_number_ten_combo_word digit:(_ _digit)? {
+  return word + (extractOptional(digit, 1) || 0);
 }
 
 _digit = word:(
@@ -766,6 +747,8 @@ spell forward;
 spell four / for;
 spell fourty / forty;
 spell g;
+spell gmail;
+spell go_to / go to / good;
 spell greater / grader / grade or;
 spell h;
 spell hash;
@@ -787,12 +770,14 @@ spell line / lines;
 spell m;
 spell n;
 spell naught / nought;
+spell news / new / new is;
 spell nine;
 spell ninety;
 spell not;
 spell number;
 spell one;
 spell o / oh;
+spell open / opened;
 spell or;
 spell outside;
 spell p;
@@ -808,6 +793,8 @@ spell question;
 spell quote / quotes;
 spell r / are;
 spell rebase / "we base";
+spell reddit;
+spell reopen / reopened;
 spell reword;
 spell right;
 spell s;
@@ -847,14 +834,13 @@ spell up;
 spell v;
 spell voice;
 spell w;
+spell wake_up / wake up / "wake-up";
 spell window / windows;
 spell word / words;
 spell x;
 spell y;
 spell zero;
 spell z / said;
-spell gmail;
-spell reddit;
 
 spell alfa / alpha / offer / of the;
 spell bravo / brother;

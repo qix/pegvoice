@@ -32,7 +32,7 @@
 
 
 VoiceGrammar
-  = __ initializer:(Initializer __)? rules:((PegRule / VoiceRule / SpellRule) __)+ {
+  = __ initializer:(Initializer __)? rules:((DefineRule / PegRule / VoiceRule / SpellRule) __)+ {
       return {
         type: "voiceGrammer",
         initializer: extractOptional(initializer, 0),
@@ -51,6 +51,19 @@ SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)* EOS {
 
 Words = head:Word tail:(__ Word)* {
   return [head, ...extractList(tail, 1)].map(word => word.word);
+}
+
+DefineRule
+  = name:Identifier __ (desc:StringLiteral __)? "="
+     match:(__ Match)* __ rule:(VoiceCode / VoiceBlock)
+{
+    return {
+      type: "define",
+      match: extractList(match, 1),
+      expr: rule,
+      identifier: name,
+      location: location()
+    }
 }
 
 VoiceRule
@@ -120,7 +133,7 @@ WordString = string:StringLiteral {
   };
 }
 
-SingleWord = [a-z]+ {
+SingleWord = [a-z0-9_]+ {
   return {
     type: 'word',
     word: text(),
@@ -138,7 +151,7 @@ JsExpr "<js>" = JsExprElement+ {
 }
 
 JsExprElement
-  = !('(' / '{' / StringCharacter / ';' / LineTerminator) SourceCharacter
+  = !(OpenBrace / OpenString / ';' / LineTerminator) SourceCharacter
   / JsString
   / JsCurlyBraced
   / JsRoundBraced;
@@ -146,15 +159,11 @@ JsExprElement
 JsCurlyBraced = '{' chars:CurlyBracedCharacter* '}' { return text(); };
 JsRoundBraced = '(' chars:RoundBracedCharacter* ')' { return text(); };
 
-CurlyBracedCharacter
-  = !('}' / StringCharacter) SourceCharacter
-  / JsString;
+CurlyBracedCharacter = !'}' JsExprElement / LineTerminator
+RoundBracedCharacter = !')' JsExprElement / LineTerminator
 
-RoundBracedCharacter
-  = !(')' / StringCharacter) SourceCharacter
-  / JsString;
-
-StringCharacter = ('"' / "'" / '`');
+OpenBrace = ('(' / '{');
+OpenString = ('"' / "'" / '`');
 
 JsString "string"
   = StringLiteral

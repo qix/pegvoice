@@ -137,9 +137,8 @@ class PegGenerator {
     }
   }
 
-  pegRule(ast, prefix) {
+  pegRule(ast, ruleName, wrapPriority=true) {
     const {match} = ast;
-    const ruleName = `${prefix}${matchToId(match)}`;
 
     let desc = null;
     if (match.every(expr => expr.type === 'word')) {
@@ -183,11 +182,15 @@ class PegGenerator {
     }).join('');
 
     if (ast.expr.type === 'code') {
-      const code = (`
-      return new PriorityCommand(${this.nextPriority++}, (function(){
-        ${ast.expr.code}
-      })());
-      `);
+      let code = ast.expr.code;
+      if (wrapPriority) {
+        code = (`
+          return new PriorityCommand(${this.nextPriority++}, (function(){
+            ${code}
+          })());
+        `);
+      }
+
       return (
         `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n${code}\n}\n`
       );
@@ -195,7 +198,7 @@ class PegGenerator {
       const {
         ruleNames,
         source,
-      } = this.pegRules(ast.expr.rules, `${ruleName}_`);
+      } = this.pegRules(ast.expr.rules, `${ruleName}_`, wrapPriority);
 
       const initial = predicates + pegMatch + (pegMatch ? ' _ ' : '');
       return (
@@ -208,14 +211,14 @@ class PegGenerator {
     }
   }
 
-  pegRules(rules, prefix) {
+  pegRules(rules, prefix, wrapPriority=true) {
     const ruleNames = [];
     let source = '';
     for (const ruleAst of rules) {
       if (ruleAst.type === 'rule') {
         const {match} = ruleAst;
         const ruleName = `${prefix}${matchToId(match)}`;
-        source += this.pegRule(ruleAst, prefix);
+        source += this.pegRule(ruleAst, ruleName, wrapPriority);
         ruleNames.push(ruleName);
       } else if (ruleAst.type === 'pegrule') {
         this.defined.add(ruleAst.name);
@@ -224,6 +227,9 @@ class PegGenerator {
         const {word} = ruleAst;
         source += this.spellRule(word, ruleAst.alt);;
         this.defined.add(word);
+      } else if (ruleAst.type === 'define') {
+        source += this.pegRule(ruleAst, `_${ruleAst.identifier}`, false);
+        this.defined.add(ruleAst.identifier);
       } else {
         throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
       }
@@ -237,6 +243,7 @@ class PegGenerator {
       if (ast.initializer) {
         rv += `{\n${ast.initializer.code}\n}\n`;
       }
+
       const {ruleNames, source} = this.pegRules(ast.rules, 'c_');
       rv += `${source}\n`;
 

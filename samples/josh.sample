@@ -108,6 +108,7 @@
  ☇ four · down ⮕ [repeat 4 <down>]
  ☇ from · voice ⮕ null
  ☇ go to sleep ⮕ null
+ ☇ go · to · Reddit ⮕ null
  ☇ go · to · bottom ⮕ null
  ☇ go · to · top ⮕ null
  ☇ go · top ⮕ null
@@ -171,6 +172,7 @@
  ☇ open · firm ⮕ null
  ☇ open · hello · _\underscore\underscore · world ⮕ null
  ☇ open · it · will · need ⮕ null
+ ☇ open · screen · one\number ⮕ null
  ☇ open · terminal · voice ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh/pegvoice/src\""]
  ☇ open · terminal ⮕ [i3 "exec gnome-terminal --hide-menubar --working-directory=\"/home/josh\""]
  ☇ open · them ⮕ null
@@ -237,6 +239,7 @@
  ☇ the · close ⮕ null
  ☇ the · race ⮕ null
  ☇ the ⮕ null
+ ☇ think ⮕ null
  ☇ this ⮕ null
  ☇ three · left · control · K\letter ⮕ [repeat 3 <left>] <ctrl-k>
  ☇ three · up ⮕ [repeat 3 <up>]
@@ -327,6 +330,7 @@ chrome ☇ \tab-key\tab key · one\number ⮕ <ctrl-1>
 chrome ☇ \tab-key\tab key · three ⮕ <ctrl-3>
 chrome ☇ \tab-key\tab key ⮕ <tab>
 chrome ☇ a\determiner · job ⮕ "a" "job"
+chrome ☇ a\determiner · stab ⮕ "a" "stab"
 chrome ☇ and · down ⮕ "&" <down>
 chrome ☇ and ⮕ "&"
 chrome ☇ as ⮕ "as"
@@ -335,6 +339,8 @@ chrome ☇ big · link ⮕ <escape> "F"
 chrome ☇ big · window ⮕ "bigwindow"
 chrome ☇ big ⮕ "big"
 chrome ☇ bowel ⮕ "bowel"
+chrome ☇ click ⮕ [click]
+chrome ☇ close · \all-caps\all caps ⮕ <ctrl-w> [noop]
 chrome ☇ close · close · close · close · close ⮕ <ctrl-w> <ctrl-w> <ctrl-w> <ctrl-w> <ctrl-w>
 chrome ☇ close · tab ⮕ <ctrl-w>
 chrome ☇ close ⮕ <ctrl-w>
@@ -348,6 +354,8 @@ chrome ☇ down · down · slap ⮕ <down> <down> <enter>
 chrome ☇ escape · escape ⮕ <escape> <escape>
 chrome ☇ escape ⮕ <escape>
 chrome ☇ foxtrot · straight ⮕ "f" "straight"
+chrome ☇ go · to · top ⮕ "gg"
+chrome ☇ good · Reddit ⮕ <ctrl-l> "https://www.reddit.com" <enter>
 chrome ☇ he ⮕ "he"
 chrome ☇ is ⮕ "is"
 chrome ☇ left · for ⮕ <left> "4"
@@ -355,16 +363,28 @@ chrome ☇ link ⮕ <escape> "f"
 chrome ☇ move · screen · five ⮕ "movescreen5"
 chrome ☇ move · window · five ⮕ "movewindow5"
 chrome ☇ move · window · screen · five ⮕ "movewindowscreen5"
-chrome ☇ new · tab ⮕ "new	"
+chrome ☇ new · tab · new · is ⮕ <ctrl-t> "https://news.ycombinator.com" <enter> "is"
+chrome ☇ new · tab ⮕ <ctrl-t>
+chrome ☇ ninety · six ⮕ "96"
 chrome ☇ of · the · J\letter ⮕ "a" "j"
 chrome ☇ of · the ⮕ "a"
 chrome ☇ on ⮕ "on"
-chrome ☇ open · Gmail\\G mail ⮕ <ctrl-t> "gmail"
+chrome ☇ one\number · hundred · and · sixty · five ⮕ "165"
+chrome ☇ one\number · sixty · three ⮕ "163"
+chrome ☇ open · Gmail\\G mail ⮕ <ctrl-t> "https://mail.google.com" <enter>
+chrome ☇ open · Reddit ⮕ <ctrl-t> "https://www.reddit.com" <enter>
+chrome ☇ open · calendar ⮕ <ctrl-t> "https://google.com/calendar" <enter>
+chrome ☇ open · tab · news ⮕ <ctrl-t> "https://news.ycombinator.com" <enter>
 chrome ☇ open · tab ⮕ <ctrl-t>
 chrome ☇ page · down ⮕ <pagedown>
 chrome ☇ page · up ⮕ <pageup>
 chrome ☇ page ⮕ <pagedown>
+chrome ☇ record · on · open · Reddit ⮕ [record true] <ctrl-t> "https://www.reddit.com" <enter>
 chrome ☇ record · on ⮕ [record true]
+chrome ☇ refresh ⮕ <ctrl-r>
+chrome ☇ reopened · at ⮕ <ctrl-shift-t>
+chrome ☇ reopened · tab ⮕ <ctrl-shift-t>
+chrome ☇ reopened · that ⮕ "reopenedthat"
 chrome ☇ screen · brightness · fifty ⮕ [i3 "exec brightness 50"]
 chrome ☇ screen · brightness · forty ⮕ [i3 "exec brightness 40"]
 chrome ☇ screen · brightness · three ⮕ [i3 "exec brightness 3"]
@@ -373,6 +393,7 @@ chrome ☇ screen · four ⮕ [i3 "workspace 4, focus tiling"]
 chrome ☇ screen · move · five ⮕ "screenmove5"
 chrome ☇ screen · three ⮕ [i3 "workspace 3, focus tiling"]
 chrome ☇ see ⮕ "c"
+chrome ☇ sixteen · –\dash\dash · five ⮕ "16-5"
 chrome ☇ slap ⮕ <enter>
 chrome ☇ tab · nine ⮕ <ctrl-9>
 chrome ☇ tab · one\number ⮕ <ctrl-1>
@@ -385,6 +406,7 @@ chrome ☇ the · click ⮕ "theclick"
 chrome ☇ three ⮕ "3"
 chrome ☇ ticket · SL ⮕ "ticketsl"
 chrome ☇ to ⮕ "2"
+chrome ☇ two · hundred · and · forty · four ⮕ "244"
 chrome ☇ type · of · the · IDS ⮕ "aids"
 chrome ☇ type · the · IDS ⮕ "typetheids"
 chrome ☇ type · the · type · I\pronoun · ID · Titus ⮕ "typetheiidtitus"
@@ -396,6 +418,8 @@ chrome ☇ window · left · )\right-parenthesis\close paren ⮕ [i3 "focus left
 chrome ☇ window · left ⮕ [i3 "focus left"]
 chrome ☇ window · move · screen · five ⮕ [i3 "move container to workspace 5"]
 chrome ☇ window · three ⮕ "window3"
+chrome ☇ –\dash\dash · –\dash\dash · –\dash\dash · –\dash\dash · –\dash\dash · –\dash\dash ⮕ "------"
+chrome ☇ –\dash\dash · –\dash\dash ⮕ "--"
 terminal ☇ 's\s\s ⮕ <'> "s"
 terminal ☇ Becker ⮕ "becker"
 terminal ☇ Echo ⮕ "e"
@@ -453,6 +477,8 @@ terminal ☇ we · base ⮕ "webase"
 terminal ☇ window · left ⮕ [i3 "focus left"]
 terminal ☇ with · an · editor · voice ⮕ "withaneditorvoice"
 terminal ☇ word · Echo ⮕ "echo"
+vim vim-insert vim-tree ☇ open · eight ⮕ ":8" <enter> "o"
+vim vim-insert vim-tree ☇ open · thirteen ⮕ ":13" <enter> "o"
 vim vim-insert vim-visual ☇ forward · a\determiner ⮕ "forwarda"
 vim vim-insert ☇ "\left-double-quote\begin quote ⮕ <">
 vim vim-insert ☇ 's\s\s ⮕ <'> "s"
@@ -501,7 +527,7 @@ vim vim-insert ☇ ^\caret\caret · –\dash\dash · dollar ⮕ "^-$"
 vim vim-insert ☇ _\underscore\underscore · a\determiner · new ⮕ "_anew"
 vim vim-insert ☇ _\underscore\underscore · world ⮕ "_world"
 vim vim-insert ☇ _\underscore\underscore ⮕ "_"
-vim vim-insert ☇ `\backquote\back tick ⮕ <backtick>
+vim vim-insert ☇ `\backquote\back tick ⮕ "`"
 vim vim-insert ☇ a\determiner · row ⮕ "arow"
 vim vim-insert ☇ a\determiner · space · team · space ⮕ "a team "
 vim vim-insert ☇ alpha ⮕ "a"
@@ -647,6 +673,7 @@ vim vim-insert ☇ one\number · ;\semicolon\semicolon ⮕ "1;"
 vim vim-insert ☇ one\number · one\number ⮕ "11"
 vim vim-insert ☇ one\number · word · one\number · one\number ⮕ "1one1"
 vim vim-insert ☇ open · (\left-parenthesis\left paren · the ⮕ "open(the"
+vim vim-insert ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/pegvoice/src'"]
 vim vim-insert ☇ open · incognito ⮕ [i3 "exec google-chrome -incognito"]
 vim vim-insert ☇ open · left · triangle ⮕ "open<"
 vim vim-insert ☇ open · number · one\number · zero · zero ⮕ "open100"
@@ -729,27 +756,40 @@ vim vim-rebase ☇ to · Québec ⮕ "2" "q"
 vim vim-rebase ☇ up · pick ⮕ <up> "cwpick" <escape> <enter>
 vim vim-rebase ☇ up · up ⮕ <up> <up>
 vim vim-rebase ☇ up ⮕ <up>
-vim vim-tree ☇ .\period\full stop ⮕ "."
-vim vim-tree ☇ and · slap ⮕ "&" <enter>
+vim vim-tree ☇ .\period\full stop ⮕ null
+vim vim-tree ☇ and · a\determiner · left ⮕ null
+vim vim-tree ☇ and · slap ⮕ null
 vim vim-tree ☇ change ⮕ "C"
-vim vim-tree ☇ five · down ⮕ "5" <down>
-vim vim-tree ☇ five · up ⮕ "5" <up>
+vim vim-tree ☇ escape ⮕ <escape>
+vim vim-tree ☇ five · down ⮕ [repeat 5 <down>]
+vim vim-tree ☇ five · up ⮕ [repeat 5 <up>]
 vim vim-tree ☇ good · asleep ⮕ null
 vim vim-tree ☇ graphite ⮕ null
 vim vim-tree ☇ is ⮕ null
 vim vim-tree ☇ move · window · left ⮕ [i3 "move left"]
 vim vim-tree ☇ next ⮕ "n"
-vim vim-tree ☇ one\pronoun · up · slap ⮕ "1" <up> <enter>
+vim vim-tree ☇ one\number · at · slap ⮕ null
+vim vim-tree ☇ one\pronoun · at · slap ⮕ null
+vim vim-tree ☇ one\pronoun · up · slap ⮕ <up> <enter>
+vim vim-tree ☇ open · it ⮕ ":8" <enter> "o"
+vim vim-tree ☇ open · polls ⮕ null
+vim vim-tree ☇ open · thirteen ⮕ ":13" <enter> "o"
+vim vim-tree ☇ open · thirty · and ⮕ null
+vim vim-tree ☇ opened · twenty ⮕ ":20" <enter> "o"
 vim vim-tree ☇ record · off ⮕ [record false]
-vim vim-tree ☇ save · X\letter · at ⮕ <escape> ":w" <enter> "x" "@"
+vim vim-tree ☇ record · on · and · find · a\determiner · left ⮕ null
+vim vim-tree ☇ record · on ⮕ [record true]
+vim vim-tree ☇ save · X\letter · at ⮕ null
 vim vim-tree ☇ screen · for ⮕ [i3 "workspace 4, focus tiling"]
 vim vim-tree ☇ screen · to ⮕ [i3 "workspace 2, focus tiling"]
-vim vim-tree ☇ six · up ⮕ "6" <up>
+vim vim-tree ☇ six · up ⮕ [repeat 6 <up>]
 vim vim-tree ☇ slap ⮕ <enter>
 vim vim-tree ☇ switch · buffer ⮕ <escape> [repeat 2 <ctrl-w>]
-vim vim-tree ☇ three · down · slap ⮕ "3" <down> <enter>
-vim vim-tree ☇ to · down ⮕ "2" <down>
-vim vim-tree ☇ to · up · slap ⮕ "2" <up> <enter>
+vim vim-tree ☇ three · down · slap ⮕ [repeat 3 <down>] <enter>
+vim vim-tree ☇ three · down ⮕ [repeat 3 <down>]
+vim vim-tree ☇ to · down · slap ⮕ [repeat 2 <down>] <enter>
+vim vim-tree ☇ to · down ⮕ [repeat 2 <down>]
+vim vim-tree ☇ to · up · slap ⮕ [repeat 2 <up>] <enter>
 vim vim-tree ☇ treat · box · lab ⮕ <escape> ":NERDTree /home/josh/authbox/authbox-api/lib" <enter>
 vim vim-tree ☇ treat · box · love ⮕ null
 vim vim-tree ☇ treat · box · that · the · box · lab ⮕ null
@@ -758,6 +798,7 @@ vim vim-tree ☇ tree · box · tests ⮕ <escape> ":NERDTree /home/josh/authbox
 vim vim-tree ☇ up · change ⮕ <up> "C"
 vim vim-tree ☇ up · up · change ⮕ <up> <up> "C"
 vim vim-tree ☇ up · up · slap ⮕ <up> <up> <enter>
+vim vim-tree ☇ with · window · left ⮕ null
 vim vim-visual ☇ D\letter ⮕ null
 vim vim-visual ☇ Mark · C\letter ⮕ "mc"
 vim vim-visual ☇ change · exclamation ⮕ "c" [mode -vim-visual] [mode +vim-insert] "!"
@@ -803,6 +844,7 @@ vim vim-visual ☇ to · left · visual · three · left · key · x-ray ⮕ nul
 vim vim-visual ☇ to · write ⮕ null
 vim vim-visual ☇ two · left ⮕ [repeat 2 <left>]
 vim vim-visual ☇ unique ⮕ ":!sort" <enter> "gv:!uniq" <enter> [mode -vim-visual]
+vim vim-visual ☇ up · twenty · five ⮕ null
 vim vim-visual ☇ up · up ⮕ <up> <up>
 vim vim-visual ☇ up · yank ⮕ <up> "y" [mode -vim-visual]
 vim vim-visual ☇ up ⮕ <up>
@@ -815,6 +857,7 @@ vim vim-visual ☇ yank ⮕ "y" [mode -vim-visual]
 vim ☇ 's\s\s ⮕ null
 vim ☇ (\left-parenthesis\left paren ⮕ "("
 vim ☇ )\right-parenthesis\close bracket · offer ⮕ ")" "a"
+vim ☇ .\dot\dot · ten ⮕ "." "10"
 vim ☇ /\slash\forward slash ⮕ "/"
 vim ☇ C\uppercase-letter\capital C · C\letter ⮕ "C" "c"
 vim ☇ C\uppercase-letter\capital C ⮕ "C"
@@ -839,6 +882,7 @@ vim ☇ T\letter ⮕ "t"
 vim ☇ Tab · one\number ⮕ "	" "1"
 vim ☇ Tate ⮕ null
 vim ☇ X\letter · it · without · save ⮕ <escape> ":q!" <enter>
+vim ☇ \new-line\new line · one\number · eighty · four ⮕ <enter> "1" "84"
 vim ☇ \new-line\next line ⮕ null
 vim ☇ \spelling-cap\cap next · next ⮕ null
 vim ☇ ]\right-square-bracket\right square bracket ⮕ "]"
@@ -898,6 +942,7 @@ vim ☇ change · word · key · are ⮕ "cw" [mode +vim-insert] "r"
 vim ☇ change · word · repeat ⮕ "cw" [mode +vim-insert] "repeat"
 vim ☇ change · word ⮕ "cw" [mode +vim-insert]
 vim ☇ click ⮕ [click]
+vim ☇ close · window ⮕ [i3 "kill"]
 vim ☇ control · see ⮕ <ctrl-c>
 vim ☇ control · shift · the ⮕ null
 vim ☇ copy · line ⮕ null
@@ -1025,9 +1070,11 @@ vim ☇ ginger · in · right · curly ⮕ null
 vim ☇ go · to · a\determiner ⮕ <'> "a"
 vim ☇ go · to · bottom ⮕ "G"
 vim ☇ go · to · end ⮕ null
+vim ☇ go · to · sleep ⮕ [sleep]
 vim ☇ good · about · them ⮕ null
+vim ☇ good · asleep ⮕ null
 vim ☇ good · bomb ⮕ null
-vim ☇ good · bottom ⮕ null
+vim ☇ good · bottom ⮕ "G"
 vim ☇ great · macro · X\letter ⮕ "qx"
 vim ☇ great · macro · backs · up ⮕ null
 vim ☇ great · macro · x-ray ⮕ "qx"
@@ -1074,6 +1121,8 @@ vim ☇ love ⮕ null
 vim ☇ machine ⮕ null
 vim ☇ mark · a\determiner ⮕ "ma"
 vim ☇ move · window · left ⮕ [i3 "move left"]
+vim ☇ new · tab · new · is ⮕ null
+vim ☇ new · tab · record · on ⮕ null
 vim ☇ next · next ⮕ "n" "n"
 vim ☇ next ⮕ "n"
 vim ☇ nought · up ⮕ "0" <up>
@@ -1088,9 +1137,11 @@ vim ☇ one\pronoun · down ⮕ "1" <down>
 vim ☇ one\pronoun · up ⮕ "1" <up>
 vim ☇ open · _\underscore\underscore ⮕ "o" [mode +vim-insert] "_"
 vim ☇ open · above ⮕ "O" [mode +vim-insert]
+vim ☇ open · added · a\determiner · voice ⮕ "o" [mode +vim-insert] "addedavoice"
 vim ☇ open · brother ⮕ "o" [mode +vim-insert] "b"
 vim ☇ open · chrome ⮕ [i3 "exec google-chrome"]
 vim ☇ open · dictate · one\pronoun · word ⮕ "o" [mode +vim-insert] "1word"
+vim ☇ open · editor · voice ⮕ [i3 "exec gvim -c ':NERDTree /home/josh/pegvoice/src'"]
 vim ☇ open · file ⮕ "o" [mode +vim-insert] "file"
 vim ☇ open · hello · _\underscore\underscore · world ⮕ "o" [mode +vim-insert] "hello_world"
 vim ☇ open · hello ⮕ "o" [mode +vim-insert] "hello"
@@ -1120,6 +1171,7 @@ vim ☇ record · off ⮕ [record false]
 vim ☇ record · on ⮕ [record true]
 vim ☇ redo ⮕ <ctrl-r>
 vim ☇ reflect ⮕ null
+vim ☇ reopened · tab ⮕ null
 vim ☇ repeat ⮕ "."
 vim ☇ replace · ,\comma\comma ⮕ "r,"
 vim ☇ replace · .\dot\dot ⮕ "r."
@@ -1189,7 +1241,9 @@ vim ☇ that ⮕ null
 vim ☇ the · are · tab ⮕ null
 vim ☇ the · bottom ⮕ null
 vim ☇ the · case ⮕ null
+vim ☇ the · lead · on ⮕ null
 vim ☇ the ⮕ null
+vim ☇ thirty · down ⮕ "30" <down>
 vim ☇ thirty · four · down ⮕ "34" <down>
 vim ☇ this · from · global ⮕ null
 vim ☇ this ⮕ null
