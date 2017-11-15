@@ -77,6 +77,7 @@
 wake_up => new SleepCommand(false);
 go to sleep => new SleepCommand(true);
 
+restart voice => i3('exec ~/bin/voice');
 record on => new RecordCommand(true);
 record off => new RecordCommand(false);
 
@@ -193,6 +194,7 @@ word :word => type(word);
   format => multi(key('='), modeOff('vim-visual'));
   replace k:key => multi(key('r'), key(k), modeOff('vim-visual'));
   surround s:surrounder => multi(type(`S${s}`), modeOff('vim-visual'));
+  cut => multi(key('x'), modeOff('vim-visual'));
 
   sort => multi(type(':!sort\n'), modeOff('vim-visual'));
   yank => multi(key('y'), modeOff('vim-visual'));
@@ -208,8 +210,9 @@ word :word => type(word);
   save => vimex('w');
 
   switch buffer => escaped(repeat(2, key('ctrl-w')));
-  buffer flip => escaped(key('ctrl-6'));
   close buffer => vimex('bd');
+
+  flip => escaped(key('ctrl-6'));
 }
 
 &vimNotInsert ...{
@@ -222,6 +225,9 @@ word :word => type(word);
 
   forward c:ascii => type(`f${c}`);
   back c:ascii => type(`F${c}`);
+
+  // Jumps to other side [bracket/etc]
+  jump => key('%');
 
   mark :letter => type(`m${letter}`);
   go_to ...{
@@ -278,6 +284,7 @@ word :word => type(word);
     surrounding s:surrounder => type(`ds${s}`);
     dir:vim_direction => type(`d${dir}`);
   }
+
   big yank => key('Y');
   yank ...{
     line => type('yy');
@@ -315,9 +322,9 @@ word :word => type(word);
   :dictate => dictate;
 }
 
-slap it? => key('enter');
 enter => key('enter');
 escape => key('escape');
+slap it? => key('enter');
 
 
 folder = ...{
@@ -559,6 +566,7 @@ ascii "<ascii>" = ...{
   tilde => '~';
   underscore => '_';
   :paren => paren;
+  :right_paren => right_paren;
   :digit => digit;
   :letter => letter;
 }
@@ -763,6 +771,7 @@ spell f;
 spell fifty;
 spell find;
 spell five;
+spell focus / focused;
 spell forward;
 spell four / for;
 spell fourty / forty;
@@ -816,7 +825,7 @@ spell rebase / "we base";
 spell reddit;
 spell reopen / reopened;
 spell reword;
-spell right;
+spell right / write / rights;
 spell s;
 spell save / safe / saved;
 spell screen / green;
@@ -859,6 +868,7 @@ spell window / windows;
 spell word / words;
 spell x;
 spell y;
+spell yank / copy;
 spell zero;
 spell z / said;
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+echo -e '\033]2;pegvoice\007'
 exec nodemon \
   --ext 'js,pegjs,pegvoice' \
   --delay 100ms \

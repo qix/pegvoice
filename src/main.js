@@ -25,6 +25,7 @@ const bunyan = require('bunyan');
 const chalk = require('chalk');
 const {docopt} = require('docopt');
 const fs = require('fs');
+const term = require( 'terminal-kit' ).terminal;
 
 const http = require('http');
 const {
@@ -121,14 +122,79 @@ if (options['--server']) {
 
 const noop = options['--noop'];
 
+function render({
+  modeString,
+  execCommand,
+  skipCommands,
+  noop,
+}) {
+  const arrow = ' => ';
+  const word = noop ? 'NoOp' : 'Exec';
+
+  term.clear().hideCursor();
+
+    /*
+  for (let {N, rendered, transcript, priority} of skipCommands) {
+    term
+      .gray(`${N} ${word}: `)
+      .white(transcript)
+      .gray(` => ${rendered}${priority}\n`)
+  }
+  */
+
+  const modeStringPrefix = `[${modeString}] `;
+  term.gray(modeStringPrefix)
+
+  let remaining = term.width - modeStringPrefix.length;
+  if (execCommand) {
+    const {N, rendered, transcript, priority} = execCommand;
+    const prefix = `${N} ${word}: `;
+    const postfix = ` ${priority}`;
+    term
+      .white(prefix)
+      .yellow(transcript)
+      .white(arrow)
+      .green(rendered)
+      .gray(postfix);
+
+    remaining -= [prefix, transcript, arrow, rendered, postfix].join('').length;
+  }
+
+  let first = !execCommand;
+  for (let {N, transcript, rendered, priority} of skipCommands) {
+    const prefix = `${first ? '' : ' ┊ '}${N} `;
+    const postfix = `${priority ? ` ${priority}` : ''}`;
+    const message = `${prefix}${transcript}${arrow}${rendered}${postfix}`;
+    if (message.length > remaining) {
+      break;
+    }
+    term.gray(prefix).white(transcript).gray(arrow).white(rendered + postfix);
+    remaining -= message.length;
+    first = false;
+  }
+}
+
+function renderConsole({modeString, noop}) {
+  const {grey, green, yellow} = chalk;
+  console.log(chalk.white.dim(`[${modeString}]`));
+  console.log(
+    grey(`${N} Skip: `) +
+    transcript +
+    grey(` => ${rendered} ${priority}`)
+  );
+
+  const word = noop ? 'NoOp' : 'Exec';
+  console.log(
+    `${executeIndex + 1} ${word}: ` +
+    `${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
+  );
+}
+
 async function executeTranscripts(transcripts) {
   let first = true;
   const mode = await machine.fetchCurrentMode();
   const modeString = Array.from(mode).sort().join(' ') + modeSeperator;
 
-  console.log(chalk.white.dim(`[${modeString}]`));
-
-  const {grey, green, yellow} = chalk;
 
   let firstError = null;
 
@@ -151,20 +217,20 @@ async function executeTranscripts(transcripts) {
   const lowestPriority = Math.min(...priorities.filter(v => v)) || 0;
   const executeIndex = priorities.indexOf(lowestPriority);
 
+  const skipCommands = [];
+  let execCommand = null;
+
   transcripts.forEach((transcript, idx) => {
     if (idx === executeIndex) {
       return;
     }
 
-    const N = `${idx + 1}. `;
+    const N = idx + 1;
     const command = commands[idx];
     const rendered = command ? command.render() : 'null';
     const priority = priorities[idx];
-    console.log(
-      grey(`${N} Skip: `) +
-      transcript +
-      grey(` => ${rendered} ${priority}`)
-    );
+
+    skipCommands.push({N, rendered, transcript, priority});
   });
 
   if (executeIndex >= 0) {
@@ -173,11 +239,10 @@ async function executeTranscripts(transcripts) {
     const rendered = command.render();
     const priority = priorities[executeIndex];
 
-    const word = noop ? 'NoOp' : 'Exec';
-    console.log(
-      `${executeIndex + 1} ${word}: ` +
-      `${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
-    );
+    execCommand = {
+      N: executeIndex + 1,
+      rendered, transcript, priority
+    };
     if (!noop) {
       command.execute(machine);
     }
@@ -190,8 +255,9 @@ async function executeTranscripts(transcripts) {
     if (resultLog) {
       resultLog.write(`${modeString}${transcripts[0]}${rightArrow}null\n`);
     }
-    console.log('No transcripts matched!');
   }
+
+  render({execCommand, skipCommands, modeString, noop});
 }
 
 function kaldiParser(line) {

@@ -8,7 +8,8 @@
     "i3": "^0.2.1",
     "jest": "^21.2.1",
     "pegjs": "^0.10.0",
-    "robotjs": "^0.4.7"
+    "robotjs": "^0.4.7",
+    "terminal-kit": "^1.14.1"
   },
   "scripts": {
     "test": "jest"

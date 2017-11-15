@@ -74,14 +74,23 @@ class Commander {
     }
 
     console.log(chalk.white.dim(`Title: ${title}`));
-    const vimInsert = title.endsWith(' <vim:i>');
-    const vimNormal = title.endsWith(' <vim>');
-    const vim = vimInsert || vimNormal;
+
+    const match = / <vim:(.*)>$/.exec(title);
+    const vim = !!match;
+    const vimMode = match ? match[1] : null;
+
+    const vimInsert = ['i', 's', 'R'].includes(vimMode);
+    const vimVisual = ['v', 'V', '^V'].includes(vimMode);
+
+    const vimTree = vim && title.startsWith('NERD_tree_');
+    const vimNormal = title.endsWith(' <vim>') && !vimTree;
+
     this.trackModeChange(() => {
       setToggle(this.mode, 'vim', vim);
       setToggle(this.mode, 'terminal', title.endsWith(' <term>'));
       setToggle(this.mode, 'vim-insert', vimInsert);
-      setToggle(this.mode, 'vim-tree', vim && title.startsWith('NERD_tree_'));
+      setToggle(this.mode, 'vim-tree', vimTree);
+      setToggle(this.mode, 'vim-visual', vimVisual);
       setToggle(this.mode, 'vim-rebase', vim && title.startsWith('git-rebase-todo '));
       if (!vim) {
         this.mode.delete('vim-visual');
