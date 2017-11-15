@@ -127,6 +127,7 @@ function render({
   execCommand,
   skipCommands,
   noop,
+  record,
 }) {
   const arrow = ' => ';
   const word = noop ? 'NoOp' : 'Exec';
@@ -142,19 +143,27 @@ function render({
   }
   */
 
+  const recordSymbol = record ? ' ■ ' : ' 🚫 ';
   const modeStringPrefix = `[${modeString}] `;
+
+  if (record) {
+    term.red.bold(recordSymbol);
+  } else {
+    term.white.bold(recordSymbol);
+  }
+
   term.gray(modeStringPrefix)
 
-  let remaining = term.width - modeStringPrefix.length;
+  let remaining = term.width - modeStringPrefix.length - recordSymbol.length * 2;
   if (execCommand) {
     const {N, rendered, transcript, priority} = execCommand;
     const prefix = `${N} ${word}: `;
     const postfix = ` ${priority}`;
     term
       .white(prefix)
-      .yellow(transcript)
+      .yellow.bold(transcript)
       .white(arrow)
-      .green(rendered)
+      .green.bold(rendered)
       .gray(postfix);
 
     remaining -= [prefix, transcript, arrow, rendered, postfix].join('').length;
@@ -172,6 +181,14 @@ function render({
     remaining -= message.length;
     first = false;
   }
+
+  term.white(' '.repeat(remaining));
+  if (record) {
+    term.red.bold(recordSymbol);
+  } else {
+    term.white.bold(recordSymbol);
+  }
+
 }
 
 function renderConsole({modeString, noop}) {
@@ -257,7 +274,10 @@ async function executeTranscripts(transcripts) {
     }
   }
 
-  render({execCommand, skipCommands, modeString, noop});
+  render({
+    execCommand, skipCommands, modeString, noop,
+    record: machine.record,
+  });
 }
 
 function kaldiParser(line) {

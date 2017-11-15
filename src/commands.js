@@ -35,6 +35,14 @@ class I3Command extends Command {
     machine.i3(this.command);
   }
 }
+class CancelCommand extends Command {
+  render() {
+    return '[cancel]';
+  }
+  execute(machine) {
+    return machine.cancel();
+  }
+}
 class PriorityCommand extends Command {
   constructor(priority, command) {
     super();
@@ -71,6 +79,25 @@ class RepeatCommand extends Command {
     }
   }
 }
+class KeyHoldCommand extends Command {
+  constructor(key, state) {
+    super();
+    this.key = key;
+    this.state = state;
+  }
+  execute(machine) {
+    if (this.state) {
+      machine.keyDown(this.key);
+    } else {
+      machine.keyUp(this.key);
+    }
+  }
+  render() {
+    const action = this.state ? 'hold' : 'release';
+    return `[key ${action} ${this.key}]`;
+  }
+}
+
 class KeyCommand extends Command {
   constructor(key) {
     super();
@@ -275,4 +302,6 @@ module.exports = {
   RecordCommand,
   RepeatCommand,
   SleepCommand,
+  KeyHoldCommand,
+  CancelCommand,
 };

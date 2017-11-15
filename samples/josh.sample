@@ -6,6 +6,7 @@
  ☇ D\uppercase-letter\capital D ⮕ null
  ☇ Delta ⮕ null
  ☇ Dick ⮕ null
+ ☇ Help ⮕ null
  ☇ Québec ⮕ null
  ☇ Rohrer ⮕ null
  ☇ Tango ⮕ null
@@ -94,8 +95,8 @@
  ☇ editor · voice ⮕ null
  ☇ equals ⮕ null
  ☇ escape · delete · line ⮕ null
- ☇ escape · escape ⮕ <escape> <escape>
- ☇ escape ⮕ <escape>
+ ☇ escape · escape ⮕ [cancel] <escape> [cancel] <escape>
+ ☇ escape ⮕ [cancel] <escape>
  ☇ find · commander ⮕ null
  ☇ find · hello ⮕ null
  ☇ find · main ⮕ null
@@ -366,12 +367,15 @@ chrome ☇ dictate · news ⮕ "dictatenews"
 chrome ☇ dictates · news · .\dot\dot · Y\letter · combination · .com\\dot com ⮕ "dictatesnews.ycombination.com"
 chrome ☇ double ⮕ "double"
 chrome ☇ down · down · slap ⮕ <down> <down> <enter>
-chrome ☇ escape · escape ⮕ <escape> <escape>
-chrome ☇ escape ⮕ <escape>
+chrome ☇ down · down ⮕ <down> <down>
+chrome ☇ escape · escape ⮕ [cancel] <escape> [cancel] <escape>
+chrome ☇ escape ⮕ [cancel] <escape>
 chrome ☇ foxtrot · straight ⮕ "f" "straight"
 chrome ☇ go · to · top ⮕ "gg"
 chrome ☇ good · Reddit ⮕ <ctrl-l> "https://www.reddit.com" <enter>
 chrome ☇ he ⮕ "he"
+chrome ☇ hold · key · down ⮕ [key hold down]
+chrome ☇ hold · key · up ⮕ [key hold up]
 chrome ☇ is ⮕ "is"
 chrome ☇ left · for ⮕ <left> "4"
 chrome ☇ link ⮕ <escape> "f"
@@ -381,6 +385,7 @@ chrome ☇ move · window · screen · five ⮕ "movewindowscreen5"
 chrome ☇ new · tab · new · is ⮕ <ctrl-t> "https://news.ycombinator.com" <enter> "is"
 chrome ☇ new · tab ⮕ <ctrl-t>
 chrome ☇ next · tab ⮕ <ctrl-tab>
+chrome ☇ next ⮕ "next"
 chrome ☇ ninety · six ⮕ "96"
 chrome ☇ node · space · curses ⮕ "node curses"
 chrome ☇ of · the · J\letter ⮕ "a" "j"
@@ -391,6 +396,7 @@ chrome ☇ one\number · sixty · three ⮕ "163"
 chrome ☇ open · Gmail\\G mail ⮕ <ctrl-t> "https://mail.google.com" <enter>
 chrome ☇ open · Reddit ⮕ <ctrl-t> "https://www.reddit.com" <enter>
 chrome ☇ open · calendar ⮕ <ctrl-t> "https://google.com/calendar" <enter>
+chrome ☇ open · news ⮕ <ctrl-t> "https://news.ycombinator.com" <enter>
 chrome ☇ open · tab · news ⮕ <ctrl-t> "https://news.ycombinator.com" <enter>
 chrome ☇ open · tab ⮕ <ctrl-t>
 chrome ☇ page · down ⮕ <pagedown>
@@ -450,8 +456,8 @@ terminal ☇ and · a\determiner · left ⮕ "&a" <left>
 terminal ☇ and ⮕ "&"
 terminal ☇ arrow ⮕ " => "
 terminal ☇ based ⮕ <ctrl-shift-v>
-terminal ☇ commit · all ⮕ "git commit -a -m " <'> <'> <left>
-terminal ☇ commit ⮕ "git commit -m " <'> <'> <left>
+terminal ☇ commit · all ⮕ "commitall"
+terminal ☇ commit ⮕ "commit"
 terminal ☇ control · K\letter ⮕ <ctrl-k>
 terminal ☇ control · Z\letter ⮕ <ctrl-z>
 terminal ☇ control · clear ⮕ "controlclear"
@@ -479,7 +485,7 @@ terminal ☇ open-air · voice ⮕ "open-airvoice"
 terminal ☇ paste ⮕ <ctrl-shift-v>
 terminal ☇ people · on ⮕ "peopleon"
 terminal ☇ pillow ⮕ "pillow"
-terminal ☇ rebase ⮕ "git rebase -i HEAD~25"
+terminal ☇ rebase ⮕ "rebase"
 terminal ☇ record · on ⮕ [record true]
 terminal ☇ reset ⮕ "reset"
 terminal ☇ screen · for ⮕ [i3 "workspace 4, focus tiling"]
@@ -597,23 +603,23 @@ vim vim-insert ☇ double · under ⮕ "doubleunder"
 vim vim-insert ☇ down ⮕ <down>
 vim vim-insert ☇ equal ⮕ " = "
 vim vim-insert ☇ equals ⮕ " = "
-vim vim-insert ☇ escape · and · a\determiner ⮕ <escape> "&" "a"
-vim vim-insert ☇ escape · and · do ⮕ <escape> "u"
-vim vim-insert ☇ escape · and ⮕ <escape> "&"
-vim vim-insert ☇ escape · append · end ⮕ <escape> "A" [mode +vim-insert]
-vim vim-insert ☇ escape · back · be ⮕ <escape> "Fb"
-vim vim-insert ☇ escape · delete · line ⮕ <escape> "dd"
-vim vim-insert ☇ escape · down · down · down · down · down ⮕ <escape> <down> <down> <down> <down> <down>
-vim vim-insert ☇ escape · for · left ⮕ <escape> "4" <left>
+vim vim-insert ☇ escape · and · a\determiner ⮕ [cancel] <escape> "&" "a"
+vim vim-insert ☇ escape · and · do ⮕ [cancel] <escape> "u"
+vim vim-insert ☇ escape · and ⮕ [cancel] <escape> "&"
+vim vim-insert ☇ escape · append · end ⮕ [cancel] <escape> "A" [mode +vim-insert]
+vim vim-insert ☇ escape · back · be ⮕ [cancel] <escape> "Fb"
+vim vim-insert ☇ escape · delete · line ⮕ [cancel] <escape> "dd"
+vim vim-insert ☇ escape · down · down · down · down · down ⮕ [cancel] <escape> <down> <down> <down> <down> <down>
+vim vim-insert ☇ escape · for · left ⮕ [cancel] <escape> "4" <left>
 vim vim-insert ☇ escape · indent ⮕ null
-vim vim-insert ☇ escape · right · big · delete ⮕ <escape> <right> "D"
-vim vim-insert ☇ escape · right ⮕ <escape> <right>
-vim vim-insert ☇ escape · save ⮕ <escape> <escape> ":w" <enter>
-vim vim-insert ☇ escape · three · left ⮕ <escape> "3" <left>
-vim vim-insert ☇ escape · under ⮕ <escape> "u"
-vim vim-insert ☇ escape · visual ⮕ <escape> "v" [mode +vim-visual]
-vim vim-insert ☇ escape ⮕ <escape>
-vim vim-insert ☇ escaped · delete · line ⮕ <escape> "dd"
+vim vim-insert ☇ escape · right · big · delete ⮕ [cancel] <escape> <right> "D"
+vim vim-insert ☇ escape · right ⮕ [cancel] <escape> <right>
+vim vim-insert ☇ escape · save ⮕ [cancel] <escape> <escape> ":w" <enter>
+vim vim-insert ☇ escape · three · left ⮕ [cancel] <escape> "3" <left>
+vim vim-insert ☇ escape · under ⮕ [cancel] <escape> "u"
+vim vim-insert ☇ escape · visual ⮕ [cancel] <escape> "v" [mode +vim-visual]
+vim vim-insert ☇ escape ⮕ [cancel] <escape>
+vim vim-insert ☇ escaped · delete · line ⮕ [cancel] <escape> "dd"
 vim vim-insert ☇ express ⮕ "express"
 vim vim-insert ☇ extra ⮕ "extra"
 vim vim-insert ☇ first · above · voice · only ⮕ "firstabovevoiceonly"
@@ -783,7 +789,7 @@ vim vim-tree ☇ and · a\determiner · left ⮕ null
 vim vim-tree ☇ and · slap ⮕ null
 vim vim-tree ☇ change ⮕ "C"
 vim vim-tree ☇ close · window ⮕ [i3 "kill"]
-vim vim-tree ☇ escape ⮕ <escape>
+vim vim-tree ☇ escape ⮕ [cancel] <escape>
 vim vim-tree ☇ five · down ⮕ [repeat 5 <down>]
 vim vim-tree ☇ five · up ⮕ [repeat 5 <up>]
 vim vim-tree ☇ good · asleep ⮕ null
@@ -829,6 +835,7 @@ vim vim-tree ☇ with · window · left ⮕ null
 vim vim-visual ☇ D\letter ⮕ null
 vim vim-visual ☇ Mark · C\letter ⮕ "mc"
 vim vim-visual ☇ and · do ⮕ null
+vim vim-visual ☇ and ⮕ null
 vim vim-visual ☇ change · exclamation ⮕ "c" [mode -vim-visual] [mode +vim-insert] "!"
 vim vim-visual ☇ change ⮕ "c" [mode -vim-visual] [mode +vim-insert]
 vim vim-visual ☇ cut ⮕ "x" [mode -vim-visual]
@@ -841,8 +848,8 @@ vim vim-visual ☇ dictate · the ⮕ "the"
 vim vim-visual ☇ down · down · yank ⮕ <down> <down> "y" [mode -vim-visual]
 vim vim-visual ☇ down · three ⮕ null
 vim vim-visual ☇ down ⮕ <down>
-vim vim-visual ☇ escape · visual · block ⮕ <escape> <ctrl-v> [mode +vim-visual]
-vim vim-visual ☇ escape ⮕ <escape>
+vim vim-visual ☇ escape · visual · block ⮕ [cancel] <escape> <ctrl-v> [mode +vim-visual]
+vim vim-visual ☇ escape ⮕ [cancel] <escape>
 vim vim-visual ☇ find · ^\caret\caret · dollar ⮕ "/^$"
 vim vim-visual ☇ find · empty · line ⮕ "/^$" <enter>
 vim vim-visual ☇ find · previous · empty · line ⮕ "?^$" <enter>
@@ -862,6 +869,8 @@ vim vim-visual ☇ right · right · right ⮕ <right> <right> <right>
 vim vim-visual ☇ right · right ⮕ <right> <right>
 vim vim-visual ☇ save ⮕ <escape> ":w" <enter>
 vim vim-visual ☇ search · find · empty ⮕ null
+vim vim-visual ☇ search · previous · anti-\\anti · line ⮕ null
+vim vim-visual ☇ search · previous · empty · \new-line\new line ⮕ null
 vim vim-visual ☇ six · left ⮕ [repeat 6 <left>]
 vim vim-visual ☇ slap · sort ⮕ <enter> ":!sort" <enter> [mode -vim-visual]
 vim vim-visual ☇ sort ⮕ ":!sort" <enter> [mode -vim-visual]
@@ -1053,15 +1062,16 @@ vim ☇ downturn ⮕ null
 vim ☇ eight · down ⮕ "8" <down>
 vim ☇ eight ⮕ "8"
 vim ☇ end · macro ⮕ "q"
-vim ☇ escape · and · do ⮕ <escape> "u"
-vim ☇ escape · append ⮕ <escape> "a" [mode +vim-insert]
-vim ☇ escape · escape · escape ⮕ <escape> <escape> <escape>
+vim ☇ escape · and · do ⮕ [cancel] <escape> "u"
+vim ☇ escape · append ⮕ [cancel] <escape> "a" [mode +vim-insert]
+vim ☇ escape · escape · escape ⮕ [cancel] <escape> [cancel] <escape> [cancel] <escape>
 vim ☇ escape · except ⮕ null
-vim ☇ escape · insert ⮕ <escape> "i" [mode +vim-insert]
-vim ☇ escape · reselect · sort ⮕ <escape> "gv" [mode +vim-visual] ":!sort" <enter> [mode -vim-visual]
-vim ☇ escape · under ⮕ <escape> "u"
-vim ☇ escape · visual ⮕ <escape> "v" [mode +vim-visual]
-vim ☇ escape ⮕ <escape>
+vim ☇ escape · in · dental · on ⮕ null
+vim ☇ escape · insert ⮕ [cancel] <escape> "i" [mode +vim-insert]
+vim ☇ escape · reselect · sort ⮕ [cancel] <escape> "gv" [mode +vim-visual] ":!sort" <enter> [mode -vim-visual]
+vim ☇ escape · under ⮕ [cancel] <escape> "u"
+vim ☇ escape · visual ⮕ [cancel] <escape> "v" [mode +vim-visual]
+vim ☇ escape ⮕ [cancel] <escape>
 vim ☇ excellent ⮕ null
 vim ☇ favourite · as ⮕ null
 vim ☇ file · voice ⮕ <escape> ":FZF /home/josh/pegvoice/src" <enter>
@@ -1141,6 +1151,8 @@ vim ☇ green · brightness · one\number · hundred ⮕ [i3 "exec brightness 10
 vim ☇ hello · _\underscore\underscore · world ⮕ null
 vim ☇ hello · world ⮕ null
 vim ☇ hello ⮕ null
+vim ☇ hold · key · down ⮕ [key hold down]
+vim ☇ hold · key · up ⮕ [key hold up]
 vim ☇ in · clan · paste ⮕ null
 vim ☇ indent ⮕ null
 vim ☇ insert · (\left-parenthesis\left paren · escape · word ⮕ "i" [mode +vim-insert] "(" <escape> "word"
@@ -1379,6 +1391,7 @@ vim ☇ visual · down · cut ⮕ "v" [mode +vim-visual] <down> "x" [mode -vim-v
 vim ☇ visual · in · a\determiner · word ⮕ "v" [mode +vim-visual] "iw"
 vim ☇ visual · in · no · curly ⮕ null
 vim ☇ visual · left · three ⮕ null
+vim ☇ visual · line · and · indent ⮕ null
 vim ☇ visual · line ⮕ "V" [mode +vim-visual]
 vim ☇ visual · right · change · in · the ⮕ "v" [mode +vim-visual] <right> "c" [mode -vim-visual] [mode +vim-insert] "inthe"
 vim ☇ visual · right ⮕ "v" [mode +vim-visual] <right>
@@ -1389,6 +1402,7 @@ vim ☇ visual ⮕ "v" [mode +vim-visual]
 vim ☇ wake up ⮕ null
 vim ☇ wake · up ⮕ [wake up]
 vim ☇ was · the ⮕ null
+vim ☇ who ⮕ null
 vim ☇ window · right ⮕ [i3 "focus right"]
 vim ☇ windscreen · six ⮕ null
 vim ☇ with · right ⮕ null

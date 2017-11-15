@@ -53,12 +53,26 @@ class Commander {
     this.record = false;
     this.sleep = false;
     this.titleWatch = !options.disableTitleWatch;
+    this.keysDown = new Set();
   }
 
   setRecord(flag) { this.record = flag; }
   setSleep(flag) { this.sleep = flag; }
   i3(command) { i3.command(command); }
   keyTap(key, modifiers) { robot.keyTap(key, modifiers); }
+  keyUp(key) {
+    robot.keyToggle(key, 'up');
+    this.keysDown.delete(key);
+  }
+  keyDown(key) {
+    robot.keyToggle(key, 'down');
+    this.keysDown.add(key);
+  }
+  cancel() {
+    for (let key of Array.from(this.keysDown)) {
+      this.keyUp(key);
+    }
+  }
   click() { robot.mouseClick(); }
 
   async fetchCurrentMode() {

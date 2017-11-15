@@ -1,8 +1,10 @@
 {
   const {
+    CancelCommand,
     ClickCommand,
     I3Command,
     KeyCommand,
+    KeyHoldCommand,
     ModeCommand,
     MultiCommand,
     NoopCommand,
@@ -12,6 +14,9 @@
     SleepCommand,
   } = options.commands;
 
+  function cancel() {
+    return new CancelCommand();
+  }
   function noop() {
     return new NoopCommand();
   }
@@ -83,9 +88,6 @@ record off => new RecordCommand(false);
 
 click => new ClickCommand();
 
-page down => key('pagedown');
-page up => key('pageup');
-
 move window :direction => i3(`move ${direction}`);
 close window => i3('kill');
 
@@ -143,7 +145,6 @@ arrow => type(' => ');
   open tab? => key('ctrl-t');
   undo => key('ctrl-z');
   tab => key('tab');
-  page down? => key('pagedown');
   go_to ...{
     top => type('gg');
     bottom => type('G');
@@ -161,22 +162,40 @@ arrow => type(' => ');
   refresh => key('ctrl-r');
   l:letter => key(l);
   k:modified_key => key(k);
+  hold key k:key => new KeyHoldCommand(k, true);
+  escape => multi(cancel(), key('escape'));
+
   :dictate => dictate;
 }
 
 &terminal ...{
-  rebase => type('git rebase -i HEAD~25');
-  commit all => multi(type('git commit -a -m \'\''), key('left'));
-  commit => multi(type('git commit -m \'\''), key('left'));
   copy => key('ctrl-shift-c');
   paste => key('ctrl-shift-v');
   delete line => multi(key('home'), key('ctrl-k'));
   k:modified_key => key(k);
+
+  source rebase => type('git rebase -i HEAD~25');
+  source commit all => multi(type('git commit -a -m \'\''), key('left'));
+  source commit => multi(type('git commit -m \'\''), key('left'));
+  source diff letter => type('git diff --word-diff-regex=.');
+  source => type('git ');
+  def => type('diff ');
+
+  page up => key('shift-pageup');
+  page down? => key('shift-pagedown');
+
   :dictate => dictate;
 }
 
+hold key k:key => new KeyHoldCommand(k, true);
+cancel => cancel();
+
 key k:key => key(k);
 k:modified_key => key(k);
+
+page down => key('pagedown');
+page up => key('pageup');
+
 
 type :ascii_string => type(ascii_string);
 dictate :dictate => dictate;
@@ -318,12 +337,12 @@ word :word => type(word);
   node require :ident => typeLine(`const ${ident} = require('${ident}');`);
   delete => key('delete');
   paste => key('ctrl-shift-v');
-  escape => key('escape');
+  escape => multi(cancel(), key('escape'));
   :dictate => dictate;
 }
 
 enter => key('enter');
-escape => key('escape');
+escape => multi(cancel(), key('escape'));
 slap it? => key('enter');
 
 
@@ -463,6 +482,7 @@ _dictate_command
   / c:_count _ v:_dictate_repeatable { return repeat(c, v); }
   / _dictate_number
   / k:_key { return key(k); }
+  / page { return key('pagedown'); }
   / _dictate_repeatable
   / _dictate_ident;
 
@@ -518,6 +538,8 @@ _key "<key>"
   / backspace
   / home
   / end
+  / pageup
+  / pagedown
   / _paren
   / _direction
   / _ascii;
@@ -752,6 +774,7 @@ spell d;
 spell dash / "-" / "–\\dash\\dash";
 spell dedent / decent / "didn't" / the dent;
 spell dictate / dictates;
+spell diff / def / differential / dif / diffs;
 spell do;
 spell dollar;
 spell dotcom / ".com\\\\dot com";
@@ -786,6 +809,7 @@ spell hundred;
 spell i;
 spell in;
 spell including;
+spell indent;
 spell inner / in a;
 spell inside;
 spell j;
@@ -794,6 +818,7 @@ spell key / he;
 spell l / al;
 spell left;
 spell less;
+spell letter / letters;
 spell lib / lab;
 spell line / lines;
 spell m;
@@ -810,6 +835,8 @@ spell open / opened;
 spell or;
 spell outside;
 spell p;
+spell pagedown / page down;
+spell pageup / page up;
 spell paren;
 spell paste / based;
 spell percent;
