@@ -192,10 +192,13 @@ word :word => type(word);
   dedent => multi(key('<'), modeOff('vim-visual'));
   format => multi(key('='), modeOff('vim-visual'));
   replace k:key => multi(key('r'), key(k), modeOff('vim-visual'));
+  surround s:surrounder => multi(type(`S${s}`), modeOff('vim-visual'));
 
   sort => multi(type(':!sort\n'), modeOff('vim-visual'));
   yank => multi(key('y'), modeOff('vim-visual'));
   unique => multi(type(':!sort\ngv:!uniq\n'), modeOff('vim-visual'));
+
+  d:vim_direction => type(d);
 }
 
 &vim ...{
@@ -214,6 +217,8 @@ word :word => type(word);
   f:vim_find :dictate? => multi(type(f), optional(dictate, noop()));
   previous => type('N');
   next => type('n');
+
+  word => key('w');
 
   forward c:ascii => type(`f${c}`);
   back c:ascii => type(`F${c}`);
@@ -242,7 +247,7 @@ word :word => type(word);
   play :letter => type(`@${letter}`);
   end macro => type(`q`);
 
-  big cut => type('X');
+  big cut => type('x');
   cut => type('x');
   replace k:key => multi(key('r'), key(k));
 
@@ -263,12 +268,14 @@ word :word => type(word);
 
   big change => key('C');
   change ...{
+    surrounding a:surrounder b:surrounder => type(`cs${a}${b}`);
     line => multi(type('cc'), mode('vim-insert'));
     dir:vim_direction => multi(type(`c${dir}`), mode('vim-insert'));
   }
   big delete => key('D');
   delete ...{
     line => type('dd');
+    surrounding s:surrounder => type(`ds${s}`);
     dir:vim_direction => type(`d${dir}`);
   }
   big yank => key('Y');
@@ -676,6 +683,13 @@ _digit = word:(
   return digits.hasOwnProperty(word) ? digits[word] : parseInt(word, 10);
 }
 
+surrounder = ...{
+  p:right_paren => p;
+  backtick => '`';
+  quote => "'";
+  big quote => '"';
+}
+
 _right_paren = char:(
   curly /
   paren /
@@ -763,7 +777,7 @@ spell hundred;
 spell i;
 spell in;
 spell including;
-spell inner;
+spell inner / in a;
 spell inside;
 spell j;
 spell k;

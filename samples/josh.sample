@@ -211,6 +211,7 @@
  ☇ screen · two ⮕ [i3 "workspace 2, focus tiling"]
  ☇ screen ⮕ null
  ☇ search · voice ⮕ null
+ ☇ select · all ⮕ null
  ☇ showed · up ⮕ null
  ☇ shut · up ⮕ null
  ☇ sky · phone ⮕ null
@@ -801,6 +802,7 @@ vim vim-tree ☇ up · up · slap ⮕ <up> <up> <enter>
 vim vim-tree ☇ with · window · left ⮕ null
 vim vim-visual ☇ D\letter ⮕ null
 vim vim-visual ☇ Mark · C\letter ⮕ "mc"
+vim vim-visual ☇ and · do ⮕ null
 vim vim-visual ☇ change · exclamation ⮕ "c" [mode -vim-visual] [mode +vim-insert] "!"
 vim vim-visual ☇ change ⮕ "c" [mode -vim-visual] [mode +vim-insert]
 vim vim-visual ☇ deed ⮕ null
@@ -834,6 +836,8 @@ vim vim-visual ☇ search · find · empty ⮕ null
 vim vim-visual ☇ six · left ⮕ [repeat 6 <left>]
 vim vim-visual ☇ slap · sort ⮕ <enter> ":!sort" <enter> [mode -vim-visual]
 vim vim-visual ☇ sort ⮕ ":!sort" <enter> [mode -vim-visual]
+vim vim-visual ☇ surround · quote ⮕ "S" <'> [mode -vim-visual]
+vim vim-visual ☇ surrounds ⮕ null
 vim vim-visual ☇ swap · corner · swap ⮕ "O" "o"
 vim vim-visual ☇ swap · corner · to · left ⮕ "O" [repeat 2 <left>]
 vim vim-visual ☇ swap · corner ⮕ "O"
@@ -854,11 +858,13 @@ vim vim-visual ☇ to · left · visual · three · left · key · x-ray ⮕ nul
 vim vim-visual ☇ to · trot · one\pronoun · up ⮕ null
 vim vim-visual ☇ to · write ⮕ null
 vim vim-visual ☇ two · left ⮕ [repeat 2 <left>]
+vim vim-visual ☇ under ⮕ null
 vim vim-visual ☇ unique ⮕ ":!sort" <enter> "gv:!uniq" <enter> [mode -vim-visual]
 vim vim-visual ☇ up · twenty · five ⮕ null
 vim vim-visual ☇ up · up ⮕ <up> <up>
 vim vim-visual ☇ up · yank ⮕ <up> "y" [mode -vim-visual]
 vim vim-visual ☇ up ⮕ <up>
+vim vim-visual ☇ visual · Word ⮕ null
 vim vim-visual ☇ visual · line · escape ⮕ null
 vim vim-visual ☇ visual · line ⮕ null
 vim vim-visual ☇ visual · three · left ⮕ null
@@ -943,6 +949,9 @@ vim ☇ change · inside · curly ⮕ "ci}" [mode +vim-insert]
 vim ☇ change · inside · right · curly ⮕ "ci}" [mode +vim-insert]
 vim ☇ change · inside · word ⮕ "ciw" [mode +vim-insert]
 vim ☇ change · line ⮕ "cc" [mode +vim-insert]
+vim ☇ change · surrounding · `\backquote\back tick · quote ⮕ "cs`" <'>
+vim ☇ change · surrounding · `\backquote\back tick ⮕ null
+vim ☇ change · surrounding · quote · `\backquote\back tick ⮕ "cs" <'> "`"
 vim ☇ change · to · )\right-parenthesis\right paren ⮕ "ct)" [mode +vim-insert]
 vim ☇ change · to · /\slash\slash ⮕ "ct/" [mode +vim-insert]
 vim ☇ change · to · space ⮕ "ct " [mode +vim-insert]
@@ -967,6 +976,7 @@ vim ☇ delete · including · space ⮕ "df "
 vim ☇ delete · line · up ⮕ "dd" <up>
 vim ☇ delete · line ⮕ "dd"
 vim ☇ delete · not · that · escape ⮕ null
+vim ☇ delete · surrounding · `\backquote\back tick ⮕ "ds`"
 vim ☇ delete · to · Tango ⮕ "dtt"
 vim ☇ delete · to · space ⮕ "dt "
 vim ☇ delete · until · /\slash\slash ⮕ "dt/"
@@ -1179,6 +1189,7 @@ vim ☇ play · X\letter ⮕ "@x"
 vim ☇ play · x-ray ⮕ "@x"
 vim ☇ previous · MD · line ⮕ null
 vim ☇ previous ⮕ "N"
+vim ☇ quote ⮕ <'>
 vim ☇ record · off ⮕ [record false]
 vim ☇ record · on ⮕ [record true]
 vim ☇ redo ⮕ <ctrl-r>
@@ -1188,6 +1199,7 @@ vim ☇ repeat ⮕ "."
 vim ☇ replace · ,\comma\comma ⮕ "r,"
 vim ☇ replace · .\dot\dot ⮕ "r."
 vim ☇ replace · C\letter ⮕ "rc"
+vim ☇ replace · `\backquote\back tick ⮕ "r`"
 vim ☇ replace · x-ray ⮕ "rx"
 vim ☇ replace ⮕ null
 vim ☇ reselect ⮕ "gv" [mode +vim-visual]
@@ -1200,6 +1212,7 @@ vim ☇ right · right · right ⮕ <right> <right> <right>
 vim ☇ right · right ⮕ <right> <right>
 vim ☇ right · visual · to · write ⮕ null
 vim ☇ right ⮕ <right>
+vim ☇ safe ⮕ <escape> ":w" <enter>
 vim ☇ save · as ⮕ <escape> ":w "
 vim ☇ save · close ⮕ null
 vim ☇ save · excellent ⮕ null
@@ -1303,15 +1316,19 @@ vim ☇ up · ten ⮕ <up> "10"
 vim ☇ up · up ⮕ <up> <up>
 vim ☇ up ⮕ <up>
 vim ☇ very · up ⮕ null
+vim ☇ visual · Word ⮕ "v" [mode +vim-visual] "w"
 vim ☇ visual · block · down · right ⮕ <ctrl-v> [mode +vim-visual] <down> <right>
 vim ☇ visual · block · up · up ⮕ <ctrl-v> [mode +vim-visual] <up> <up>
 vim ☇ visual · block ⮕ <ctrl-v> [mode +vim-visual]
+vim ☇ visual · in · a\determiner · word ⮕ "v" [mode +vim-visual] "iw"
+vim ☇ visual · in · no · curly ⮕ null
 vim ☇ visual · left · three ⮕ null
 vim ☇ visual · line ⮕ "V" [mode +vim-visual]
 vim ☇ visual · right · change · in · the ⮕ "v" [mode +vim-visual] <right> "c" [mode -vim-visual] [mode +vim-insert] "inthe"
 vim ☇ visual · right ⮕ "v" [mode +vim-visual] <right>
 vim ☇ visual · rights · delete ⮕ null
 vim ☇ visual · three · left ⮕ "v" [mode +vim-visual] [repeat 3 <left>]
+vim ☇ visual · to · a\determiner ⮕ "v" [mode +vim-visual] "ta"
 vim ☇ visual ⮕ "v" [mode +vim-visual]
 vim ☇ wake up ⮕ null
 vim ☇ wake · up ⮕ [wake up]
@@ -1320,6 +1337,7 @@ vim ☇ window · right ⮕ [i3 "focus right"]
 vim ☇ windscreen · six ⮕ null
 vim ☇ with · right ⮕ null
 vim ☇ word · type ⮕ "type"
+vim ☇ word ⮕ "w"
 vim ☇ writer · excellent ⮕ null
 vim ☇ x-ray · whiskey · Victor ⮕ "x" "w" "v"
 vim ☇ x-ray ⮕ "x"
