@@ -11,21 +11,27 @@ Usage:
 
 Options:
   --trace                    Enable peg tracing
+  --single-line              Use single line renderer
   --noop                     Disable actual command execution
   --mode=<mode>              Start with mode enabled
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
+  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar.pgv]
+  --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
 const Machine = require('./Machine');
-const Parser = require('./Parser');
+const Parser = require('./parse/Parser');
+const ConsoleRenderer = require('./render/ConsoleRenderer');
+const SampleLog = require('./samples/SampleLog');
+const SingleLineRenderer = require('./render/SingleLineRenderer');
 
 const binarySplit = require('binary-split');
 const bunyan = require('bunyan');
-const chalk = require('chalk');
 const {docopt} = require('docopt');
+const expandHomeDir = require('expand-home-dir');
 const fs = require('fs');
-const term = require( 'terminal-kit' ).terminal;
+const util = require('util');
 
 const http = require('http');
 const {
@@ -40,16 +46,12 @@ const bunyanStreams = [];
 if (options['--debug-log']) {
   bunyanStreams.push({
     level: 'debug',
-    path: options['--debug-log'],
+    path: expandHomeDir(options['--debug-log']),
   });
 }
 
-let resultLog = null;
-if (options['--result-log']) {
-  resultLog = fs.createWriteStream(options['--result-log'], {
-    flags : 'a',
-  });
-}
+const sampleLog = options['--samples'] && new SampleLog(options['--samples']);
+const grammarPath = expandHomeDir(options['--grammar']);
 
 const log = bunyan.createLogger({
   name: 'pegvoice',
@@ -58,159 +60,82 @@ const log = bunyan.createLogger({
 const machine = new Machine(log, {
   disableTitleWatch: !!options['--mode'],
 });
-const parser = new Parser({
+const parser = new Parser(grammarPath, {
   parserOptions: {
     trace: options['--trace'],
   },
 });
 
-(options['--mode'] || '').split(' ').forEach(mode => {
-  if (mode) {
-    machine.toggleMode(mode, true);
-  }
-});
+let renderer;
+if (options['--single-line']) {
+  renderer = new SingleLineRenderer();
+} else {
+  renderer = new ConsoleRenderer();
+}
+
+const noop = options['--noop'];
+
 function splitWords(string) {
   if (string.includes(wordSeperator)) {
     return string.trim();
   }
   return string.trim().split(' ').join(wordSeperator);
 }
-if (options['--kaldi']) {
-  process.stdin.pipe(binarySplit()).on('data', line => {
-    const transcript = kaldiParser(line);
-    if (transcript !== null) {
-      console.log();
-      console.log(`Transcript: ${transcript}`);
-      executeTranscript(transcript);
+
+async function main() {
+  (options['--mode'] || '').split(' ').forEach(mode => {
+    if (mode) {
+      machine.toggleMode(mode, true);
     }
   });
-}
 
-if (options['--command']) {
-  executeTranscripts([splitWords(options['--command'])]);
-}
+  if (options['--kaldi']) {
+    throw new Error('Kaldi parser is currently broken');
+  }
 
-if (options['--stdin']) {
-  process.stdin.pipe(binarySplit()).on('data', line => {
-    executeTranscripts([
-      splitWords(line.toString('utf-8')),
-    ]);
-  });
-}
+  if (options['--command']) {
+    executeTranscripts([splitWords(options['--command'])]);
+  }
 
-if (options['--server']) {
-  const server = http.createServer((req, res) => {
-    let buffer = [];
-    req.on('data', data => buffer.push(data));
-    req.on('end', () => {
-      const message = JSON.parse(Buffer.concat(buffer));
-      const transcripts = message.interpretations.map(option => {
-        return option.join(wordSeperator);
-      }).filter(x => x);
-
-      if (transcripts.length) {
-        console.log('Found %d options from dragon', transcripts.length);
-        executeTranscripts(transcripts);
-      }
-
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Okay');
+  if (options['--stdin']) {
+    process.stdin.pipe(binarySplit()).on('data', line => {
+      executeTranscripts([
+        splitWords(line.toString('utf-8')),
+      ]);
     });
+  }
+
+  if (options['--server']) {
+    const server = http.createServer((req, res) => {
+      let buffer = [];
+      req.on('data', data => buffer.push(data));
+      req.on('end', () => {
+        const message = JSON.parse(Buffer.concat(buffer));
+        const transcripts = message.interpretations.map(option => {
+          return option.join(wordSeperator);
+        }).filter(x => x);
+
+        if (transcripts.length) {
+          log.debug('Found %d options from dragon', transcripts.length);
+          executeTranscripts(transcripts);
+        }
+
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Okay');
+      });
+    });
+    server.listen(9099);
+  }
+
+  await new Promise(() => {
+    /* run forever... potentially close inside here later */
   });
-  server.listen(9099);
-}
-
-const noop = options['--noop'];
-
-function render({
-  modeString,
-  execCommand,
-  skipCommands,
-  noop,
-  record,
-}) {
-  const arrow = ' => ';
-  const word = noop ? 'NoOp' : 'Exec';
-
-  term.clear().hideCursor();
-
-    /*
-  for (let {N, rendered, transcript, priority} of skipCommands) {
-    term
-      .gray(`${N} ${word}: `)
-      .white(transcript)
-      .gray(` => ${rendered}${priority}\n`)
-  }
-  */
-
-  const recordSymbol = record ? ' ■ ' : ' 🚫 ';
-  const modeStringPrefix = `[${modeString}] `;
-
-  if (record) {
-    term.red.bold(recordSymbol);
-  } else {
-    term.white.bold(recordSymbol);
-  }
-
-  term.gray(modeStringPrefix)
-
-  let remaining = term.width - modeStringPrefix.length - recordSymbol.length * 2;
-  if (execCommand) {
-    const {N, rendered, transcript, priority} = execCommand;
-    const prefix = `${N} ${word}: `;
-    const postfix = ` ${priority}`;
-    term
-      .white(prefix)
-      .yellow.bold(transcript)
-      .white(arrow)
-      .green.bold(rendered)
-      .gray(postfix);
-
-    remaining -= [prefix, transcript, arrow, rendered, postfix].join('').length;
-  }
-
-  let first = !execCommand;
-  for (let {N, transcript, rendered, priority} of skipCommands) {
-    const prefix = `${first ? '' : ' ┊ '}${N} `;
-    const postfix = `${priority ? ` ${priority}` : ''}`;
-    const message = `${prefix}${transcript}${arrow}${rendered}${postfix}`;
-    if (message.length > remaining) {
-      break;
-    }
-    term.gray(prefix).white(transcript).gray(arrow).white(rendered + postfix);
-    remaining -= message.length;
-    first = false;
-  }
-
-  term.white(' '.repeat(remaining));
-  if (record) {
-    term.red.bold(recordSymbol);
-  } else {
-    term.white.bold(recordSymbol);
-  }
-
-}
-
-function renderConsole({modeString, noop}) {
-  const {grey, green, yellow} = chalk;
-  console.log(chalk.white.dim(`[${modeString}]`));
-  console.log(
-    grey(`${N} Skip: `) +
-    transcript +
-    grey(` => ${rendered} ${priority}`)
-  );
-
-  const word = noop ? 'NoOp' : 'Exec';
-  console.log(
-    `${executeIndex + 1} ${word}: ` +
-    `${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
-  );
 }
 
 async function executeTranscripts(transcripts) {
   let first = true;
   const mode = await machine.fetchCurrentMode();
-  const modeString = Array.from(mode).sort().join(' ') + modeSeperator;
+  const modeString = Array.from(mode).sort().join(' ');
 
 
   let firstError = null;
@@ -263,54 +188,33 @@ async function executeTranscripts(transcripts) {
     if (!noop) {
       command.execute(machine);
     }
-    if (resultLog && machine.record) {
-      resultLog.write(
-        `${modeString}${transcript}${rightArrow}${rendered}\n`
-      );
+    if (sampleLog && machine.record) {
+      sampleLog.append({
+        modeString,
+        transcript,
+        result,
+      });
     }
   } else if (transcripts.length) {
-    if (resultLog) {
-      resultLog.write(`${modeString}${transcripts[0]}${rightArrow}null\n`);
+    if (sampleLog) {
+      sampleLog.append({
+        modeString,
+        transcript: transcripts[0],
+        result: 'null',
+      });
     }
   }
 
-  render({
+  renderer.render({
     execCommand, skipCommands, modeString, noop,
     record: machine.record,
   });
 }
 
-function kaldiParser(line) {
-  const update = JSON.parse(line);
-
-  if (update.status !== 0) {
-    console.log(update);
+main().then(
+  () => process.exit(0),
+  (err) => {
+    console.error(err.stack);
     process.exit(1);
   }
-
-  if (update.adaptation_state) {
-    log.debug('Skipping adaption state message');
-
-  }
-
-  if (update.result) {
-    const {hypotheses, final} = update.result;
-
-    console.log('Hypothesis:');
-    hypotheses.forEach(hypothesis => {
-      const {transcript} = hypothesis;
-      const likelihood = Math.round(hypothesis.likelihood);
-      const confidence = Math.round(100 * hypothesis.confidence);
-      console.log(
-        `*  ${JSON.stringify(transcript)} ` +
-        `(${likelihood}% at ${confidence}%)`
-      );
-    });
-
-    if (final) {
-      const {transcript} = hypotheses[0];
-      return transcript;
-    }
-  }
-  return null;
-}
+);

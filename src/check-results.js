@@ -3,77 +3,97 @@
 
 const doc = `
 Usage:
-  check-results [--write] [--sorted] --result-log=<filename> [options]
+  check-results [--rewrite] [options]
 
 Options:
-  --debug-log=<filename>     Add a debug log
+  --watch                    Watch for future updates
+  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar.pgv]
+  --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
 const {docopt} = require('docopt');
 const chalk = require('chalk');
 
 const options = docopt(doc);
-const Parser = require('./Parser');
+const Parser = require('./parse/Parser');
+const SampleLog = require('./samples/SampleLog');
 
 const fs = require('fs');
 
-const {
-  rightArrow,
-  modeSeperator,
-  wordSeperator,
-} = require('./symbols');
+const {rightArrow} = require('./symbols');
 
-const parser = new Parser();
-const resultFilename = options['--result-log'];
+const parser = new Parser(options['--grammar'], {
+  watchPersistent: options['--watch'],
+});
+const sampleLog = new SampleLog(options['--samples']);
 
-const results = fs.readFileSync(resultFilename).toString('utf-8');
-const newResults = [];
+function checkDiff() {
+  const newResults = [];
+
+  for (const {
+    modes,
+    modeString,
+    transcript,
+    line: oldLine,
+    result: oldResult,
+  } of sampleLog.readAll()) {
 
 
-for (const oldLine of results.split('\n')) {
-  if (!oldLine) {
-    continue;
-  }
+    let newResult;
+    try {
+      const command = parser.parse(transcript, modes);
+      newResult = command.render();
+    } catch (err) {
+      if (err instanceof Parser.ParseError) {
+        newResult = 'null';
+      } else {
+        console.error('Failure during: %s', transcript);
+        throw err;
+      }
+    }
 
-  const [modeTranscript, oldResult] = oldLine.split(rightArrow);
-  const [modeString, transcript] = modeTranscript.split(modeSeperator);
+    const newLine = {
+      modeString,
+      transcript,
+      result: newResult,
+    };
+    newResults.push(newLine);
 
-  const modes = new Set(Array.from(modeString.split(' ')));
-
-  let newResult;
-  try {
-    const command = parser.parse(transcript, modes);
-    newResult = command.render();
-  } catch (err) {
-    if (err instanceof Parser.ParseError) {
-      newResult = 'null';
-    } else {
-      console.error('Failure during: %s', transcript);
-      throw err;
+    if (sampleLog.buildLine(newLine) !== oldLine) {
+      const prefix = (
+        (modeString ? `${chalk.grey(modeString + ':')} ` : '') +
+        transcript +
+        chalk.grey(rightArrow)
+      );
+      console.log(`${prefix}${chalk.red(oldResult)}`);
+      console.log(`${prefix}${chalk.green(newResult)}`);
     }
   }
+  return newResults;
+}
 
-  const newLine = (
-    `${modeString}${modeSeperator}${transcript}${rightArrow}${newResult}`
-  );
+async function main() {
+  const newResults = checkDiff();
 
-  newResults.push(newLine);
-
-  if (newLine !== oldLine) {
-    const prefix = (
-      (modeString ? `${chalk.grey(modeString + ':')} ` : '') +
-      transcript +
-      chalk.grey(rightArrow)
-    );
-    console.log(`${prefix}${chalk.red(oldResult)}`);
-    console.log(`${prefix}${chalk.green(newResult)}`);
+  if (options['--rewrite']) {
+    sampleLog.rewrite(newResults);
+  } else {
+    parser.on('update', () => {
+      console.log('')
+      console.log('=== GRAMMAR UPDATED ===')
+      console.log('')
+      checkDiff();
+    });
+    await new Promise(() => {
+      /* run forever */
+    });
   }
 }
 
-if (options['--write']) {
-  let output = newResults;
-  if (options['--sorted']) {
-    output = Array.from(new Set(output)).sort();
+main().then(
+  () => process.exit(0),
+  (err) => {
+    console.error(err.stack);
+    process.exit(1);
   }
-  fs.writeFileSync(resultFilename, output.join('\n') + '\n');
-}
+);

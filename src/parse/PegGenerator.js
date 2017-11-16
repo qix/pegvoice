@@ -1,85 +1,9 @@
 'use strict';
-/*eslint no-console: "allow"*/
 
-const commands = require('./commands');
-const fs = require('fs');
-const peg = require("pegjs");
-const util = require('util');
-const {wordSeperator} = require('./symbols');
+const ParseError = require('./ParseError');
 
-const langPath = require.resolve('./lang.pegjs');
-const grammerPath = require.resolve('./grammer.pegvoice');
-
-function buildParser(options={}) {
-  const read = path => fs.readFileSync(path).toString('utf-8');
-
-  console.log('Compiling language');
-  const language = tryParse(read(langPath), s => peg.generate(s));
-  const source = tryParse(read(grammerPath), s => {
-    console.log('Compiling grammer');
-    const parsed = language.parse(s);
-    console.log('Generating grammer source');
-    const generator = new PegGenerator();
-    return generator.pegSource(parsed);
-  });
-
-  fs.writeFileSync(grammerPath + '.out', source);
-  console.log('Creating parser');
-  return tryParse(source, s => peg.generate(s, {
-    ...options,
-    allowedStartRules: ['__grammer__'],
-  }));
-}
-
-function invariant(test, ...msg) {
-  if (!test) {
-    throw new Error(util.format(...msg));
-  }
-}
-
-function sourceArrow(location, source) {
-  const {start, end} = location;
-  const lines = source.split('\n');
-
-  let output = '';
-  for (let line = start.line; line <= end.line; line++) {
-    const lineSource = lines[line - 1];
-    const left = (line > start.line) ? 0 : start.column - 1;
-    const right = (line < end.line) ? lineSource.length : end.column - 1;
-    output += `${lineSource}\n`;
-    output += `${' '.repeat(left)}${'^'.repeat(Math.max(right - left, 1))}\n`;
-  }
-
-  return output;
-}
-
-class ParseError extends Error {
-  constructor(ast, ...message) {
-    super(util.format(...message));
-    this.location = ast.location || null;
-    this.name = 'ParseError';
-  }
-}
-
-function tryParse(source, callback) {
-  try {
-    return callback(source);
-  } catch (err) {
-    if (
-      (err.name === 'SyntaxError' || err.name === 'ParseError') &&
-      err.location
-    ) {
-      console.error(err.message);
-      console.error(sourceArrow(err.location, source));
-      if (err.name !== 'SyntaxError') {
-        console.error(err.stack);
-      }
-      process.exit(1);
-    } else {
-      throw err;
-    }
-  }
-}
+const invariant = require('invariant');
+const {wordSeperator} = require('../symbols');
 
 function matchToId(match) {
   return match.map(expr => {
@@ -261,7 +185,7 @@ class PegGenerator {
         return result;
       };
 
-      __grammer__ = head:__command__ tail:(_ __command__)* {
+      __grammar__ = head:__command__ tail:(_ __command__)* {
         if (!tail.length) {
           return head;
         }
@@ -281,42 +205,4 @@ class PegGenerator {
   }
 }
 
-class Parser {
-  constructor(options={}) {
-    this.parser = buildParser(options.parserOptions || {});
-    this.options = options;
-  }
-
-  tryParse(transcript, mode=null) {
-    try {
-      return this.parse(transcript, mode);
-    } catch (err) {
-      if (err instanceof ParseError) {
-        console.error(`Parse error: ${err}`);
-        return null;
-      }
-      throw err;
-    }
-  }
-
-  parse(transcript, mode=null) {
-    mode = mode || new Set();
-    try {
-      return this.parser.parse(transcript, {
-        commands,
-        mode,
-      });
-    } catch (err) {
-      if (err instanceof this.parser.SyntaxError) {
-        throw new ParseError({
-          location: err.location || null,
-        }, err.message);
-      }
-      throw err;
-    }
-  }
-}
-
-Parser.ParseError = ParseError;
-
-module.exports = Parser;
+module.exports = PegGenerator;
