@@ -7,6 +7,7 @@ const PegGenerator = require('./PegGenerator');
 
 const chokidar = require('chokidar');
 const commands = require('../commands');
+const debounce = require('lodash.debounce');
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs');
 const peg = require("pegjs");
@@ -15,66 +16,29 @@ const {wordSeperator} = require('../symbols');
 
 const langPath = require.resolve('../language/lang.pegjs');
 
-function buildParser(grammarPath ,options={}) {
-  const read = path => fs.readFileSync(path).toString('utf-8');
-
-  console.log('Compiling language');
-  const language = tryParse(read(langPath), s => peg.generate(s));
-  const source = tryParse(read(grammarPath), s => {
-    console.log('Compiling grammar');
-    const parsed = language.parse(s);
-    console.log('Generating grammar source');
-    const generator = new PegGenerator();
-    return generator.pegSource(parsed);
-  });
-
-  fs.writeFileSync(grammarPath + '.out', source);
-  console.log('Creating parser');
-  return tryParse(source, s => peg.generate(s, {
-    ...options,
-    allowedStartRules: ['__grammar__'],
-  }));
-}
-
 function invariant(test, ...msg) {
   if (!test) {
     throw new Error(util.format(...msg));
   }
 }
 
-function sourceArrow(location, source) {
-  const {start, end} = location;
-  const lines = source.split('\n');
-
-  let output = '';
-  for (let line = start.line; line <= end.line; line++) {
-    const lineSource = lines[line - 1];
-    const left = (line > start.line) ? 0 : start.column - 1;
-    const right = (line < end.line) ? lineSource.length : end.column - 1;
-    output += `${lineSource}\n`;
-    output += `${' '.repeat(left)}${'^'.repeat(Math.max(right - left, 1))}\n`;
-  }
-
-  return output;
-}
-
 function tryParse(source, callback) {
   try {
     return callback(source);
   } catch (err) {
-    if (
-      (err.name === 'SyntaxError' || err.name === 'ParseError') &&
-      err.location
-    ) {
-      console.error(err.message);
-      console.error(sourceArrow(err.location, source));
-      if (err.name !== 'SyntaxError') {
-        console.error(err.stack);
-      }
-      process.exit(1);
-    } else {
-      throw err;
+    if (err.name === 'SyntaxError') {
+      const replaceError = new ParseError({
+        location: err.location,
+      }, err.message);
+      replaceError.stack = err.stack;
+      err = replaceError;
     }
+
+    if (err.location) {
+      err.location.source = source;
+    }
+
+    throw err;
   }
 }
 
@@ -95,6 +59,17 @@ class Parser extends EventEmitter {
     super();
     this.path = expandHomeDir(path);
     this.options = options;
+
+    if (options.onError) {
+      this.on('error', options.onError);
+    }
+    if (options.onChange) {
+      this.on('change', options.onChange);
+    }
+    if (options.onStep) {
+      this.on('step', options.onStep);
+    }
+
     this.watch();
     this.build();
   }
@@ -103,14 +78,40 @@ class Parser extends EventEmitter {
     const watcher = chokidar.watch(this.path, {
       persistent: this.options.watchPersistent || false,
     });
-    watcher.on('change', () => {
+    watcher.on('change', debounce(() => {
       this.build();
       this.emit('update');
+    }, 100));
+  }
+
+  buildParser(grammarPath ,options={}) {
+    const read = path => fs.readFileSync(path).toString('utf-8');
+
+    this.emit('step', 'Compiling language');
+    const language = tryParse(read(langPath), s => peg.generate(s));
+    const source = tryParse(read(grammarPath), s => {
+      this.emit('step', 'Compiling grammar');
+      const parsed = language.parse(s);
+      this.emit('step', 'Generating grammar source');
+      const generator = new PegGenerator();
+      return generator.pegSource(parsed);
     });
+
+    fs.writeFileSync(grammarPath + '.out', source);
+    this.emit('step', 'Creating parser');
+    return tryParse(source, s => peg.generate(s, {
+      ...options,
+      allowedStartRules: ['__grammar__'],
+    }));
   }
 
   build() {
-    this.parser = buildParser(this.path, this.options.parserOptions || {});
+    try {
+      this.parser = this.buildParser(this.path, this.options.parserOptions || {});
+      this.emit('change');
+    } catch (err) {
+      this.emit('error', err);
+    }
   }
 
   tryParse(transcript, mode=null) {

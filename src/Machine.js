@@ -1,6 +1,7 @@
 'use strict';
 
 const chalk = require('chalk');
+const child_process = require('child_process');
 const i3 = require('i3').createClient();
 const {exec} = require('child_process')
 const {promisify} = require('util');
@@ -56,6 +57,11 @@ class Commander {
     this.keysDown = new Set();
   }
 
+  exec(command) {
+    child_process.spawn('/bin/bash', ['-c', command], {
+      detached: true,
+    });
+  }
   setRecord(flag) { this.record = flag; }
   setSleep(flag) { this.sleep = flag; }
   i3(command) { i3.command(command); }

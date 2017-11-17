@@ -4,6 +4,24 @@ const term = require( 'terminal-kit' ).terminal;
 
 class SingleLineRenderer {
   constructor() {
+    this.parseErrorMessage = null;
+  }
+
+  parseError(err) {
+    this.parseErrorMessage = `Parse error: ${err.message}`;
+    term.clear().hideCursor();
+    term.red.bold(this.parseErrorMessage.substring(0, term.width));
+  }
+
+  parseStep(message) {
+    term.clear().hideCursor();
+    term.yellow.bold(message);
+  }
+
+  grammarChanged() {
+    this.parseErrorMessage = null;
+    term.clear().hideCursor();
+    term.green.bold('Waiting for commands...');
   }
 
   render({
@@ -39,6 +57,13 @@ class SingleLineRenderer {
     term.gray(modeStringPrefix)
 
     let remaining = term.width - modeStringPrefix.length - recordSymbol.length * 2;
+
+    if (this.parseErrorMessage) {
+      const errorMessage = this.parseErrorMessage.substring(0, remaining);
+      term.red.bold(errorMessage);
+      remaining -= errorMessage.length;
+    }
+
     if (execCommand) {
       const {N, rendered, transcript, priority} = execCommand;
       const prefix = `${N} ${word}: `;

@@ -3,6 +3,18 @@
 const chalk = require('chalk');
 
 class ConsoleRenderer {
+  parseStep(message) {
+    console.log(message);
+  }
+
+  parseError(err) {
+    console.error(err.render());
+  }
+
+  grammarChanged() {
+    console.log('New grammer loaded');
+  }
+
   render({
     modeString,
     execCommand,

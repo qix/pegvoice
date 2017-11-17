@@ -60,11 +60,6 @@ const log = bunyan.createLogger({
 const machine = new Machine(log, {
   disableTitleWatch: !!options['--mode'],
 });
-const parser = new Parser(grammarPath, {
-  parserOptions: {
-    trace: options['--trace'],
-  },
-});
 
 let renderer;
 if (options['--single-line']) {
@@ -72,6 +67,15 @@ if (options['--single-line']) {
 } else {
   renderer = new ConsoleRenderer();
 }
+
+const parser = new Parser(grammarPath, {
+  onError(err) { renderer.parseError(err); },
+  onChange() { renderer.grammarChanged(); },
+  onStep(step) { renderer.parseStep(step); },
+  parserOptions: {
+    trace: options['--trace'],
+  },
+});
 
 const noop = options['--noop'];
 
@@ -175,12 +179,13 @@ async function executeTranscripts(transcripts) {
     skipCommands.push({N, rendered, transcript, priority});
   });
 
+  let rendered = null;
   if (executeIndex >= 0) {
     const transcript = transcripts[executeIndex];
     const command = commands[executeIndex];
-    const rendered = command.render();
     const priority = priorities[executeIndex];
 
+    rendered = command.render();
     execCommand = {
       N: executeIndex + 1,
       rendered, transcript, priority
@@ -188,21 +193,14 @@ async function executeTranscripts(transcripts) {
     if (!noop) {
       command.execute(machine);
     }
-    if (sampleLog && machine.record) {
-      sampleLog.append({
-        modeString,
-        transcript,
-        result,
-      });
-    }
-  } else if (transcripts.length) {
-    if (sampleLog) {
-      sampleLog.append({
-        modeString,
-        transcript: transcripts[0],
-        result: 'null',
-      });
-    }
+  }
+
+  if (sampleLog && machine.record && (execCommand || transcripts.length)) {
+    sampleLog.append({
+      modeString,
+      transcript: execCommand ? execCommand.transcript : transcripts[0],
+      result: execCommand ? execCommand.rendered : 'null',
+    });
   }
 
   renderer.render({

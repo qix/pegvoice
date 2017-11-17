@@ -23,6 +23,22 @@ class NoopCommand extends Command {
   execute() {}
 }
 
+class ExecCommand extends Command {
+  constructor(command, options={}) {
+    super();
+    this.command = command;
+    this.options = options;
+  }
+  render() {
+    const optionsJson = JSON.stringify(this.options);
+    const options = optionsJson === '{}' ? '' : ` ${optionsJson}`;
+    return `[exec ${JSON.stringify(this.command)}${options}]`;
+  }
+  execute(machine) {
+    machine.exec(this.command);
+  }
+}
+
 class I3Command extends Command {
   constructor(command) {
     super();
@@ -293,6 +309,7 @@ class MultiCommand extends Command {
 
 module.exports = {
   ClickCommand,
+  ExecCommand,
   I3Command,
   KeyCommand,
   ModeCommand,
