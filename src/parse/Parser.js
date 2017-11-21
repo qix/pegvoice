@@ -42,18 +42,6 @@ function tryParse(source, callback) {
   }
 }
 
-function matchToId(match) {
-  return match.map(expr => {
-    if (expr.type === 'word') {
-      return expr.word;
-    } else if (expr.type === 'pegmatch' || expr.type === 'pegtest') {
-      return `_${expr.identifier}`;
-    } else {
-      throw new ParseError(expr, `Unknown ast: ${expr.type}`);
-    }
-  }).join('_');
-}
-
 class Parser extends EventEmitter {
   constructor(path, options={}) {
     super();
@@ -114,20 +102,11 @@ class Parser extends EventEmitter {
     }
   }
 
-  tryParse(transcript, mode=null) {
-    try {
-      return this.parse(transcript, mode);
-    } catch (err) {
-      if (err instanceof ParseError) {
-        console.error(`Parse error: ${err}`);
-        return null;
-      }
-      throw err;
-    }
-  }
-
   parse(transcript, mode=null) {
     mode = mode || new Set();
+    if (!this.parser) {
+      throw new Error('No parser');
+    }
     try {
       return this.parser.parse(transcript, {
         commands,

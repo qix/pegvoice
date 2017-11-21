@@ -5,12 +5,34 @@ const term = require( 'terminal-kit' ).terminal;
 class SingleLineRenderer {
   constructor() {
     this.parseErrorMessage = null;
+    this.errorMessage = null;
+    this.errorPrefix = null;
+  }
+
+  clear() {
+    term.clear().hideCursor();
+    let remaining = term.width;
+    if (this.errorPrefix) {
+      const render = this.errorPrefix.substring(0, remaining);
+      term.red.bold(render);
+      remaining -= render.length;
+    }
+    return remaining;
+  }
+
+  error(err) {
+    this.errorMessage = `Parse error: ${err.message}`;
+    this.errorPrefix = this.errorMessage;
+    this.clear();
   }
 
   parseError(err) {
     this.parseErrorMessage = `Parse error: ${err.message}`;
-    term.clear().hideCursor();
-    term.red.bold(this.parseErrorMessage.substring(0, term.width));
+    this.errorPrefix = [
+      this.errorMessage,
+      this.parseErrorMessage,
+    ].filter(v => v).join(' -- ');
+    this.clear();
   }
 
   parseStep(message) {
@@ -20,6 +42,8 @@ class SingleLineRenderer {
 
   grammarChanged() {
     this.parseErrorMessage = null;
+    this.errorPrefix = this.errorMessage || null;
+
     term.clear().hideCursor();
     term.green.bold('Waiting for commands...');
   }
@@ -34,7 +58,7 @@ class SingleLineRenderer {
     const arrow = ' => ';
     const word = noop ? 'NoOp' : 'Exec';
 
-    term.clear().hideCursor();
+    let remaining = this.clear();
 
       /*
     for (let {N, rendered, transcript, priority} of skipCommands) {
@@ -56,13 +80,7 @@ class SingleLineRenderer {
 
     term.gray(modeStringPrefix)
 
-    let remaining = term.width - modeStringPrefix.length - recordSymbol.length * 2;
-
-    if (this.parseErrorMessage) {
-      const errorMessage = this.parseErrorMessage.substring(0, remaining);
-      term.red.bold(errorMessage);
-      remaining -= errorMessage.length;
-    }
+    remaining -= modeStringPrefix.length + recordSymbol.length * 2;
 
     if (execCommand) {
       const {N, rendered, transcript, priority} = execCommand;

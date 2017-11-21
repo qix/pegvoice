@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "binary-split": "^1.0.3",
+    "bluebird": "^3.5.1",
     "bunyan": "^1.8.12",
     "chalk": "^2.3.0",
     "chokidar": "^1.7.0",
@@ -10,7 +11,10 @@
     "i3": "^0.2.1",
     "invariant": "^2.2.2",
     "jest": "^21.2.1",
+    "lodash.debounce": "^4.0.8",
     "pegjs": "^0.10.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
     "robotjs": "^0.4.7",
     "terminal-kit": "^1.14.1"
   },

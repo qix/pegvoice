@@ -1,5 +1,7 @@
 'use strict';
 
+const invariant = require('invariant');
+
 function lowerKey(key) {
   const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;"\'';
   const index = map.indexOf(key);
@@ -8,6 +10,11 @@ function lowerKey(key) {
   } else {
     return key.toLowerCase();
   }
+}
+
+function optionalJson(body) {
+  const json = JSON.stringify(body);
+  return (json === '{}' || json === '[]') ? '' : ` ${json}`;
 }
 
 class Command {
@@ -30,9 +37,7 @@ class ExecCommand extends Command {
     this.options = options;
   }
   render() {
-    const optionsJson = JSON.stringify(this.options);
-    const options = optionsJson === '{}' ? '' : ` ${optionsJson}`;
-    return `[exec ${JSON.stringify(this.command)}${options}]`;
+    return `[exec ${JSON.stringify(this.command)}${optionalJson(this.options)}]`;
   }
   execute(machine) {
     machine.exec(this.command);
@@ -51,6 +56,77 @@ class I3Command extends Command {
     machine.i3(this.command);
   }
 }
+class VscodeCommand extends Command {
+  constructor(command, args) {
+    super();
+    this.command = command;
+    this.args = args;
+  }
+
+  static fromKeyCommands(commands) {
+    let rv = [];
+    let typing = null;
+    const keyMap = {
+      enter: '\n',
+      tab: '\t',
+    };
+    const commandMap = {
+      left: 'cursorLeft',
+      right: 'cursorRight',
+      up: 'cursorUp',
+      down: 'cursorDown',
+      backspace: 'deleteLeft',
+      delete: 'deleteRight',
+    };
+    commands.forEach(command => {
+      let key = keyMap[command.key] || command.key;
+      if (/^[ -~]$/.exec(key) || key === '\n') {
+        if (!typing) {
+          typing = new VscodeCommand('default:type', {
+            text: '',
+          });
+          rv.push(typing);
+        }
+        typing.args.text += key;
+      } else {
+        typing = null;
+        if (commandMap.hasOwnProperty(key)) {
+          rv.push(new VscodeCommand(commandMap[key]));
+        } else {
+          rv.push(command);
+        }
+      }
+    });
+
+    return MultiCommand.fromArray(rv);
+  }
+
+  static fromTypeCommands(commands) {
+    const [first, rest] = MultiCommand.splitByClass(commands);
+    if (first.length && first[0] instanceof KeyCommand) {
+      return MultiCommand.fromArray([
+        VscodeCommand.fromKeyCommands(first),
+        VscodeCommand.fromTypeCommands(rest),
+      ]);
+    }
+    return MultiCommand.fromArray([
+      ...first,
+      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand(),
+    ]);
+  }
+
+  static fromTypeCommand(command) {
+    return VscodeCommand.fromTypeCommands([command]);
+  }
+
+  render() {
+    return `[vscode ${JSON.stringify(this.command)}${optionalJson(this.args)}]`;
+  }
+  execute(machine) {
+    machine.vscode(this.command, this.args);
+  }
+}
+
 class CancelCommand extends Command {
   render() {
     return '[cancel]';
@@ -270,33 +346,64 @@ class MultiCommand extends Command {
     return MultiCommand.renderMany(this.commands);
   }
 
-  static renderMany(commands) {
-    const cmdList = [...commands];
+  splitByClass() {
+    return MultiCommand.splitByClass(this.commands);
+  }
 
+  static splitByClass(commands) {
+    const rest = [...commands];
     let first = [];
-    while (cmdList.length) {
-      if (cmdList[0] instanceof MultiCommand) {
-        cmdList.unshift(...cmdList.shift().commands);
-      } else if (cmdList[0] instanceof NoopCommand) {
-        cmdList.shift();
+    while (rest.length) {
+      if (rest[0] instanceof MultiCommand) {
+        rest.unshift(...rest.shift().commands);
+      } else if (rest[0] instanceof NoopCommand) {
+        rest.shift();
       } else if (first.length === 0) {
-        first.push(cmdList.shift());
-      } else if (first[0].constructor === cmdList[0].constructor) {
-        first.push(cmdList.shift());
+        first.push(rest.shift());
+      } else if (first[0].constructor === rest[0].constructor) {
+        first.push(rest.shift());
       } else {
         break;
       }
     }
+    return [first, rest];
+  }
+
+  static renderMany(commands) {
+    const [first, rest] = MultiCommand.splitByClass(commands);
 
     if (!first.length) {
       return '[noop]';
     }
 
     let rendered = (first[0].constructor.renderMany || Command.renderMany)(first);
-    if (cmdList.length) {
-      rendered += ' ' + MultiCommand.renderMany(cmdList);
+    if (rest.length) {
+      rendered += ' ' + MultiCommand.renderMany(rest);
     }
     return rendered;
+  }
+
+  static flatten(commands) {
+    const rv = [];
+    commands.forEach(el => {
+      if (el instanceof MultiCommand) {
+        rv.push(...el.commands);
+      } else if (!(el instanceof NoopCommand)) {
+        rv.push(el);
+      }
+    });
+    return rv;
+  }
+
+  static fromArray(arr) {
+    arr = MultiCommand.flatten(arr);
+    if (arr.length === 0) {
+      return new NoopCommand();
+    } else if (arr.length === 1) {
+      return arr[0];
+    } else {
+      return new MultiCommand(arr);
+    }
   }
 
   execute(machine) {
@@ -321,4 +428,5 @@ module.exports = {
   SleepCommand,
   KeyHoldCommand,
   CancelCommand,
+  VscodeCommand,
 };

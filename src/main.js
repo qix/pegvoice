@@ -87,52 +87,59 @@ function splitWords(string) {
 }
 
 async function main() {
-  (options['--mode'] || '').split(' ').forEach(mode => {
-    if (mode) {
-      machine.toggleMode(mode, true);
+  await new Promise((resolve, reject) => {
+    const handleError = err => {
+      try {
+        renderer.error(err);
+      } catch (err) {
+        reject(err);
+      }
     }
-  });
 
-  if (options['--kaldi']) {
-    throw new Error('Kaldi parser is currently broken');
-  }
-
-  if (options['--command']) {
-    executeTranscripts([splitWords(options['--command'])]);
-  }
-
-  if (options['--stdin']) {
-    process.stdin.pipe(binarySplit()).on('data', line => {
-      executeTranscripts([
-        splitWords(line.toString('utf-8')),
-      ]);
+    (options['--mode'] || '').split(' ').forEach(mode => {
+      if (mode) {
+        machine.toggleMode(mode, true);
+      }
     });
-  }
 
-  if (options['--server']) {
-    const server = http.createServer((req, res) => {
-      let buffer = [];
-      req.on('data', data => buffer.push(data));
-      req.on('end', () => {
-        const message = JSON.parse(Buffer.concat(buffer));
-        const transcripts = message.interpretations.map(option => {
-          return option.join(wordSeperator);
-        }).filter(x => x);
+    if (options['--kaldi']) {
+      throw new Error('Kaldi parser is currently broken');
+    }
 
-        if (transcripts.length) {
-          log.debug('Found %d options from dragon', transcripts.length);
-          executeTranscripts(transcripts);
-        }
+    if (options['--command']) {
+      executeTranscripts([splitWords(options['--command'])]);
+    }
 
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Okay');
+    if (options['--stdin']) {
+      process.stdin.pipe(binarySplit()).on('data', line => {
+        executeTranscripts([
+          splitWords(line.toString('utf-8')),
+        ]);
       });
-    });
-    server.listen(9099);
-  }
+    }
 
-  await new Promise(() => {
-    /* run forever... potentially close inside here later */
+    if (options['--server']) {
+      const server = http.createServer((req, res) => {
+        let buffer = [];
+        req.on('data', data => buffer.push(data));
+        req.on('end', () => {
+          const message = JSON.parse(Buffer.concat(buffer));
+          const transcripts = message.interpretations.map(option => {
+            return option.join(wordSeperator);
+          }).filter(x => x);
+
+          if (transcripts.length) {
+            log.debug('Found %d options from dragon', transcripts.length);
+            executeTranscripts(transcripts).catch(handleError);
+          }
+
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end('Okay');
+        });
+      });
+      server.listen(9099);
+      server.on('error', handleError);
+    }
   });
 }
 

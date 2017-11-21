@@ -5,23 +5,30 @@ const ParseError = require('./ParseError');
 const invariant = require('invariant');
 const {wordSeperator} = require('../symbols');
 
-function matchToId(match) {
-  return match.map(expr => {
-    if (expr.type === 'word') {
-      return expr.word;
-    } else if (expr.type === 'pegmatch' || expr.type === 'pegtest') {
-      return `_${expr.identifier}`;
-    } else {
-      throw new ParseError(expr, `Unknown ast: ${expr.type}`);
-    }
-  }).join('_');
-}
-
 class PegGenerator {
   constructor() {
     this.words = new Set();
     this.defined = new Set();
     this.nextPriority = 1;
+    this.nextCodeId = 1;
+    this.codeId = {};
+  }
+
+  matchToId(match) {
+    return match.map(expr => {
+      if (expr.type === 'word') {
+        return expr.word;
+      } else if (expr.type === 'pegmatch' || expr.type === 'pegtest') {
+        return `_${expr.identifier}`;
+      } else if (expr.type === 'pegtestcode') {
+        if (!this.codeId.hasOwnProperty(expr.code)) {
+          this.codeId[expr.code] = this.nextCodeId++;
+        }
+        return `__code_${this.codeId[expr.code]}`;
+      } else {
+        throw new ParseError(expr, `Unknown ast: ${expr.type}`);
+      }
+    }).join('_');
   }
 
   spellRule(word, alt=[]) {
@@ -74,8 +81,16 @@ class PegGenerator {
     const matches = [...match];
 
     let predicates = '';
-    while (matches.length && matches[0].type === 'pegtest') {
-      predicates += `&_${matches.shift().identifier} `;
+    while (matches.length) {
+      if (matches[0].type === 'pegtest') {
+        const {identifier, pegSymbol} = matches.shift();
+        predicates += `${pegSymbol}_${identifier} `;
+      } else if (matches[0].type === 'pegtestcode') {
+        const {code, pegSymbol} = matches.shift();
+        predicates += `${pegSymbol}${code} `;
+      } else {
+        break;
+      }
     }
 
     const pegMatch = matches.map((expr, idx) => {
@@ -84,13 +99,13 @@ class PegGenerator {
       if (expr.type === 'word') {
         this.words.add(expr.word);
         pegCode = expr.word;
-      } else if (expr.type === 'pegtest') {
+      } else if (expr.type === 'pegtest' || expr.type === 'pegtestcode') {
         throw new Error('tests must be at the start');
       } else if (expr.type === 'pegmatch') {
         prefix = `${expr.name}:`;
         pegCode = `_${expr.identifier}`;
       } else {
-        throw new ParseError(ast, `Unknown ast: ${ast.type}`);
+        throw new ParseError(expr, `Unknown ast: ${expr.type}`);
       }
 
       if (idx === 0) {
@@ -141,7 +156,7 @@ class PegGenerator {
     for (const ruleAst of rules) {
       if (ruleAst.type === 'rule') {
         const {match} = ruleAst;
-        const ruleName = `${prefix}${matchToId(match)}`;
+        const ruleName = `${prefix}${this.matchToId(match)}`;
         source += this.pegRule(ruleAst, ruleName, wrapPriority);
         ruleNames.push(ruleName);
       } else if (ruleAst.type === 'pegrule') {

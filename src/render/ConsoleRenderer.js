@@ -1,14 +1,23 @@
 'use strict';
 
+const ParseError = require('../parse/ParseError');
 const chalk = require('chalk');
 
 class ConsoleRenderer {
+  error(err) {
+    throw err;
+  }
+
   parseStep(message) {
     console.log(message);
   }
 
   parseError(err) {
-    console.error(err.render());
+    if (err instanceof ParseError) {
+      console.error(err.render());
+    } else {
+      console.error(err.stack);
+    }
   }
 
   grammarChanged() {

@@ -92,24 +92,42 @@ VoiceBlock = "..." __? "{" __ rules:(VoiceRule __)+ "}" {
 }
 
 VoiceCode
-  = "=>" __ expr:JsExpr __ ";" {
+  = code:JsArrowExpr __ ";" {
     return {
       type: 'code',
-      code: `return ${expr};`,
+      code,
     };
 }
 
-Match = match:(PegMatch / WordMatch / PredicateMatch) optional:"?"? {
+Match = match:(
+  PegMatch /
+  WordMatch /
+  PredicateMatch /
+  PredicateCodeMatch
+) optional:"?"? {
   return {
     ...match,
     optional: !!optional,
   };
 }
 
-PredicateMatch = "&" identifier:Identifier {
+PredicateCodeMatch = type:("&" / "!") code:(JsCurlyBraced / JsArrowExpr) {
+  return {
+    type: 'pegtestcode',
+    code,
+    pegSymbol: type,
+  };
+}
+
+JsArrowExpr = "=>" __ expr:JsExpr {
+  return `{ return ${expr}; }`;
+}
+
+PredicateMatch = type:("&" / "!") identifier:Identifier {
   return {
     type: 'pegtest',
     identifier,
+    pegSymbol: type,
   };
 }
 
@@ -151,7 +169,7 @@ JsExpr "<js>" = JsExprElement+ {
 }
 
 JsExprElement
-  = !(OpenBrace / OpenString / ';' / LineTerminator) SourceCharacter
+  = !(OpenBrace / OpenString / ';' / ' .' / LineTerminator) SourceCharacter
   / JsString
   / JsCurlyBraced
   / JsRoundBraced;

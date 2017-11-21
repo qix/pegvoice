@@ -1,6 +1,5 @@
 #!/bin/bash
 
 "$(dirname $0)/src/check-results.js" \
-  --result-log="$(dirname $0)/samples/josh.sample" \
-  --sort --write
+  --rewrite
   
