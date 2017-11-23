@@ -8,6 +8,11 @@ class ConsoleRenderer {
     throw err;
   }
 
+  commandError(err, {rendered}) {
+    console.error(`Error during: ${rendered}`);
+    console.error(err.stack);
+  }
+
   parseStep(message) {
     console.log(message);
   }

@@ -21,9 +21,13 @@ class SingleLineRenderer {
   }
 
   error(err) {
-    this.errorMessage = `Parse error: ${err.message}`;
+    this.errorMessage = this.errorMessage || `Error: ${err.message}`;
     this.errorPrefix = this.errorMessage;
     this.clear();
+  }
+
+  commandError(err) {
+    this.error(err);
   }
 
   parseError(err) {

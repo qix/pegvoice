@@ -3,6 +3,7 @@
 const bluebird = require('bluebird');
 const chalk = require('chalk');
 const child_process = require('child_process');
+const extensions = require('./extensions');
 const fs = require('fs');
 const i3 = require('i3').createClient();
 const invariant = require('invariant');
@@ -17,13 +18,8 @@ const execAsync = promisify(exec);
 const readdirAsync = promisify(fs.readdir);
 
 
-async function vscodeSockets() {
-  const socketRoot = path.join(os.homedir(), '.pegvoice/vscode');
-  const files = await readdirAsync(socketRoot);
-  return files.map(filename => path.join(socketRoot, filename));
-}
-
-async function vscodeRequest(socketPath, uri, payload=null) {
+async function vscodeRequest(uri, payload=null) {
+  const socketPath = path.join(os.homedir(), '.pegvoice/vscode-socket');
   return await request({
     url: `http://unix:${socketPath}:${uri}`,
     json: payload || true,
@@ -90,16 +86,15 @@ class Machine {
     this.sleep = false;
     this.titleWatch = !options.disableTitleWatch;
     this.keysDown = new Set();
-    this.activeVscode = null;
   }
 
   exec(command) {
-    child_process.spawn('/bin/bash', ['-c', command], {
+    child_process.spawn('/bin/bash', ['--login', '-c', command], {
       detached: true,
     });
   }
   vscode(command, args={}) {
-    return vscodeRequest(this.activeVscode, '/command', {
+    return vscodeRequest('/command', {
       command,
       args,
     });
@@ -123,6 +118,17 @@ class Machine {
     }
   }
   click() { robot.mouseClick(); }
+
+  async fetchCurrentPath() {
+    const title = await getCurrentTitle();
+    const pathRegExp = /^[^ ]+@[^ ]+:([^ ]+) <term>$/;
+    const match = pathRegExp.exec(title);
+    if (match) {
+      return match[1];
+    } else {
+      return null;
+    }
+  }
 
   async fetchCurrentMode() {
     if (this.titleWatch) {
@@ -151,30 +157,23 @@ class Machine {
     const vimTree = vim && title.startsWith('NERD_tree_');
     const vimNormal = title.endsWith(' <vim>') && !vimTree;
 
-    let vscode = title.endsWith(' - Visual Studio Code');
 
     let vscodeModes = [];
+    /*
+    let vscode = title.endsWith(' - Visual Studio Code');
     if (vscode) {
-      const sockets = await vscodeSockets();
-
-      let focusedWindowSocket = null;
-      await Promise.all(sockets.map(async socket => {
-        const state = await vscodeRequest(socket, '/state');
-        if (state.focused) {
-          if (focusedWindowSocket) {
-            throw new Error('Warning found multiple focused vscodes');
-          }
-          focusedWindowSocket = socket;
-          vscodeModes = state.modes;
-        }
-      }));
-
-      if (focusedWindowSocket) {
-        this.activeVscode = focusedWindowSocket;
-      } else {
-        throw new Error('vscode active, but socket not found');
-      }
+      const state = await vscodeRequest('/state');
+      vscodeModes = state.modes;
     }
+    */
+    let vscode = title.endsWith('~~pegvoice-vscode');
+    if (vscode) {
+      const match = /.*~~context~~(.*)~~pegvoice-vscode$/.exec(title);
+      vscodeModes = match[1].split('~').filter(mode => {
+        return extensions.vscode.modes.includes(mode);
+      });
+    }
+
 
     this.trackModeChange(() => {
       this.mode.forEach(mode => {
@@ -183,6 +182,7 @@ class Machine {
         }
       });
 
+      vscodeModes.forEach(mode => this.mode.add(`vscode-${mode}`));
       setToggle(this.mode, 'vim', vim);
       setToggle(this.mode, 'vscode', vscode);
       setToggle(this.mode, 'terminal', title.endsWith(' <term>'));

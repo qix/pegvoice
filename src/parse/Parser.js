@@ -7,6 +7,7 @@ const PegGenerator = require('./PegGenerator');
 
 const chokidar = require('chokidar');
 const commands = require('../commands');
+const extensions = require('../extensions');
 const debounce = require('lodash.debounce');
 const expandHomeDir = require('expand-home-dir');
 const fs = require('fs');
@@ -110,6 +111,7 @@ class Parser extends EventEmitter {
     try {
       return this.parser.parse(transcript, {
         commands,
+        extensions,
         mode,
       });
     } catch (err) {

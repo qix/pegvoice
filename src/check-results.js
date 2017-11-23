@@ -73,20 +73,31 @@ function checkDiff() {
 }
 
 async function main() {
-  const newResults = checkDiff();
 
   if (options['--rewrite']) {
+    const newResults = checkDiff();
     sampleLog.rewrite(newResults);
-  } else {
+  } else if (options['--watch']) {
+    const renderChanges = () => {
+      try {
+        checkDiff();
+        console.log('=== DONE ===');
+      } catch (err) {
+        console.error(err.stack);
+      }
+    };
     parser.on('update', () => {
       console.log('')
       console.log('=== GRAMMAR UPDATED ===')
       console.log('')
-      checkDiff();
+      renderChanges();
     });
+    renderChanges();
     await new Promise(() => {
       /* run forever */
     });
+  } else {
+    checkDiff();
   }
 }
 

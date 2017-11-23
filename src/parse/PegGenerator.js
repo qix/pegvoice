@@ -93,6 +93,7 @@ class PegGenerator {
       }
     }
 
+    let first = true;
     const pegMatch = matches.map((expr, idx) => {
       let pegCode = '';
       let prefix = '';
@@ -108,17 +109,16 @@ class PegGenerator {
         throw new ParseError(expr, `Unknown ast: ${expr.type}`);
       }
 
-      if (idx === 0) {
-        invariant(!expr.optional, 'Not allowed optional first word');
-        return `${prefix}${pegCode}`;
+      const spaceMatch = first ? '""' : '_';
+      if (expr.optional) {
+        return ` ${prefix}(${spaceMatch} ${pegCode} ${first ? '' : '&'}_)?`;
       } else {
-        if (expr.optional) {
-          return ` ${prefix}(_ ${pegCode} &_)?`;
-        } else {
-          return ` _ ${prefix}${pegCode}`;
-        }
+        first = false;
+        return ` ${spaceMatch} ${prefix}${pegCode}`;
       }
     }).join('');
+
+    invariant(!first || !pegMatch, 'Not allowed optional all keywords');
 
     if (ast.expr.type === 'code') {
       let code = ast.expr.code;
@@ -201,15 +201,9 @@ class PegGenerator {
       };
 
       __grammar__ = head:__command__ tail:(_ __command__)* {
-        if (!tail.length) {
-          return head;
-        }
-        return new options.commands.PriorityCommand(
-          head.priority || null,
-          new options.commands.MultiCommand([
-            head, ...tail.map(match => match[1])
-          ])
-        );;
+        return options.commands.MultiCommand.fromArray([
+          head, ...tail.map(match => match[1])
+        ]);
       }
       __eof__ = !.;
       `);

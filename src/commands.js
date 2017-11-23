@@ -1,6 +1,7 @@
 'use strict';
 
 const invariant = require('invariant');
+const path = require('path');
 
 function lowerKey(key) {
   const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;"\'';
@@ -18,9 +19,22 @@ function optionalJson(body) {
 }
 
 class Command {
+  constructor() {
+    this.priority = [];
+  }
   execute() { throw new Error('not implemented'); }
   render() { throw new Error('not implemented'); }
   parseExecute(state) {}
+  compareTo(right) {
+    const length = Math.min(this.priority.length, right.priority.length);
+    for (let i = 0; i < length; i++) {
+      if (this.priority[i] !== right.priority[i]) {
+        return this.priority[i] - right.priority[i];
+      }
+    }
+    return this.priority.length - right.priority.length;
+  }
+
   static renderMany(commands) {
     return commands.map(cmd => cmd.render()).join(' ');
   }
@@ -60,7 +74,7 @@ class VscodeCommand extends Command {
   constructor(command, args) {
     super();
     this.command = command;
-    this.args = args;
+    this.args = args || {};
   }
 
   static fromKeyCommands(commands) {
@@ -123,7 +137,7 @@ class VscodeCommand extends Command {
     return `[vscode ${JSON.stringify(this.command)}${optionalJson(this.args)}]`;
   }
   execute(machine) {
-    machine.vscode(this.command, this.args);
+    return machine.vscode(this.command, this.args);
   }
 }
 
@@ -138,7 +152,7 @@ class CancelCommand extends Command {
 class PriorityCommand extends Command {
   constructor(priority, command) {
     super();
-    this.priority = priority;
+    this.priority = [priority];
     this.command = command;
   }
   render() {
@@ -160,9 +174,9 @@ class RepeatCommand extends Command {
   render() {
     return `[repeat ${this.count} ${this.command.render()}]`;
   }
-  execute(machine) {
+  async execute(machine) {
     for (let i = 0; i < this.count; i++) {
-      this.command.execute(machine);
+      await this.command.execute(machine);
     }
   }
   parseExecute(state) {
@@ -209,10 +223,11 @@ class KeyCommand extends Command {
       space: ' ',
     }[name] || name;
   }
-  execute(machine) {
-    let split = this.key.split('-');
 
+  static splitModifiers(combined) {
+    let split = combined.split('-');
     let key = split.pop();
+
     if (key.length === 0) {
       key = '-';
       split.pop();
@@ -229,6 +244,12 @@ class KeyCommand extends Command {
       key = lower;
       modifiers.push('shift');
     }
+
+    return [key, modifiers];
+  }
+
+  execute(machine) {
+    const [key, modifiers] = KeyCommand.splitModifiers(this.key);
 
     if (key === 'escape') {
       machine.toggleMode('vim-insert', false);
@@ -273,6 +294,7 @@ class KeyCommand extends Command {
     return rv;
   }
 }
+
 class ModeCommand extends Command {
   constructor(enable, disable) {
     super();
@@ -309,6 +331,29 @@ class ClickCommand extends Command {
   }
 }
 
+class RelativePathCommand extends Command {
+  constructor(path) {
+    super();
+    this.path = path;
+  }
+
+  async execute(machine) {
+    const current = await machine.fetchCurrentPath();
+    let type = this.path;
+    if (current) {
+      type = path.relative(current, type);
+    }
+
+    for (const letter of type) {
+      const [key, modifiers] = KeyCommand.splitModifiers(letter);
+      machine.keyTap(key, modifiers);
+    }
+  }
+  render() {
+    return `[relpath ${this.path}]`;
+  }
+}
+
 class SleepCommand extends Command {
   constructor(flag) {
     super();
@@ -339,7 +384,7 @@ class RecordCommand extends Command {
 class MultiCommand extends Command {
   constructor(commands) {
     super();
-    this.commands = commands;
+    ([this.commands, this.priority] = MultiCommand.flatten(commands));
   }
 
   render() {
@@ -385,29 +430,28 @@ class MultiCommand extends Command {
 
   static flatten(commands) {
     const rv = [];
+    const priority = [];
     commands.forEach(el => {
+      priority.push(...(el.priority || []));
       if (el instanceof MultiCommand) {
         rv.push(...el.commands);
+      } else if (el instanceof PriorityCommand) {
+        rv.push(el.command);
       } else if (!(el instanceof NoopCommand)) {
         rv.push(el);
       }
     });
-    return rv;
+    return [rv, priority];
   }
 
   static fromArray(arr) {
-    arr = MultiCommand.flatten(arr);
-    if (arr.length === 0) {
-      return new NoopCommand();
-    } else if (arr.length === 1) {
-      return arr[0];
-    } else {
-      return new MultiCommand(arr);
-    }
+    return new MultiCommand(arr);
   }
 
-  execute(machine) {
-    this.commands.forEach(command => command.execute(machine));
+  async execute(machine) {
+    for (let command of this.commands) {
+      await command.execute(machine);
+    }
   }
   parseExecute(state) {
     this.commands.forEach(command => command.parseExecute(state));
@@ -429,4 +473,5 @@ module.exports = {
   KeyHoldCommand,
   CancelCommand,
   VscodeCommand,
+  RelativePathCommand,
 };

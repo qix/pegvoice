@@ -77,8 +77,6 @@ const parser = new Parser(grammarPath, {
   },
 });
 
-const noop = options['--noop'];
-
 function splitWords(string) {
   if (string.includes(wordSeperator)) {
     return string.trim();
@@ -144,61 +142,50 @@ async function main() {
 }
 
 async function executeTranscripts(transcripts) {
+
   let first = true;
   const mode = await machine.fetchCurrentMode();
   const modeString = Array.from(mode).sort().join(' ');
 
-
   let firstError = null;
 
-  const commands = transcripts.map(transcript => {
+  const commands = transcripts.map((transcript, idx) => {
+    const N = idx + 1;
     try {
-      return parser.parse(transcript, mode);
+      const command = parser.parse(transcript, mode);
+      const rendered = command ? command.render() : 'null';
+      const priority = command ? JSON.stringify(command.priority) : null;
+      return {N, command, rendered, priority, transcript};
     } catch (err) {
       if (err instanceof Parser.ParseError) {
         firstError = firstError || err.toString();
+        return {N, command: null, rendered: 'null', priority: null, transcript};
       } else {
         throw err;
       }
     }
+  }).sort((a, b) => {
+    if (a.command && b.command) {
+      return a.command.compareTo(b.command);
+    } else {
+      return a.command ? -1 : +1;
+    }
   });
 
-  const priorities = commands.map(cmd => {
-    return (cmd && cmd.priority) || null;
-  });
+  let noop = options['--noop'];
 
-  const lowestPriority = Math.min(...priorities.filter(v => v)) || 0;
-  const executeIndex = priorities.indexOf(lowestPriority);
-
-  const skipCommands = [];
   let execCommand = null;
+  if (commands.length && commands[0].command) {
+    execCommand = commands.shift();
 
-  transcripts.forEach((transcript, idx) => {
-    if (idx === executeIndex) {
-      return;
+    if (machine.sleep && execCommand.rendered !== '[wake up]') {
+      noop = true;
     }
 
-    const N = idx + 1;
-    const command = commands[idx];
-    const rendered = command ? command.render() : 'null';
-    const priority = priorities[idx];
-
-    skipCommands.push({N, rendered, transcript, priority});
-  });
-
-  let rendered = null;
-  if (executeIndex >= 0) {
-    const transcript = transcripts[executeIndex];
-    const command = commands[executeIndex];
-    const priority = priorities[executeIndex];
-
-    rendered = command.render();
-    execCommand = {
-      N: executeIndex + 1,
-      rendered, transcript, priority
-    };
     if (!noop) {
-      command.execute(machine);
+      await execCommand.command.execute(machine).catch(err => {
+        renderer.commandError(err, execCommand);
+      });
     }
   }
 
@@ -211,7 +198,10 @@ async function executeTranscripts(transcripts) {
   }
 
   renderer.render({
-    execCommand, skipCommands, modeString, noop,
+    execCommand,
+    skipCommands: commands,
+    modeString,
+    noop,
     record: machine.record,
   });
 }

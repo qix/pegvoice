@@ -1,4 +1,4 @@
 #!/bin/bash
 
 exec nodemon -e check-results,js,pegjs,pegvoice -w . --exec \
-  "$(dirname $0)/src/check-results.js"
+  "$(dirname $0)/src/check-results.js --watch"
