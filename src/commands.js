@@ -1,5 +1,6 @@
 'use strict';
 
+const bluebird = require('bluebird');
 const invariant = require('invariant');
 const path = require('path');
 
@@ -23,8 +24,10 @@ class Command {
     this.priority = [];
   }
   execute() { throw new Error('not implemented'); }
-  render() { throw new Error('not implemented'); }
-  parseExecute(state) {}
+  render() {
+    throw new Error('not implemented');
+  }
+  parseExecute(state) { }
   compareTo(right) {
     const length = Math.min(this.priority.length, right.priority.length);
     for (let i = 0; i < length; i++) {
@@ -41,11 +44,11 @@ class Command {
 }
 class NoopCommand extends Command {
   render() { return '[noop]'; }
-  execute() {}
+  execute() { }
 }
 
 class ExecCommand extends Command {
-  constructor(command, options={}) {
+  constructor(command, options = {}) {
     super();
     this.command = command;
     this.options = options;
@@ -68,6 +71,67 @@ class I3Command extends Command {
   }
   execute(machine) {
     machine.i3(this.command);
+  }
+}
+
+class PreviousCommand extends Command {
+  constructor() {
+    super();
+    // Save the previous command in case this is run again in a future command (prevent loop)
+    this.previousCommand = null;
+  }
+  render() {
+    return `[previous command]`;
+  }
+  execute(machine) {
+    this.previousCommand = this.previousCommand || machine.previousCommand;
+    return this.previousCommand.execute(machine);
+  }
+}
+class RecordMacroCommand extends Command {
+  render() {
+    return '[record macro]';
+  }
+  execute(machine) {
+    this.previousCommand = this.previousCommand || machine.previousCommand;
+    return this.previousCommand.execute(machine);
+  }
+}
+class SaveMacroCommand extends Command {
+  constructor(word) {
+    super();
+    this.word = word;
+  }
+  render() {
+    return `[save macro ${this.word}]`;
+  }
+  execute(machine) {
+    machine.saveMacro(this.word);
+  }
+}
+class PlayMacroCommand extends Command {
+  constructor(word) {
+    super();
+    this.word = word;
+  }
+  render() {
+    return `[play macro ${word}]`;
+  }
+  execute(machine) {
+    machine.playMacro(this.word);
+  }
+}
+
+class WaitCommand extends Command {
+  constructor(delay) {
+    super();
+    this.delay = delay;
+  }
+  render() {
+    return `[wait ${this.delay}]`;
+  }
+  execute() {
+    return bluebird.delay(this.delay);
   }
 }
 class VscodeCommand extends Command {
@@ -474,4 +538,6 @@ module.exports = {
   CancelCommand,
   VscodeCommand,
   RelativePathCommand,
+  WaitCommand,
+  PreviousCommand,
 };

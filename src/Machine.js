@@ -46,14 +46,6 @@ async function isScreensaverActive() {
   return knownResponses[response];
 }
 
-function setToggle(set, value, test) {
-  if (test) {
-    set.add(value);
-  } else {
-    set.delete(value);
-  }
-}
-
 class Machine {
   constructor(log, options={}) {
     /*
@@ -86,6 +78,12 @@ class Machine {
     this.sleep = false;
     this.titleWatch = !options.disableTitleWatch;
     this.keysDown = new Set();
+  }
+
+  executeCommand(command) {
+    return bluebird.resolve(command.execute(this)).finally(() => {
+      this.previousCommand = command;
+    });
   }
 
   exec(command) {
@@ -141,11 +139,9 @@ class Machine {
   }
 
   async handleTitle(title) {
-    if (title === this.lastTitle) {
-      return;
+    if (title !== this.lastTitle) {
+      console.log(chalk.white.dim(`Title: ${title}`));
     }
-
-    console.log(chalk.white.dim(`Title: ${title}`));
 
     const match = / <vim:(.*)>$/.exec(title);
     const vim = !!match;
@@ -183,15 +179,15 @@ class Machine {
       });
 
       vscodeModes.forEach(mode => this.mode.add(`vscode-${mode}`));
-      setToggle(this.mode, 'vim', vim);
-      setToggle(this.mode, 'vscode', vscode);
-      setToggle(this.mode, 'terminal', title.endsWith(' <term>'));
-      setToggle(this.mode, 'vim-insert', vimInsert);
-      setToggle(this.mode, 'vim-tree', vimTree);
-      setToggle(this.mode, 'vim-visual', vimVisual);
-      setToggle(this.mode, 'vim-rebase', vim && title.startsWith('git-rebase-todo '));
-      setToggle(this.mode, 'chrome', title.endsWith(' - Google Chrome'));
-      setToggle(this.mode, 'slack', title.endsWith('Slack - Google Chrome'));
+      this.toggleMode('vim', vim);
+      this.toggleMode('vscode', vscode);
+      this.toggleMode('terminal', title.endsWith(' <term>'));
+      this.toggleMode('vim-insert', vimInsert);
+      this.toggleMode('vim-tree', vimTree);
+      this.toggleMode('vim-visual', vimVisual);
+      this.toggleMode('vim-rebase', vim && title.startsWith('git-rebase-todo '));
+      this.toggleMode('chrome', title.endsWith(' - Google Chrome'));
+      this.toggleMode('slack', title.endsWith('Slack - Google Chrome'));
     });
     this.lastTitle = title;
   }
@@ -201,9 +197,11 @@ class Machine {
     cb();
     const after = Array.from(this.mode).sort().join(', ');
 
+    /* @TODO: Track recursive changes and output somewhere
     if (prev !== after) {
       console.log(chalk.white.dim(`Mode: ${after || '<none>'}`));
     }
+    */
   }
 
   toggleMode(mode, setting) {

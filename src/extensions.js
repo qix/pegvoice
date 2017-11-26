@@ -11,6 +11,8 @@ const extensions = {
       'editorReadonly',
       'editorHasSelection',
       'findWidgetVisible',
+      'suggestWidgetMultipleSuggestions',
+      'terminalFocus',
     ],
     modeTest(modes, string) {
 
