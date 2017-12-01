@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 // @TODO
 
 function setupKaldiParser() {
-  process.stdin.pipe(binarySplit()).on('data', line => {
+  process.stdin.pipe(binarySplit()).on("data", line => {
     const transcript = kaldiParser(line);
     if (transcript !== null) {
       console.log();
@@ -22,26 +22,25 @@ function kaldiParser(line) {
   }
 
   if (update.adaptation_state) {
-    log.debug('Skipping adaption state message');
-
+    log.debug("Skipping adaption state message");
   }
 
   if (update.result) {
-    const {hypotheses, final} = update.result;
+    const { hypotheses, final } = update.result;
 
-    console.log('Hypothesis:');
+    console.log("Hypothesis:");
     hypotheses.forEach(hypothesis => {
-      const {transcript} = hypothesis;
+      const { transcript } = hypothesis;
       const likelihood = Math.round(hypothesis.likelihood);
       const confidence = Math.round(100 * hypothesis.confidence);
       console.log(
         `*  ${JSON.stringify(transcript)} ` +
-        `(${likelihood}% at ${confidence}%)`
+          `(${likelihood}% at ${confidence}%)`
       );
     });
 
     if (final) {
-      const {transcript} = hypotheses[0];
+      const { transcript } = hypotheses[0];
       return transcript;
     }
   }

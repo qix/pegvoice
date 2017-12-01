@@ -103,7 +103,8 @@ Match = match:(
   PegMatch /
   WordMatch /
   PredicateMatch /
-  PredicateCodeMatch
+  PredicateCodeMatch /
+  SpecialMatch
 ) optional:"?"? {
   return {
     ...match,
@@ -131,6 +132,13 @@ PredicateMatch = type:("&" / "!") identifier:Identifier {
   };
 }
 
+SpecialMatch = "*" identifier:Identifier {
+  return {
+    type: 'specialmatch',
+    identifier,
+  };
+}
+
 PegMatch = name:Identifier? ":" identifier:Identifier {
   return {
     type: 'pegmatch',
@@ -138,7 +146,6 @@ PegMatch = name:Identifier? ":" identifier:Identifier {
     name: name || identifier,
   };
 }
-
 
 WordMatch = Word;
 

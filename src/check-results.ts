@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 
 const doc = `
 Usage:
@@ -11,21 +11,22 @@ Options:
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
-const {docopt} = require('docopt');
-const chalk = require('chalk');
+import { docopt } from "docopt";
+import chalk from "chalk";
 
 const options = docopt(doc);
-const Parser = require('./parse/Parser');
-const SampleLog = require('./samples/SampleLog');
+import { Parser } from "./parse/Parser";
+import { ParseError } from "./parse/ParseError";
+import { SampleLog } from "./samples/SampleLog";
 
-const fs = require('fs');
+import * as fs from "fs";
 
-const {rightArrow} = require('./symbols');
+import { rightArrow } from "./symbols";
 
-const parser = new Parser(options['--grammar'], {
-  watchPersistent: options['--watch'],
+const parser = new Parser(options["--grammar"], {
+  watchPersistent: options["--watch"]
 });
-const sampleLog = new SampleLog(options['--samples']);
+const sampleLog = new SampleLog(options["--samples"]);
 
 function checkDiff() {
   const newResults = [];
@@ -35,19 +36,17 @@ function checkDiff() {
     modeString,
     transcript,
     line: oldLine,
-    result: oldResult,
+    result: oldResult
   } of sampleLog.readAll()) {
-
-
     let newResult;
     try {
       const command = parser.parse(transcript, modes);
       newResult = command.render();
     } catch (err) {
-      if (err instanceof Parser.ParseError) {
-        newResult = 'null';
+      if (err instanceof ParseError) {
+        newResult = "null";
       } else {
-        console.error('Failure during: %s', transcript);
+        console.error("Failure during: %s", transcript);
         throw err;
       }
     }
@@ -55,16 +54,15 @@ function checkDiff() {
     const newLine = {
       modeString,
       transcript,
-      result: newResult,
+      result: newResult
     };
     newResults.push(newLine);
 
     if (sampleLog.buildLine(newLine) !== oldLine) {
-      const prefix = (
-        (modeString ? `${chalk.grey(modeString + ':')} ` : '') +
+      const prefix =
+        (modeString ? `${chalk.grey(modeString + ":")} ` : "") +
         transcript +
-        chalk.grey(rightArrow)
-      );
+        chalk.grey(rightArrow);
       console.log(`${prefix}${chalk.red(oldResult)}`);
       console.log(`${prefix}${chalk.green(newResult)}`);
     }
@@ -73,23 +71,22 @@ function checkDiff() {
 }
 
 async function main() {
-
-  if (options['--rewrite']) {
+  if (options["--rewrite"]) {
     const newResults = checkDiff();
     sampleLog.rewrite(newResults);
-  } else if (options['--watch']) {
+  } else if (options["--watch"]) {
     const renderChanges = () => {
       try {
         checkDiff();
-        console.log('=== DONE ===');
+        console.log("=== DONE ===");
       } catch (err) {
         console.error(err.stack);
       }
     };
-    parser.on('update', () => {
-      console.log('')
-      console.log('=== GRAMMAR UPDATED ===')
-      console.log('')
+    parser.on("update", () => {
+      console.log("");
+      console.log("=== GRAMMAR UPDATED ===");
+      console.log("");
       renderChanges();
     });
     renderChanges();
@@ -103,7 +100,7 @@ async function main() {
 
 main().then(
   () => process.exit(0),
-  (err) => {
+  err => {
     console.error(err.stack);
     process.exit(1);
   }

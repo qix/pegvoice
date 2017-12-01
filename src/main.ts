@@ -20,21 +20,22 @@ Options:
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
-const Machine = require("./Machine");
-const Parser = require("./parse/Parser");
-const ConsoleRenderer = require("./render/ConsoleRenderer");
-const SampleLog = require("./samples/SampleLog");
-const SingleLineRenderer = require("./render/SingleLineRenderer");
+import { Machine } from "./Machine";
+import { ParseError } from "./parse/ParseError";
+import { Parser } from "./parse/Parser";
+import { ConsoleRenderer } from "./render/ConsoleRenderer";
+import { SampleLog } from "./samples/SampleLog";
+import { SingleLineRenderer } from "./render/SingleLineRenderer";
 
-const binarySplit = require("binary-split");
-const bunyan = require("bunyan");
-const { docopt } = require("docopt");
-const expandHomeDir = require("expand-home-dir");
-const fs = require("fs");
-const util = require("util");
+import * as binarySplit from "binary-split";
+import * as bunyan from "bunyan";
+import { docopt } from "docopt";
+import * as expandHomeDir from "expand-home-dir";
+import * as fs from "fs";
+import * as util from "util";
 
-const http = require("http");
-const { rightArrow, modeSeperator, wordSeperator } = require("./symbols");
+import * as http from "http";
+import { rightArrow, modeSeperator, wordSeperator } from "./symbols";
 
 const options = docopt(doc);
 
@@ -126,7 +127,7 @@ async function main() {
         let buffer = [];
         req.on("data", data => buffer.push(data));
         req.on("end", () => {
-          const message = JSON.parse(Buffer.concat(buffer));
+          const message = JSON.parse(Buffer.concat(buffer).toString("utf-8"));
 
           const transcripts = message.interpretations
             .map(option => {
@@ -168,7 +169,13 @@ async function main() {
 
 async function executeTranscripts(transcripts) {
   let first = true;
-  const mode = await machine.fetchCurrentMode();
+  let mode;
+  try {
+    mode = await machine.fetchCurrentMode();
+  } catch (err) {
+    renderer.commandError(err);
+    return;
+  }
   const modeString = Array.from(mode)
     .sort()
     .join(" ");
@@ -184,7 +191,7 @@ async function executeTranscripts(transcripts) {
         const priority = command ? JSON.stringify(command.priority) : null;
         return { N, command, rendered, priority, transcript };
       } catch (err) {
-        if (err instanceof Parser.ParseError) {
+        if (err instanceof ParseError) {
           firstError = firstError || err.toString();
           return {
             N,
@@ -215,12 +222,25 @@ async function executeTranscripts(transcripts) {
     if (machine.sleep && execCommand.rendered !== "[wake up]") {
       noop = true;
     }
+  }
 
-    if (!noop) {
-      await machine.executeCommand(execCommand.command).catch(err => {
-        renderer.commandError(err, execCommand);
-      });
-    }
+  const renderParams = {
+    execCommand,
+    skipCommands: commands,
+    modeString,
+    noop,
+    record: machine.record
+  };
+
+  if (!noop && execCommand) {
+    renderer.render(
+      Object.assign({}, renderParams, {
+        running: true
+      })
+    );
+    await machine.executeCommand(execCommand.command).catch(err => {
+      renderer.commandError(err, execCommand);
+    });
   }
 
   if (sampleLog && machine.record && (execCommand || transcripts.length)) {
@@ -231,13 +251,7 @@ async function executeTranscripts(transcripts) {
     });
   }
 
-  renderer.render({
-    execCommand,
-    skipCommands: commands,
-    modeString,
-    noop,
-    record: machine.record
-  });
+  renderer.render(renderParams);
 }
 
 main().then(

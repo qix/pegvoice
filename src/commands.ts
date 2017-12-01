@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-const bluebird = require('bluebird');
-const invariant = require('invariant');
-const path = require('path');
+import * as bluebird from "bluebird";
+import * as invariant from "invariant";
+import * as path from "path";
 
 function lowerKey(key) {
-  const map = '+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;"\'';
+  const map = "+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;\"'";
   const index = map.indexOf(key);
   if (index >= 0 && index % 2 === 0) {
     return map.charAt(index + 1);
@@ -16,18 +16,22 @@ function lowerKey(key) {
 
 function optionalJson(body) {
   const json = JSON.stringify(body);
-  return (json === '{}' || json === '[]') ? '' : ` ${json}`;
+  return json === "{}" || json === "[]" ? "" : ` ${json}`;
 }
 
-class Command {
+export class Command {
+  priority: Array<number>;
+
   constructor() {
     this.priority = [];
   }
-  execute() { throw new Error('not implemented'); }
-  render() {
-    throw new Error('not implemented');
+  async execute(machine) {
+    throw new Error("not implemented");
   }
-  parseExecute(state) { }
+  render() {
+    throw new Error("not implemented");
+  }
+  parseExecute(state) {}
   compareTo(right) {
     const length = Math.min(this.priority.length, right.priority.length);
     for (let i = 0; i < length; i++) {
@@ -39,29 +43,44 @@ class Command {
   }
 
   static renderMany(commands) {
-    return commands.map(cmd => cmd.render()).join(' ');
+    return commands.map(cmd => cmd.render()).join(" ");
   }
 }
-class NoopCommand extends Command {
-  render() { return '[noop]'; }
-  execute() { }
+export class NoopCommand extends Command {
+  render() {
+    return "[noop]";
+  }
+  async execute() {}
 }
 
-class ExecCommand extends Command {
+function register(arg) {
+  console.log(arg);
+}
+
+export class ExecCommand extends Command {
+  name = "exec";
+  command: Command;
+  options: any;
+
   constructor(command, options = {}) {
     super();
     this.command = command;
     this.options = options;
   }
   render() {
-    return `[exec ${JSON.stringify(this.command)}${optionalJson(this.options)}]`;
+    return `[exec ${JSON.stringify(this.command)}${optionalJson(
+      this.options
+    )}]`;
   }
-  execute(machine) {
+  async execute(machine) {
     machine.exec(this.command);
   }
 }
 
-class I3Command extends Command {
+export class I3Command extends Command {
+  name = "i3";
+  command: string;
+
   constructor(command) {
     super();
     this.command = command;
@@ -69,12 +88,15 @@ class I3Command extends Command {
   render() {
     return `[i3 ${JSON.stringify(this.command)}]`;
   }
-  execute(machine) {
+  async execute(machine) {
     machine.i3(this.command);
   }
 }
 
-class PreviousCommand extends Command {
+export class PreviousCommand extends Command {
+  name: "command.previous";
+  previousCommand: Command | null;
+
   constructor() {
     super();
     // Save the previous command in case this is run again in a future command (prevent loop)
@@ -83,21 +105,25 @@ class PreviousCommand extends Command {
   render() {
     return `[previous command]`;
   }
-  execute(machine) {
+  async execute(machine) {
     this.previousCommand = this.previousCommand || machine.previousCommand;
     return this.previousCommand.execute(machine);
   }
 }
-class RecordMacroCommand extends Command {
+export class RecordMacroCommand extends Command {
+  name = "macro.record";
+
   render() {
-    return '[record macro]';
+    return "[record macro]";
   }
-  execute(machine) {
-    this.previousCommand = this.previousCommand || machine.previousCommand;
-    return this.previousCommand.execute(machine);
+  async execute(machine) {
+    machine.recordMacro();
   }
 }
-class SaveMacroCommand extends Command {
+export class SaveMacroCommand extends Command {
+  name = "macro.save";
+  word: string;
+
   constructor(word) {
     super();
     this.word = word;
@@ -105,24 +131,30 @@ class SaveMacroCommand extends Command {
   render() {
     return `[save macro ${this.word}]`;
   }
-  execute(machine) {
+  async execute(machine) {
     machine.saveMacro(this.word);
   }
 }
-class PlayMacroCommand extends Command {
+export class PlayMacroCommand extends Command {
+  name = "macro.play";
+  word: string;
+
   constructor(word) {
     super();
     this.word = word;
   }
   render() {
-    return `[play macro ${word}]`;
+    return `[play macro ${this.word}]`;
   }
-  execute(machine) {
-    machine.playMacro(this.word);
+  async execute(machine) {
+    return machine.playMacro(this.word);
   }
 }
 
-class WaitCommand extends Command {
+export class WaitCommand extends Command {
+  name = "wait";
+  delay: number;
+
   constructor(delay) {
     super();
     this.delay = delay;
@@ -130,12 +162,16 @@ class WaitCommand extends Command {
   render() {
     return `[wait ${this.delay}]`;
   }
-  execute() {
+  async execute() {
     return bluebird.delay(this.delay);
   }
 }
-class VscodeCommand extends Command {
-  constructor(command, args) {
+export class VscodeCommand extends Command {
+  name: "vscode";
+  command: string;
+  args: any;
+
+  constructor(command, args = {}) {
     super();
     this.command = command;
     this.args = args || {};
@@ -145,23 +181,23 @@ class VscodeCommand extends Command {
     let rv = [];
     let typing = null;
     const keyMap = {
-      enter: '\n',
-      tab: '\t',
+      enter: "\n",
+      tab: "\t"
     };
     const commandMap = {
-      left: 'cursorLeft',
-      right: 'cursorRight',
-      up: 'cursorUp',
-      down: 'cursorDown',
-      backspace: 'deleteLeft',
-      delete: 'deleteRight',
+      left: "cursorLeft",
+      right: "cursorRight",
+      up: "cursorUp",
+      down: "cursorDown",
+      backspace: "deleteLeft",
+      delete: "deleteRight"
     };
     commands.forEach(command => {
       let key = keyMap[command.key] || command.key;
-      if (/^[ -~]$/.exec(key) || key === '\n') {
+      if (/^[ -~]$/.exec(key) || key === "\n") {
         if (!typing) {
-          typing = new VscodeCommand('default:type', {
-            text: '',
+          typing = new VscodeCommand("default:type", {
+            text: ""
           });
           rv.push(typing);
         }
@@ -184,12 +220,12 @@ class VscodeCommand extends Command {
     if (first.length && first[0] instanceof KeyCommand) {
       return MultiCommand.fromArray([
         VscodeCommand.fromKeyCommands(first),
-        VscodeCommand.fromTypeCommands(rest),
+        VscodeCommand.fromTypeCommands(rest)
       ]);
     }
     return MultiCommand.fromArray([
       ...first,
-      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand(),
+      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand()
     ]);
   }
 
@@ -200,20 +236,26 @@ class VscodeCommand extends Command {
   render() {
     return `[vscode ${JSON.stringify(this.command)}${optionalJson(this.args)}]`;
   }
-  execute(machine) {
+  async execute(machine) {
     return machine.vscode(this.command, this.args);
   }
 }
 
-class CancelCommand extends Command {
+export class CancelCommand extends Command {
+  name = "cancel";
+
   render() {
-    return '[cancel]';
+    return "[cancel]";
   }
-  execute(machine) {
+  async execute(machine) {
     return machine.cancel();
   }
 }
-class PriorityCommand extends Command {
+export class PriorityCommand extends Command {
+  name = "priority";
+  priority: Array<number>;
+  command: Command;
+
   constructor(priority, command) {
     super();
     this.priority = [priority];
@@ -222,14 +264,18 @@ class PriorityCommand extends Command {
   render() {
     return this.command.render();
   }
-  execute(machine) {
+  async execute(machine) {
     return this.command.execute(machine);
   }
   parseExecute(state) {
     this.command.parseExecute(state);
   }
 }
-class RepeatCommand extends Command {
+export class RepeatCommand extends Command {
+  name = "repeat";
+  count: number;
+  command: Command;
+
   constructor(count, command) {
     super();
     this.count = count;
@@ -249,13 +295,49 @@ class RepeatCommand extends Command {
     }
   }
 }
-class KeyHoldCommand extends Command {
+export class BackgroundCommand extends Command {
+  name = "background";
+  command: Command;
+
+  constructor(command) {
+    super();
+    this.command = command;
+  }
+  render() {
+    return `[background ${this.command.render()}]`;
+  }
+  async execute(machine) {
+    await new Promise(resolve => {
+      let timeout = setTimeout(() => resolve(), 100);
+      this.command.execute(machine).then(
+        () => {
+          clearTimeout(timeout);
+          resolve();
+        },
+        err => {
+          console.error("Error during background command:");
+          console.error(err.stack);
+          clearTimeout(timeout);
+          resolve();
+        }
+      );
+    });
+  }
+  parseExecute(state) {
+    this.command.parseExecute(state);
+  }
+}
+export class KeyHoldCommand extends Command {
+  name: "key.hold";
+  key: string;
+  state: boolean;
+
   constructor(key, state) {
     super();
     this.key = key;
     this.state = state;
   }
-  execute(machine) {
+  async execute(machine) {
     if (this.state) {
       machine.keyDown(this.key);
     } else {
@@ -263,61 +345,69 @@ class KeyHoldCommand extends Command {
     }
   }
   render() {
-    const action = this.state ? 'hold' : 'release';
+    const action = this.state ? "hold" : "release";
     return `[key ${action} ${this.key}]`;
   }
 }
 
-class KeyCommand extends Command {
+export class KeyCommand extends Command {
+  name: "key";
+  key: string;
+
   constructor(key) {
     super();
     this.key = key;
   }
   parseExecute(state) {
-    if (this.key === 'escape') {
-      state.mode.delete('vim-insert');
-      state.mode.delete('vim-visual');
+    if (this.key === "escape") {
+      state.mode.delete("vim-insert");
+      state.mode.delete("vim-visual");
     }
   }
 
   static tryToAscii(name) {
-    return {
-      semicolon: ';',
-      underscore: '_',
-      space: ' ',
-    }[name] || name;
+    return (
+      {
+        semicolon: ";",
+        underscore: "_",
+        space: " "
+      }[name] || name
+    );
   }
 
   static splitModifiers(combined) {
-    let split = combined.split('-');
+    let split = combined.split("-");
     let key = split.pop();
 
     if (key.length === 0) {
-      key = '-';
+      key = "-";
       split.pop();
     }
 
     key = KeyCommand.tryToAscii(key);
 
-    const modifiers = split.map(modifier => ({
-      ctrl: 'control',
-    }[modifier] || modifier));
+    const modifiers = split.map(
+      modifier =>
+        ({
+          ctrl: "control"
+        }[modifier] || modifier)
+    );
 
     const lower = lowerKey(key);
     if (lower !== key) {
       key = lower;
-      modifiers.push('shift');
+      modifiers.push("shift");
     }
 
     return [key, modifiers];
   }
 
-  execute(machine) {
+  async execute(machine) {
     const [key, modifiers] = KeyCommand.splitModifiers(this.key);
 
-    if (key === 'escape') {
-      machine.toggleMode('vim-insert', false);
-      machine.toggleMode('vim-visual', false);
+    if (key === "escape") {
+      machine.toggleMode("vim-insert", false);
+      machine.toggleMode("vim-visual", false);
     }
 
     machine.keyTap(key, modifiers);
@@ -330,21 +420,19 @@ class KeyCommand extends Command {
   static renderMany(commands) {
     const keys = commands.map(cmd => KeyCommand.tryToAscii(cmd.key));
 
-    const escaped = [
-      '"', "'",
-    ];
+    const escaped = ['"', "'"];
 
-    let string = '';
-    let rv = '';
+    let string = "";
+    let rv = "";
     const closeString = () => {
       if (string) {
-        rv += (rv ? ' ' : '') + `"${string}"`;
-        string = '';
+        rv += (rv ? " " : "") + `"${string}"`;
+        string = "";
       }
     };
-    const addLarge = (key) => {
+    const addLarge = key => {
       closeString();
-      rv += (rv ? ' ' : '') + `<${key}>`;
+      rv += (rv ? " " : "") + `<${key}>`;
     };
 
     for (let key of keys) {
@@ -359,13 +447,17 @@ class KeyCommand extends Command {
   }
 }
 
-class ModeCommand extends Command {
+export class ModeCommand extends Command {
+  name: "mode";
+  enable: Array<string>;
+  disable: Array<string>;
+
   constructor(enable, disable) {
     super();
     this.enable = enable;
     this.disable = disable;
   }
-  execute(machine) {
+  async execute(machine) {
     machine.trackModeChange(() => {
       (this.enable || []).forEach(mode => machine.mode.add(mode));
       (this.disable || []).forEach(mode => machine.mode.delete(mode));
@@ -374,10 +466,9 @@ class ModeCommand extends Command {
   render() {
     const changes = [
       ...this.enable.map(mode => `+${mode}`),
-      ...this.disable.map(mode => `-${mode}`),
+      ...this.disable.map(mode => `-${mode}`)
     ];
-    return `[mode ${changes.join(' ')}]`;
-
+    return `[mode ${changes.join(" ")}]`;
   }
   parseExecute(state) {
     state.mode = new Set([...state.mode]);
@@ -386,16 +477,21 @@ class ModeCommand extends Command {
   }
 }
 
-class ClickCommand extends Command {
-  execute(machine) {
+export class ClickCommand extends Command {
+  name = "click";
+
+  async execute(machine) {
     machine.click();
   }
   render() {
-    return '[click]';
+    return "[click]";
   }
 }
 
-class RelativePathCommand extends Command {
+export class RelativePathCommand extends Command {
+  name = "type.relativePath";
+  path: string;
+
   constructor(path) {
     super();
     this.path = path;
@@ -418,26 +514,32 @@ class RelativePathCommand extends Command {
   }
 }
 
-class SleepCommand extends Command {
+export class SleepCommand extends Command {
+  name: "sleep";
+  flag: boolean;
+
   constructor(flag) {
     super();
     this.flag = flag;
   }
 
-  execute(machine) {
+  async execute(machine) {
     machine.setSleep(this.flag);
   }
   render() {
-    return `[${this.flag ? 'sleep' : 'wake up'}]`;
+    return `[${this.flag ? "sleep" : "wake up"}]`;
   }
 }
-class RecordCommand extends Command {
+export class RecordCommand extends Command {
+  name = "record";
+  flag: boolean;
+
   constructor(flag) {
     super();
     this.flag = flag;
   }
 
-  execute(machine) {
+  async execute(machine) {
     machine.setRecord(this.flag);
   }
   render() {
@@ -445,10 +547,13 @@ class RecordCommand extends Command {
   }
 }
 
-class MultiCommand extends Command {
+export class MultiCommand extends Command {
+  name = "multi";
+  commands: Array<Command>;
+
   constructor(commands) {
     super();
-    ([this.commands, this.priority] = MultiCommand.flatten(commands));
+    [this.commands, this.priority] = MultiCommand.flatten(commands);
   }
 
   render() {
@@ -482,12 +587,14 @@ class MultiCommand extends Command {
     const [first, rest] = MultiCommand.splitByClass(commands);
 
     if (!first.length) {
-      return '[noop]';
+      return "[noop]";
     }
 
-    let rendered = (first[0].constructor.renderMany || Command.renderMany)(first);
+    let rendered = (first[0].constructor.renderMany || Command.renderMany)(
+      first
+    );
     if (rest.length) {
-      rendered += ' ' + MultiCommand.renderMany(rest);
+      rendered += " " + MultiCommand.renderMany(rest);
     }
     return rendered;
   }
@@ -521,23 +628,3 @@ class MultiCommand extends Command {
     this.commands.forEach(command => command.parseExecute(state));
   }
 }
-
-module.exports = {
-  ClickCommand,
-  ExecCommand,
-  I3Command,
-  KeyCommand,
-  ModeCommand,
-  MultiCommand,
-  NoopCommand,
-  PriorityCommand,
-  RecordCommand,
-  RepeatCommand,
-  SleepCommand,
-  KeyHoldCommand,
-  CancelCommand,
-  VscodeCommand,
-  RelativePathCommand,
-  WaitCommand,
-  PreviousCommand,
-};
