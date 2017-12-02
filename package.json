@@ -27,6 +27,6 @@
     "watch": "tsc -watch -p ./"
   },
   "nodemonConfig": {
-    "ext": "js,pegjs,pegvoice"
+    "ext": "ts,pegjs,pegvoice"
   }
 }

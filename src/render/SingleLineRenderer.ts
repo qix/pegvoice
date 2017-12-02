@@ -104,8 +104,16 @@ export class SingleLineRenderer {
       }
       remaining -= rendered.length;
 
+      term.white(`${N} `);
+
+      if (noop) {
+        term.bgRed(word);
+      } else {
+        term.white(word);
+      }
+
       term
-        .white(prefix)
+        .white(": ")
         .yellow.bold(transcript)
         .white(arrow)
         .green.bold(rendered)

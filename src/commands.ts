@@ -19,18 +19,28 @@ function optionalJson(body) {
   return json === "{}" || json === "[]" ? "" : ` ${json}`;
 }
 
-export class Command {
+const commands: { [name: string]: typeof Command } = {};
+
+function installCommand(command: any) {
+  const { commandName } = <typeof Command>command;
+  invariant(
+    !commands.hasOwnProperty(commandName),
+    `Command ${commandName} has already been installed.`
+  );
+  commands[commandName] = command;
+}
+
+abstract class Command {
+  static commandName: string = null;
+
   priority: Array<number>;
 
   constructor() {
     this.priority = [];
   }
-  async execute(machine) {
-    throw new Error("not implemented");
-  }
-  render() {
-    throw new Error("not implemented");
-  }
+  abstract async execute(machine);
+  abstract render(): string;
+
   parseExecute(state) {}
   compareTo(right) {
     const length = Math.min(this.priority.length, right.priority.length);
@@ -42,59 +52,108 @@ export class Command {
     return this.priority.length - right.priority.length;
   }
 
+  serialize() {
+    const { commandName } = <typeof Command>this.constructor;
+    return {
+      command: commandName,
+      args: this.serializeArgs()
+    };
+  }
+  abstract serializeArgs(): any;
+
   static renderMany(commands) {
     return commands.map(cmd => cmd.render()).join(" ");
   }
 }
-export class NoopCommand extends Command {
+abstract class SimpleCommand extends Command {
   render() {
-    return "[noop]";
+    const { commandName } = <typeof Command>this.constructor;
+    return `[${commandName}]`;
   }
-  async execute() {}
+  serializeArgs() {
+    return {};
+  }
 }
+abstract class BasicCommand<T> extends Command {
+  value: T;
+  args: any;
 
-function register(arg) {
-  console.log(arg);
-}
-
-export class ExecCommand extends Command {
-  name = "exec";
-  command: Command;
-  options: any;
-
-  constructor(command, options = {}) {
+  constructor(command: T, args: any = {}) {
     super();
-    this.command = command;
-    this.options = options;
+    this.value = command;
+    this.args = args || {};
+    invariant(!this.args.hasOwnProperty("value"), "Value argument is reserved");
   }
   render() {
-    return `[exec ${JSON.stringify(this.command)}${optionalJson(
-      this.options
+    const { commandName } = <typeof Command>this.constructor;
+    return `[${commandName} ${JSON.stringify(this.value)}${optionalJson(
+      this.args
     )}]`;
   }
-  async execute(machine) {
-    machine.exec(this.command);
+
+  serializeArgs() {
+    return Object.assign(
+      {
+        value: this.value
+      },
+      this.args
+    );
   }
 }
+abstract class BooleanCommand extends BasicCommand<boolean> {}
+abstract class NumberCommand extends BasicCommand<number> {}
+abstract class StringCommand extends BasicCommand<string> {}
 
-export class I3Command extends Command {
-  name = "i3";
-  command: string;
-
+abstract class CommandExtender extends Command {
+  command: Command;
   constructor(command) {
     super();
     this.command = command;
   }
-  render() {
-    return `[i3 ${JSON.stringify(this.command)}]`;
+  renderPartial(): string {
+    return "";
   }
-  async execute(machine) {
-    machine.i3(this.command);
+  render() {
+    const { commandName } = <typeof Command>this.constructor;
+    const partial = this.renderPartial();
+    const partialStr = partial + (partial ? " " : "");
+    return `[${commandName} ${partialStr}${this.command.render()}]`;
+  }
+  parseExecute(state) {
+    this.command.parseExecute(state);
+  }
+  serializeArgs(): any {
+    return {
+      command: this.command.serialize()
+    };
   }
 }
 
-export class PreviousCommand extends Command {
-  name: "command.previous";
+@installCommand
+export class NoopCommand extends SimpleCommand {
+  static commandName = "noop";
+  async execute() {}
+}
+
+@installCommand
+export class ExecCommand extends StringCommand {
+  static commandName = "exec";
+  async execute(machine) {
+    machine.exec(this.value);
+  }
+}
+
+@installCommand
+export class I3Command extends StringCommand {
+  static commandName = "i3";
+  async execute(machine) {
+    machine.i3(this.value);
+  }
+}
+
+@installCommand
+export class PreviousCommand extends SimpleCommand {
+  static commandName = "command.previous";
   previousCommand: Command | null;
 
   constructor() {
@@ -102,80 +161,47 @@ export class PreviousCommand extends Command {
     // Save the previous command in case this is run again in a future command (prevent loop)
     this.previousCommand = null;
   }
-  render() {
-    return `[previous command]`;
-  }
   async execute(machine) {
     this.previousCommand = this.previousCommand || machine.previousCommand;
     return this.previousCommand.execute(machine);
   }
 }
-export class RecordMacroCommand extends Command {
-  name = "macro.record";
 
-  render() {
-    return "[record macro]";
-  }
+@installCommand
+export class RecordMacroCommand extends SimpleCommand {
+  static commandName = "macro.record";
   async execute(machine) {
     machine.recordMacro();
   }
 }
-export class SaveMacroCommand extends Command {
-  name = "macro.save";
-  word: string;
 
-  constructor(word) {
-    super();
-    this.word = word;
-  }
-  render() {
-    return `[save macro ${this.word}]`;
-  }
+@installCommand
+export class SaveMacroCommand extends StringCommand {
+  static commandName = "macro.save";
   async execute(machine) {
-    machine.saveMacro(this.word);
-  }
-}
-export class PlayMacroCommand extends Command {
-  name = "macro.play";
-  word: string;
-
-  constructor(word) {
-    super();
-    this.word = word;
-  }
-  render() {
-    return `[play macro ${this.word}]`;
-  }
-  async execute(machine) {
-    return machine.playMacro(this.word);
+    machine.saveMacro(this.value);
   }
 }
 
-export class WaitCommand extends Command {
-  name = "wait";
-  delay: number;
+@installCommand
+export class PlayMacroCommand extends StringCommand {
+  static commandName = "macro.play";
+  async execute(machine) {
+    return machine.playMacro(this.value);
+  }
+}
 
-  constructor(delay) {
-    super();
-    this.delay = delay;
-  }
-  render() {
-    return `[wait ${this.delay}]`;
-  }
+@installCommand
+export class WaitCommand extends NumberCommand {
+  static commandName = "wait";
   async execute() {
-    return bluebird.delay(this.delay);
+    return bluebird.delay(this.value);
   }
 }
-export class VscodeCommand extends Command {
-  name: "vscode";
-  command: string;
-  args: any;
 
-  constructor(command, args = {}) {
-    super();
-    this.command = command;
-    this.args = args || {};
-  }
+@installCommand
+export class VscodeCommand extends StringCommand {
+  static commandName = "vscode";
 
   static fromKeyCommands(commands) {
     let rv = [];
@@ -192,8 +218,8 @@ export class VscodeCommand extends Command {
       backspace: "deleteLeft",
       delete: "deleteRight"
     };
-    commands.forEach(command => {
-      let key = keyMap[command.key] || command.key;
+    commands.forEach((command: KeyCommand) => {
+      let key = keyMap[command.value] || command.value;
       if (/^[ -~]$/.exec(key) || key === "\n") {
         if (!typing) {
           typing = new VscodeCommand("default:type", {
@@ -233,26 +259,22 @@ export class VscodeCommand extends Command {
     return VscodeCommand.fromTypeCommands([command]);
   }
 
-  render() {
-    return `[vscode ${JSON.stringify(this.command)}${optionalJson(this.args)}]`;
-  }
   async execute(machine) {
-    return machine.vscode(this.command, this.args);
+    return machine.vscode(this.value, this.args);
   }
 }
 
-export class CancelCommand extends Command {
-  name = "cancel";
-
-  render() {
-    return "[cancel]";
-  }
+@installCommand
+export class CancelCommand extends SimpleCommand {
+  static commandName = "cancel";
   async execute(machine) {
     return machine.cancel();
   }
 }
+
+@installCommand
 export class PriorityCommand extends Command {
-  name = "priority";
+  static commandName = "priority";
   priority: Array<number>;
   command: Command;
 
@@ -270,19 +292,25 @@ export class PriorityCommand extends Command {
   parseExecute(state) {
     this.command.parseExecute(state);
   }
+  serialize() {
+    return this.command.serialize();
+  }
+  serializeArgs() {
+    throw new Error("Not implemented");
+  }
 }
-export class RepeatCommand extends Command {
-  name = "repeat";
+
+@installCommand
+export class RepeatCommand extends CommandExtender {
+  static commandName = "repeat";
   count: number;
-  command: Command;
 
   constructor(count, command) {
-    super();
+    super(command);
     this.count = count;
-    this.command = command;
   }
-  render() {
-    return `[repeat ${this.count} ${this.command.render()}]`;
+  renderPartial() {
+    return `${this.count}`;
   }
   async execute(machine) {
     for (let i = 0; i < this.count; i++) {
@@ -294,18 +322,20 @@ export class RepeatCommand extends Command {
       this.command.parseExecute(state);
     }
   }
+  serializeArgs() {
+    return Object.assign(
+      {
+        count: this.count
+      },
+      super.serializeArgs()
+    );
+  }
 }
-export class BackgroundCommand extends Command {
-  name = "background";
-  command: Command;
 
-  constructor(command) {
-    super();
-    this.command = command;
-  }
-  render() {
-    return `[background ${this.command.render()}]`;
-  }
+@installCommand
+export class BackgroundCommand extends CommandExtender {
+  static commandName = "background";
+
   async execute(machine) {
     await new Promise(resolve => {
       let timeout = setTimeout(() => resolve(), 100);
@@ -323,12 +353,11 @@ export class BackgroundCommand extends Command {
       );
     });
   }
-  parseExecute(state) {
-    this.command.parseExecute(state);
-  }
 }
+
+@installCommand
 export class KeyHoldCommand extends Command {
-  name: "key.hold";
+  static commandName = "key.hold";
   key: string;
   state: boolean;
 
@@ -348,18 +377,20 @@ export class KeyHoldCommand extends Command {
     const action = this.state ? "hold" : "release";
     return `[key ${action} ${this.key}]`;
   }
+  serializeArgs(): any {
+    return {
+      key: this.key,
+      state: this.state
+    };
+  }
 }
 
-export class KeyCommand extends Command {
-  name: "key";
-  key: string;
+@installCommand
+export class KeyCommand extends StringCommand {
+  static commandName = "key";
 
-  constructor(key) {
-    super();
-    this.key = key;
-  }
   parseExecute(state) {
-    if (this.key === "escape") {
+    if (this.value === "escape") {
       state.mode.delete("vim-insert");
       state.mode.delete("vim-visual");
     }
@@ -403,7 +434,7 @@ export class KeyCommand extends Command {
   }
 
   async execute(machine) {
-    const [key, modifiers] = KeyCommand.splitModifiers(this.key);
+    const [key, modifiers] = KeyCommand.splitModifiers(this.value);
 
     if (key === "escape") {
       machine.toggleMode("vim-insert", false);
@@ -417,8 +448,8 @@ export class KeyCommand extends Command {
     return KeyCommand.renderMany([this]);
   }
 
-  static renderMany(commands) {
-    const keys = commands.map(cmd => KeyCommand.tryToAscii(cmd.key));
+  static renderMany(commands: Array<KeyCommand>) {
+    const keys = commands.map(cmd => KeyCommand.tryToAscii(cmd.value));
 
     const escaped = ['"', "'"];
 
@@ -447,8 +478,9 @@ export class KeyCommand extends Command {
   }
 }
 
+@installCommand
 export class ModeCommand extends Command {
-  name: "mode";
+  static commandName = "mode";
   enable: Array<string>;
   disable: Array<string>;
 
@@ -475,31 +507,29 @@ export class ModeCommand extends Command {
     (this.enable || []).forEach(mode => state.mode.add(mode));
     (this.disable || []).forEach(mode => state.mode.delete(mode));
   }
+  serializeArgs(): any {
+    return {
+      enable: this.enable,
+      disable: this.disable
+    };
+  }
 }
 
-export class ClickCommand extends Command {
-  name = "click";
-
+@installCommand
+export class ClickCommand extends SimpleCommand {
+  static commandName = "click";
   async execute(machine) {
     machine.click();
   }
-  render() {
-    return "[click]";
-  }
 }
 
-export class RelativePathCommand extends Command {
-  name = "type.relativePath";
-  path: string;
-
-  constructor(path) {
-    super();
-    this.path = path;
-  }
+@installCommand
+export class RelativePathCommand extends StringCommand {
+  static commandName = "type.relativePath";
 
   async execute(machine) {
     const current = await machine.fetchCurrentPath();
-    let type = this.path;
+    let type = this.value;
     if (current) {
       type = path.relative(current, type);
     }
@@ -509,49 +539,30 @@ export class RelativePathCommand extends Command {
       machine.keyTap(key, modifiers);
     }
   }
-  render() {
-    return `[relpath ${this.path}]`;
-  }
 }
 
-export class SleepCommand extends Command {
-  name: "sleep";
-  flag: boolean;
-
-  constructor(flag) {
-    super();
-    this.flag = flag;
-  }
-
+@installCommand
+export class SleepCommand extends BooleanCommand {
+  static commandName = "sleep";
   async execute(machine) {
-    machine.setSleep(this.flag);
-  }
-  render() {
-    return `[${this.flag ? "sleep" : "wake up"}]`;
+    machine.setSleep(this.value);
   }
 }
-export class RecordCommand extends Command {
-  name = "record";
-  flag: boolean;
 
-  constructor(flag) {
-    super();
-    this.flag = flag;
-  }
-
+@installCommand
+export class RecordCommand extends BooleanCommand {
+  static commandName = "record";
   async execute(machine) {
-    machine.setRecord(this.flag);
-  }
-  render() {
-    return `[record ${this.flag}]`;
+    machine.setRecord(this.value);
   }
 }
 
+@installCommand
 export class MultiCommand extends Command {
-  name = "multi";
+  static commandName = "multi";
   commands: Array<Command>;
 
-  constructor(commands) {
+  constructor(commands: Array<Command>) {
     super();
     [this.commands, this.priority] = MultiCommand.flatten(commands);
   }
@@ -564,12 +575,15 @@ export class MultiCommand extends Command {
     return MultiCommand.splitByClass(this.commands);
   }
 
-  static splitByClass(commands) {
+  static splitByClass(
+    commands: Array<Command>
+  ): [Array<Command>, Array<Command>] {
     const rest = [...commands];
     let first = [];
     while (rest.length) {
       if (rest[0] instanceof MultiCommand) {
-        rest.unshift(...rest.shift().commands);
+        const cmd = <MultiCommand>rest.shift();
+        rest.unshift(...cmd.commands);
       } else if (rest[0] instanceof NoopCommand) {
         rest.shift();
       } else if (first.length === 0) {
@@ -583,34 +597,39 @@ export class MultiCommand extends Command {
     return [first, rest];
   }
 
-  static renderMany(commands) {
+  static renderMany(commands: Array<Command>): string {
     const [first, rest] = MultiCommand.splitByClass(commands);
 
     if (!first.length) {
       return "[noop]";
     }
 
-    let rendered = (first[0].constructor.renderMany || Command.renderMany)(
-      first
-    );
+    const cls = <typeof Command>first[0].constructor;
+    let rendered = cls.renderMany(first);
     if (rest.length) {
       rendered += " " + MultiCommand.renderMany(rest);
     }
     return rendered;
   }
 
-  static flatten(commands) {
+  static flattenCommand(command): Array<Command> {
+    if (command instanceof MultiCommand) {
+      const [commands, priorities] = MultiCommand.flatten(command.commands);
+      return commands;
+    } else if (command instanceof PriorityCommand) {
+      return MultiCommand.flattenCommand(command.command);
+    } else if (command instanceof NoopCommand) {
+      return [];
+    } else {
+      return [command];
+    }
+  }
+  static flatten(commands): [Array<Command>, Array<number>] {
     const rv = [];
     const priority = [];
     commands.forEach(el => {
       priority.push(...(el.priority || []));
-      if (el instanceof MultiCommand) {
-        rv.push(...el.commands);
-      } else if (el instanceof PriorityCommand) {
-        rv.push(el.command);
-      } else if (!(el instanceof NoopCommand)) {
-        rv.push(el);
-      }
+      rv.push(...MultiCommand.flattenCommand(el));
     });
     return [rv, priority];
   }
@@ -626,5 +645,10 @@ export class MultiCommand extends Command {
   }
   parseExecute(state) {
     this.commands.forEach(command => command.parseExecute(state));
+  }
+  serializeArgs(): any {
+    return {
+      commands: this.commands.map(cmd => cmd.serialize())
+    };
   }
 }

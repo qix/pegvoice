@@ -1,7 +1,6 @@
 #!/usr/bin/env ts-node
-
-"use strict";
 /*eslint no-console: "allow"*/
+
 const doc = `
 Usage:
   pegvoice --kaldi [options]

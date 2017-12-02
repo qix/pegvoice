@@ -130,6 +130,9 @@ export class Machine {
     for (let key of Array.from(this.keysDown)) {
       this.keyUp(key);
     }
+    this.mode.forEach(mode => {
+      this.mode.delete(mode);
+    });
   }
   click() {
     robot.mouseClick();

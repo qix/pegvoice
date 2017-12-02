@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROOT="$(dirname $0)"
+cd "$(dirname $0)"
 
-nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
-  "$ROOT/src/main.js" --command="$1" --mode="$2" --noop --trace
+exec nodemon -e "ts,pegjs,pegvoice" -w "$ROOT" \
+  --exec "./src/main.ts" --command="$1" --mode="$2" --noop --trace

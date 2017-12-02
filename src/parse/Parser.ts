@@ -144,5 +144,3 @@ export class Parser extends EventEmitter {
     }
   }
 }
-
-module.exports = Parser;

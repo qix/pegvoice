@@ -1,5 +1,5 @@
 #!/bin/bash
 
-"$(dirname $0)/src/check-results.js" \
+"$(dirname $0)/src/check-results.ts" \
   --rewrite
   

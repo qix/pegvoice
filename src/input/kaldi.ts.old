@@ -46,5 +46,3 @@ function kaldiParser(line) {
   }
   return null;
 }
-
-module.exports = setupKaldiParser;

@@ -1,11 +1,12 @@
 #!/bin/bash
 
 echo -e '\033]2;pegvoice\007'
+cd "$(dirname $0)"
 exec nodemon \
-  --ext 'js,pegjs,pegvoice' \
+  --ext 'ts,pegjs,pegvoice' \
   --delay 100ms \
   -w ~/pegvoice \
-  --exec "$(dirname $0)/src/main.js" \
+  --exec "./src/main.ts" \
     --server \
     --debug-log="~/.pegvoice/debug.log" \
     --single-line

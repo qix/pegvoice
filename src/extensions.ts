@@ -13,7 +13,8 @@ export const vscode = {
     "terminalFocus",
     "editorHasRenameProvider",
     "filesExplorerFocus",
-    "inSnippetMode"
+    "inSnippetMode",
+    "replaceActive"
   ],
   modeTest(modes, string) {
     if (string.includes(" && ")) {
