@@ -15,11 +15,13 @@ Options:
   --mode=<mode>              Start with mode enabled
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
+  --macros=<path>            Macro storage [default: ~/.pegvoice/macros]
   --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar.pgv]
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
 import { Machine } from "./Machine";
+import { Config } from "./config";
 import { ParseError } from "./parse/ParseError";
 import { Parser } from "./parse/Parser";
 import { ConsoleRenderer } from "./render/ConsoleRenderer";
@@ -46,6 +48,7 @@ if (options["--debug-log"]) {
   });
 }
 
+Config.macroPath = options["--macros"];
 const sampleLog = options["--samples"] && new SampleLog(options["--samples"]);
 const grammarPath = expandHomeDir(options["--grammar"]);
 

@@ -1,8 +1,14 @@
 "use strict";
 
+import { Config } from "./config";
 import * as bluebird from "bluebird";
+import * as child_process from "child_process";
+import * as fs from "fs";
 import * as invariant from "invariant";
 import * as path from "path";
+import { promisify } from "util";
+
+const writeFileAsync = promisify(fs.writeFile);
 
 function lowerKey(key) {
   const map = "+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;\"'";
@@ -28,6 +34,16 @@ function installCommand(command: any) {
     `Command ${commandName} has already been installed.`
   );
   commands[commandName] = command;
+}
+
+export function deserializeCommand(props: {
+  command: string;
+  args: any;
+}): Command {
+  const { command, args } = props;
+  invariant(commands.hasOwnProperty(command), "Command not found: %s", command);
+  const cls = commands[command];
+  return cls.deserializeArgs(args || {});
 }
 
 abstract class Command {
@@ -60,6 +76,10 @@ abstract class Command {
     };
   }
   abstract serializeArgs(): any;
+
+  static deserializeArgs(args: any): Command {
+    throw new Error("Not implemented");
+  }
 
   static renderMany(commands) {
     return commands.map(cmd => cmd.render()).join(" ");
@@ -99,7 +119,20 @@ abstract class BasicCommand<T> extends Command {
       this.args
     );
   }
+
+  static deserializeArgs<T>(args) {
+    const { value } = args;
+    invariant(typeof value !== "undefined", "Invalid value");
+    return new (<any>this)(value, withoutProperty(args, "value"));
+  }
 }
+
+function withoutProperty(obj, prop) {
+  const copy = Object.assign({}, obj);
+  delete copy[prop];
+  return copy;
+}
+
 abstract class BooleanCommand extends BasicCommand<boolean> {}
 abstract class NumberCommand extends BasicCommand<number> {}
 abstract class StringCommand extends BasicCommand<string> {}
@@ -139,7 +172,20 @@ export class NoopCommand extends SimpleCommand {
 export class ExecCommand extends StringCommand {
   static commandName = "exec";
   async execute(machine) {
-    machine.exec(this.value);
+    const proc = child_process.spawn(
+      "/bin/bash",
+      ["--login", "-c", this.value],
+      {
+        detached: true
+      }
+    );
+    if (this.args.wait) {
+      await new Promise(resolve => {
+        proc.on("exit", () => {
+          resolve();
+        });
+      });
+    }
   }
 }
 
@@ -179,7 +225,32 @@ export class RecordMacroCommand extends SimpleCommand {
 export class SaveMacroCommand extends StringCommand {
   static commandName = "macro.save";
   async execute(machine) {
-    machine.saveMacro(this.value);
+    const macro = machine.saveMacro(this.value);
+    const [cmds] = MultiCommand.flatten(macro);
+
+    const content =
+      cmds
+        .map(cmd => {
+          return JSON.stringify(cmd.serialize());
+        })
+        .join("\n") + "\n";
+
+    await writeFileAsync(Config.getMacroPath(this.value), content);
+  }
+}
+
+@installCommand
+export class EditMacroCommand extends StringCommand {
+  static commandName = "macro.edit";
+  constructor(name: string) {
+    super(name);
+  }
+  async execute(machine) {
+    const path = Config.getMacroPath(this.value);
+    const sub = new ExecCommand(`code --wait ${path}`, {
+      wait: true
+    });
+    await sub.execute(machine);
   }
 }
 

@@ -39,12 +39,6 @@ export class ConsoleRenderer {
       );
     }
 
-    if (!running && execCommand && execCommand.command) {
-      const [commands] = MultiCommand.flatten([execCommand.command]);
-      for (let command of commands) {
-        console.log("%j", command.serialize());
-      }
-    }
     if (execCommand) {
       const { N, rendered, transcript, priority } = execCommand;
       const word = noop ? "NoOp" : "Exec";

@@ -32,7 +32,7 @@
 
 
 VoiceGrammar
-  = __ initializer:(Initializer __)? rules:((DefineRule / PegRule / VoiceRule / SpellRule) __)+ {
+  = __ initializer:(Initializer __)? rules:((DefineRule / PegRule / VoiceRule / SpellRule / Import) __)+ {
       return {
         type: "voiceGrammer",
         initializer: extractOptional(initializer, 0),
@@ -41,6 +41,12 @@ VoiceGrammar
       };
     }
 
+Import = "import" __ "*" __ "from" __ name:StringLiteral EOS {
+  return {
+    type: 'import',
+    module: name,
+  };
+}
 SpellRule = "spell" __ head:Word tail:(__ "/" __ Words)* EOS {
   return {
     type: 'spell',

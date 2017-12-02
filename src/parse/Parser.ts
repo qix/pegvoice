@@ -90,13 +90,15 @@ export class Parser extends EventEmitter {
 
     this.emit("step", "Compiling language");
     const language = tryParse(read(langPath), s => peg.generate(s));
-    const source = tryParse(read(grammarPath), s => {
-      this.emit("step", "Compiling grammar");
-      const parsed = language.parse(s);
-      this.emit("step", "Generating grammar source");
-      const generator = new PegGenerator();
-      return generator.pegSource(parsed);
-    });
+
+    const languageParser = (path: string): any => {
+      return tryParse(read(path), source => {
+        return language.parse(source);
+      });
+    };
+
+    const generator = new PegGenerator(languageParser);
+    const source = generator.pegFile(grammarPath);
 
     fs.writeFileSync(grammarPath + ".out", source);
     this.emit("step", "Creating parser");
@@ -127,6 +129,9 @@ export class Parser extends EventEmitter {
     }
     try {
       return this.parser.parse(transcript, {
+        command(command, args = {}) {
+          return commands.deserializeCommand({ command, args });
+        },
         commands,
         extensions,
         mode

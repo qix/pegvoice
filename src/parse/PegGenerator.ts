@@ -1,9 +1,10 @@
 "use strict";
 
 import { ParseError } from "./ParseError";
+import { wordSeperator } from "../symbols";
 
 import * as invariant from "invariant";
-import { wordSeperator } from "../symbols";
+import * as path from "path";
 
 export class PegGenerator {
   words: Set<string>;
@@ -11,13 +12,15 @@ export class PegGenerator {
   nextPriority: number;
   nextCodeId: number;
   codeId: object;
+  parser: (path: string) => any;
 
-  constructor() {
+  constructor(parser: ((path: string) => any)) {
     this.words = new Set();
     this.defined = new Set();
     this.nextPriority = 1;
     this.nextCodeId = 1;
     this.codeId = {};
+    this.parser = parser;
   }
 
   matchToId(match) {
@@ -164,9 +167,10 @@ export class PegGenerator {
         return ${expr};
       }\n`;
     } else if (ast.expr.type === "rules") {
-      const { ruleNames, source } = this.pegRules(
+      const { ruleNames, source } = this.generateSource(
         ast.expr.rules,
         `${ruleName}_`,
+        null,
         wrapPriority
       );
 
@@ -181,7 +185,12 @@ export class PegGenerator {
     }
   }
 
-  pegRules(rules, prefix, wrapPriority = true) {
+  generateSource(
+    rules: Array<any>,
+    prefix: string,
+    sourcePath: string | null,
+    wrapPriority: boolean = true
+  ): { ruleNames: Array<string>; source: string } {
     const ruleNames = [];
     let source = "";
     for (const ruleAst of rules) {
@@ -200,6 +209,25 @@ export class PegGenerator {
       } else if (ruleAst.type === "define") {
         source += this.pegRule(ruleAst, `_${ruleAst.identifier}`, false);
         this.defined.add(ruleAst.identifier);
+      } else if (ruleAst.type === "import") {
+        invariant(sourcePath, "Import statements only allowed at top level");
+        const filePath = path.join(
+          path.dirname(sourcePath),
+          `${ruleAst.module}.pgv`
+        );
+        const parsed = this.parser(filePath);
+        invariant(
+          !parsed.initializer,
+          "Initializer not valid on included files"
+        );
+        const generated = this.generateSource(
+          parsed.rules,
+          prefix,
+          sourcePath,
+          wrapPriority
+        );
+        ruleNames.push(...generated.ruleNames);
+        source += generated.source;
       } else {
         throw new ParseError(ruleAst, `Unknown ast: ${ruleAst.type}`);
       }
@@ -207,14 +235,15 @@ export class PegGenerator {
     return { ruleNames, source };
   }
 
-  pegSource(ast) {
+  pegFile(path) {
+    const ast = this.parser(path);
     let rv = "";
     if (ast.type === "voiceGrammer") {
       if (ast.initializer) {
         rv += `{\n${ast.initializer.code}\n}\n`;
       }
 
-      const { ruleNames, source } = this.pegRules(ast.rules, "c_");
+      const { ruleNames, source } = this.generateSource(ast.rules, "c_", path);
       rv += `${source}\n`;
 
       for (let word of this.words) {

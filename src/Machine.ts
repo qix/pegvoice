@@ -2,7 +2,6 @@
 
 import * as bluebird from "bluebird";
 import chalk from "chalk";
-import * as child_process from "child_process";
 import * as extensions from "./extensions";
 import * as fs from "fs";
 import * as i3Library from "i3";
@@ -87,6 +86,7 @@ export class Machine {
   saveMacro(name) {
     this.recordedMacros[name] = this.currentMacro;
     this.currentMacro = null;
+    return this.recordedMacros[name];
   }
   async playMacro(name) {
     for (let command of this.recordedMacros[name]) {
@@ -94,11 +94,6 @@ export class Machine {
     }
   }
 
-  exec(command) {
-    child_process.spawn("/bin/bash", ["--login", "-c", command], {
-      detached: true
-    });
-  }
   vscode(command, args = {}) {
     return vscodeRequest("/command", {
       command,
