@@ -22,7 +22,8 @@ export class ConsoleRenderer {
     if (err instanceof ParseError) {
       console.error(err.render());
     } else {
-      console.error(err.stack);
+      console.error(err);
+      console.error("STACK", err.stack, JSON.stringify(err));
     }
   }
 

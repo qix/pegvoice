@@ -2,7 +2,6 @@
 
 import * as bluebird from "bluebird";
 import chalk from "chalk";
-import * as extensions from "./extensions";
 import * as fs from "fs";
 import * as i3Library from "i3";
 import * as invariant from "invariant";
@@ -12,19 +11,16 @@ import * as os from "os";
 import * as path from "path";
 import * as request from "request-promise";
 import * as robot from "robotjs";
+import {
+  Command,
+  definedCommands as baseDefinedCommands
+} from "./commands/base";
+import { findExtension } from "./extensions";
+import { EventEmitter } from "events";
 
 const i3 = i3Library.createClient();
 const execAsync = promisify(exec);
 const readdirAsync = promisify(fs.readdir);
-
-async function vscodeRequest(uri, payload = null) {
-  const socketPath = path.join(os.homedir(), ".pegvoice/vscode-socket");
-  return await request({
-    url: `http://unix:${socketPath}:${uri}`,
-    json: payload || true,
-    method: payload ? "POST" : "GET"
-  });
-}
 
 async function getCurrentTitle() {
   const { stdout } = await execAsync("xdotool getwindowfocus getwindowname");
@@ -45,9 +41,9 @@ async function isScreensaverActive() {
   return knownResponses[response];
 }
 
-type Command = any;
+type TitleHandler = (title: string) => Promise<void>;
 
-export class Machine {
+export class Machine extends EventEmitter {
   mode: Set<string>;
   lastTitle: string | null;
   record: boolean;
@@ -58,7 +54,16 @@ export class Machine {
   currentMacro: Array<Command> | null;
   recordedMacros: { [name: string]: Array<Command> };
 
+  extensions: { [name: string]: any };
+  commands: { [name: string]: typeof Command };
+  titleHandlers: Array<TitleHandler> = [];
+
   constructor(log, options: any = {}) {
+    super();
+
+    this.commands = {};
+    this.extensions = {};
+
     this.mode = new Set();
     this.lastTitle = null;
     this.record = false;
@@ -67,37 +72,45 @@ export class Machine {
     this.keysDown = new Set();
 
     this.currentMacro = null;
-    this.recordedMacros = {};
+
+    baseDefinedCommands.forEach(cmd => this.installCommand(cmd));
+  }
+
+  addTitleHandler(cb: TitleHandler) {
+    this.titleHandlers.push(cb);
+  }
+  loadExtension(name: string): any {
+    if (!this.extensions.hasOwnProperty(name)) {
+      this.extensions[name] = findExtension(name).activate(this);
+    }
+    return this.extensions[name];
+  }
+  installCommand(commandAny: any) {
+    const command: typeof Command = commandAny;
+
+    const { commandName } = command;
+    invariant(
+      !this.commands.hasOwnProperty(commandName),
+      `Command ${commandName} has already been installed.`
+    );
+    this.commands[commandName] = command;
+  }
+
+  deserializeCommand(props: { command: string; args: any }): Command {
+    const { command, args } = props;
+    invariant(
+      this.commands.hasOwnProperty(command),
+      "Command not found: %s",
+      command
+    );
+    const cls = this.commands[command];
+    return cls.deserializeArgs(args || {});
   }
 
   executeCommand(command) {
-    const recording = this.currentMacro ? true : false;
     return bluebird.resolve(command.execute(this)).finally(() => {
       this.previousCommand = command;
-      if (this.currentMacro && recording) {
-        this.currentMacro.push(command);
-      }
-    });
-  }
-
-  recordMacro() {
-    this.currentMacro = [];
-  }
-  saveMacro(name) {
-    this.recordedMacros[name] = this.currentMacro;
-    this.currentMacro = null;
-    return this.recordedMacros[name];
-  }
-  async playMacro(name) {
-    for (let command of this.recordedMacros[name]) {
-      await command.execute(this);
-    }
-  }
-
-  vscode(command, args = {}) {
-    return vscodeRequest("/command", {
-      command,
-      args
+      this.emit("commandFinished", command);
     });
   }
 
@@ -169,47 +182,22 @@ export class Machine {
     const vimTree = vim && title.startsWith("NERD_tree_");
     const vimNormal = title.endsWith(" <vim>") && !vimTree;
 
-    let vscodeModes = [];
-    /*
-    let vscode = title.endsWith(' - Visual Studio Code');
-    if (vscode) {
-      const state = await vscodeRequest('/state');
-      vscodeModes = state.modes;
-    }
-    */
-    let vscode = title.endsWith("~~pegvoice-vscode");
-    if (vscode) {
-      const match = /.*~~context~~(.*)~~pegvoice-vscode$/.exec(title);
-      vscodeModes = match[1].split("~").filter(mode => {
-        return extensions.vscode.modes.includes(mode);
-      });
+    for (let handler of this.titleHandlers) {
+      await handler(title);
     }
 
-    this.trackModeChange(() => {
-      this.mode.forEach(mode => {
-        if (mode.startsWith("vscode-") || mode.startsWith("vim-")) {
-          this.mode.delete(mode);
-        }
-      });
-
-      vscodeModes.forEach(mode => this.mode.add(`vscode-${mode}`));
-      this.toggleMode("vim", vim);
-      this.toggleMode("vscode", vscode);
-      this.toggleMode("terminal", title.endsWith(" <term>"));
-      this.toggleMode("vim-insert", vimInsert);
-      this.toggleMode("vim-tree", vimTree);
-      this.toggleMode("vim-visual", vimVisual);
-      this.toggleMode(
-        "vim-rebase",
-        vim && title.startsWith("git-rebase-todo ")
-      );
-      this.toggleMode("chrome", title.endsWith(" - Google Chrome"));
-      this.toggleMode("slack", title.endsWith("Slack - Google Chrome"));
-    });
+    this.toggleMode("vim", vim);
+    this.toggleMode("terminal", title.endsWith(" <term>"));
+    this.toggleMode("vim-insert", vimInsert);
+    this.toggleMode("vim-tree", vimTree);
+    this.toggleMode("vim-visual", vimVisual);
+    this.toggleMode("vim-rebase", vim && title.startsWith("git-rebase-todo "));
+    this.toggleMode("chrome", title.endsWith(" - Google Chrome"));
+    this.toggleMode("slack", title.endsWith("Slack - Google Chrome"));
     this.lastTitle = title;
   }
 
-  trackModeChange(cb) {
+  trackModeChange(cb: () => void) {
     const prev = Array.from(this.mode)
       .sort()
       .join(", ");
@@ -226,12 +214,10 @@ export class Machine {
   }
 
   toggleMode(mode, setting) {
-    this.trackModeChange(() => {
-      if (setting) {
-        this.mode.add(mode);
-      } else {
-        this.mode.delete(mode);
-      }
-    });
+    if (setting) {
+      this.mode.add(mode);
+    } else {
+      this.mode.delete(mode);
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 import { Parser } from "./parse/Parser";
 
-const parser = new Parser("test");
+const parser = new Parser(null, "test");
 
 function key(name) {
   return { handler: "key", key: name };

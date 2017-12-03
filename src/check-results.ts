@@ -7,7 +7,7 @@ Usage:
 
 Options:
   --watch                    Watch for future updates
-  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar.pgv]
+  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar/main.pegvoice]
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
@@ -19,11 +19,18 @@ import { Parser } from "./parse/Parser";
 import { ParseError } from "./parse/ParseError";
 import { SampleLog } from "./samples/SampleLog";
 
+import * as bunyan from "bunyan";
 import * as fs from "fs";
 
 import { rightArrow } from "./symbols";
+import { Machine } from "./Machine";
 
-const parser = new Parser(options["--grammar"], {
+const log = bunyan.createLogger({
+  name: "check-results",
+  streams: []
+});
+const machine = new Machine(log);
+const parser = new Parser(machine, options["--grammar"], {
   watchPersistent: options["--watch"]
 });
 const sampleLog = new SampleLog(options["--samples"]);

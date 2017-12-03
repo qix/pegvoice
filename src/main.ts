@@ -16,7 +16,7 @@ Options:
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
   --macros=<path>            Macro storage [default: ~/.pegvoice/macros]
-  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar.pgv]
+  --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar/main.pegvoice]
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
 `;
 
@@ -25,6 +25,7 @@ import { Config } from "./config";
 import { ParseError } from "./parse/ParseError";
 import { Parser } from "./parse/Parser";
 import { ConsoleRenderer } from "./render/ConsoleRenderer";
+import CommandResult from "./render/CommandResult";
 import { SampleLog } from "./samples/SampleLog";
 import { SingleLineRenderer } from "./render/SingleLineRenderer";
 
@@ -67,7 +68,7 @@ if (options["--single-line"]) {
   renderer = new ConsoleRenderer();
 }
 
-const parser = new Parser(grammarPath, {
+const parser = new Parser(machine, grammarPath, {
   onError(err) {
     log.error(err);
     renderer.parseError(err);
@@ -184,7 +185,7 @@ async function executeTranscripts(transcripts) {
 
   let firstError = null;
 
-  const commands = transcripts
+  const commands: Array<CommandResult> = transcripts
     .map((transcript, idx) => {
       const N = idx + 1;
       try {
@@ -193,18 +194,14 @@ async function executeTranscripts(transcripts) {
         const priority = command ? JSON.stringify(command.priority) : null;
         return { N, command, rendered, priority, transcript };
       } catch (err) {
-        if (err instanceof ParseError) {
-          firstError = firstError || err.toString();
-          return {
-            N,
-            command: null,
-            rendered: "null",
-            priority: null,
-            transcript
-          };
-        } else {
-          throw err;
-        }
+        firstError = firstError || err.toString();
+        return {
+          N,
+          command: null,
+          rendered: "null",
+          priority: null,
+          transcript
+        };
       }
     })
     .sort((a, b) => {
@@ -215,13 +212,18 @@ async function executeTranscripts(transcripts) {
       }
     });
 
+  if (firstError) {
+    console.log(firstError);
+    renderer.parseError(firstError);
+  }
+
   let noop = options["--noop"];
 
   let execCommand = null;
   if (commands.length && commands[0].command) {
     execCommand = commands.shift();
 
-    if (machine.sleep && execCommand.rendered !== "[wake up]") {
+    if (machine.sleep && !execCommand.command.enabledDuringSleep) {
       noop = true;
     }
   }

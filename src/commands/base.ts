@@ -1,14 +1,12 @@
 "use strict";
 
-import { Config } from "./config";
+import { Config } from "../config";
+import { Machine } from "../Machine";
 import * as bluebird from "bluebird";
 import * as child_process from "child_process";
-import * as fs from "fs";
+
 import * as invariant from "invariant";
 import * as path from "path";
-import { promisify } from "util";
-
-const writeFileAsync = promisify(fs.writeFile);
 
 function lowerKey(key) {
   const map = "+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;\"'";
@@ -25,34 +23,22 @@ function optionalJson(body) {
   return json === "{}" || json === "[]" ? "" : ` ${json}`;
 }
 
-const commands: { [name: string]: typeof Command } = {};
+export const definedCommands: Array<typeof Command> = [];
 
 function installCommand(command: any) {
-  const { commandName } = <typeof Command>command;
-  invariant(
-    !commands.hasOwnProperty(commandName),
-    `Command ${commandName} has already been installed.`
-  );
-  commands[commandName] = command;
+  definedCommands.push(<typeof Command>command);
 }
 
-export function deserializeCommand(props: {
-  command: string;
-  args: any;
-}): Command {
-  const { command, args } = props;
-  invariant(commands.hasOwnProperty(command), "Command not found: %s", command);
-  const cls = commands[command];
-  return cls.deserializeArgs(args || {});
-}
-
-abstract class Command {
+export abstract class Command {
   static commandName: string = null;
 
   priority: Array<number>;
 
   constructor() {
     this.priority = [];
+  }
+  get enabledDuringSleep() {
+    return false;
   }
   abstract async execute(machine);
   abstract render(): string;
@@ -85,10 +71,13 @@ abstract class Command {
     return commands.map(cmd => cmd.render()).join(" ");
   }
 }
-abstract class SimpleCommand extends Command {
+export abstract class SimpleCommand extends Command {
   render() {
     const { commandName } = <typeof Command>this.constructor;
     return `[${commandName}]`;
+  }
+  static deserializeArgs() {
+    return new (<any>this)();
   }
   serializeArgs() {
     return {};
@@ -98,9 +87,9 @@ abstract class BasicCommand<T> extends Command {
   value: T;
   args: any;
 
-  constructor(command: T, args: any = {}) {
+  constructor(value: T, args: any = {}) {
     super();
-    this.value = command;
+    this.value = value;
     this.args = args || {};
     invariant(!this.args.hasOwnProperty("value"), "Value argument is reserved");
   }
@@ -133,15 +122,18 @@ function withoutProperty(obj, prop) {
   return copy;
 }
 
-abstract class BooleanCommand extends BasicCommand<boolean> {}
-abstract class NumberCommand extends BasicCommand<number> {}
-abstract class StringCommand extends BasicCommand<string> {}
+export abstract class BooleanCommand extends BasicCommand<boolean> {}
+export abstract class NumberCommand extends BasicCommand<number> {}
+export abstract class StringCommand extends BasicCommand<string> {}
 
 abstract class CommandExtender extends Command {
   command: Command;
   constructor(command) {
     super();
     this.command = command;
+  }
+  get enabledDuringSleep() {
+    return this.command.enabledDuringSleep;
   }
   renderPartial(): string {
     return "";
@@ -159,6 +151,44 @@ abstract class CommandExtender extends Command {
     return {
       command: this.command.serialize()
     };
+  }
+}
+
+abstract class CommandGroup extends Command {
+  commands: Array<Command>;
+
+  constructor(commands: Array<Command>) {
+    super();
+    this.commands = commands;
+  }
+
+  get enabledDuringSleep() {
+    return this.commands.every(cmd => cmd.enabledDuringSleep);
+  }
+  splitByClass() {
+    return CommandGroup.splitByClass(this.commands);
+  }
+
+  static splitByClass(
+    commands: Array<Command>
+  ): [Array<Command>, Array<Command>] {
+    const rest = [...commands];
+    let first = [];
+    while (rest.length) {
+      if (rest[0] instanceof MultiCommand) {
+        const cmd = <MultiCommand>rest.shift();
+        rest.unshift(...cmd.commands);
+      } else if (rest[0] instanceof NoopCommand) {
+        rest.shift();
+      } else if (first.length === 0) {
+        first.push(rest.shift());
+      } else if (first[0].constructor === rest[0].constructor) {
+        first.push(rest.shift());
+      } else {
+        break;
+      }
+    }
+    return [first, rest];
   }
 }
 
@@ -214,55 +244,6 @@ export class PreviousCommand extends SimpleCommand {
 }
 
 @installCommand
-export class RecordMacroCommand extends SimpleCommand {
-  static commandName = "macro.record";
-  async execute(machine) {
-    machine.recordMacro();
-  }
-}
-
-@installCommand
-export class SaveMacroCommand extends StringCommand {
-  static commandName = "macro.save";
-  async execute(machine) {
-    const macro = machine.saveMacro(this.value);
-    const [cmds] = MultiCommand.flatten(macro);
-
-    const content =
-      cmds
-        .map(cmd => {
-          return JSON.stringify(cmd.serialize());
-        })
-        .join("\n") + "\n";
-
-    await writeFileAsync(Config.getMacroPath(this.value), content);
-  }
-}
-
-@installCommand
-export class EditMacroCommand extends StringCommand {
-  static commandName = "macro.edit";
-  constructor(name: string) {
-    super(name);
-  }
-  async execute(machine) {
-    const path = Config.getMacroPath(this.value);
-    const sub = new ExecCommand(`code --wait ${path}`, {
-      wait: true
-    });
-    await sub.execute(machine);
-  }
-}
-
-@installCommand
-export class PlayMacroCommand extends StringCommand {
-  static commandName = "macro.play";
-  async execute(machine) {
-    return machine.playMacro(this.value);
-  }
-}
-
-@installCommand
 export class WaitCommand extends NumberCommand {
   static commandName = "wait";
   async execute() {
@@ -271,103 +252,10 @@ export class WaitCommand extends NumberCommand {
 }
 
 @installCommand
-export class VscodeCommand extends StringCommand {
-  static commandName = "vscode";
-
-  static fromKeyCommands(commands) {
-    let rv = [];
-    let typing = null;
-    const keyMap = {
-      enter: "\n",
-      tab: "\t"
-    };
-    const commandMap = {
-      left: "cursorLeft",
-      right: "cursorRight",
-      up: "cursorUp",
-      down: "cursorDown",
-      backspace: "deleteLeft",
-      delete: "deleteRight"
-    };
-    commands.forEach((command: KeyCommand) => {
-      let key = keyMap[command.value] || command.value;
-      if (/^[ -~]$/.exec(key) || key === "\n") {
-        if (!typing) {
-          typing = new VscodeCommand("default:type", {
-            text: ""
-          });
-          rv.push(typing);
-        }
-        typing.args.text += key;
-      } else {
-        typing = null;
-        if (commandMap.hasOwnProperty(key)) {
-          rv.push(new VscodeCommand(commandMap[key]));
-        } else {
-          rv.push(command);
-        }
-      }
-    });
-
-    return MultiCommand.fromArray(rv);
-  }
-
-  static fromTypeCommands(commands) {
-    const [first, rest] = MultiCommand.splitByClass(commands);
-    if (first.length && first[0] instanceof KeyCommand) {
-      return MultiCommand.fromArray([
-        VscodeCommand.fromKeyCommands(first),
-        VscodeCommand.fromTypeCommands(rest)
-      ]);
-    }
-    return MultiCommand.fromArray([
-      ...first,
-      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand()
-    ]);
-  }
-
-  static fromTypeCommand(command) {
-    return VscodeCommand.fromTypeCommands([command]);
-  }
-
-  async execute(machine) {
-    return machine.vscode(this.value, this.args);
-  }
-}
-
-@installCommand
 export class CancelCommand extends SimpleCommand {
   static commandName = "cancel";
   async execute(machine) {
     return machine.cancel();
-  }
-}
-
-@installCommand
-export class PriorityCommand extends Command {
-  static commandName = "priority";
-  priority: Array<number>;
-  command: Command;
-
-  constructor(priority, command) {
-    super();
-    this.priority = [priority];
-    this.command = command;
-  }
-  render() {
-    return this.command.render();
-  }
-  async execute(machine) {
-    return this.command.execute(machine);
-  }
-  parseExecute(state) {
-    this.command.parseExecute(state);
-  }
-  serialize() {
-    return this.command.serialize();
-  }
-  serializeArgs() {
-    throw new Error("Not implemented");
   }
 }
 
@@ -615,6 +503,10 @@ export class RelativePathCommand extends StringCommand {
 @installCommand
 export class SleepCommand extends BooleanCommand {
   static commandName = "sleep";
+  get enabledDuringSleep(): boolean {
+    return true;
+  }
+
   async execute(machine) {
     machine.setSleep(this.value);
   }
@@ -629,43 +521,22 @@ export class RecordCommand extends BooleanCommand {
 }
 
 @installCommand
-export class MultiCommand extends Command {
+export class MultiCommand extends CommandGroup {
   static commandName = "multi";
   commands: Array<Command>;
 
-  constructor(commands: Array<Command>) {
-    super();
-    [this.commands, this.priority] = MultiCommand.flatten(commands);
+  constructor(commands: Array<Command>, priority: number = null) {
+    const [flatCommands, commandPriorities] = MultiCommand.flatten(commands);
+    super(flatCommands);
+
+    this.priority.push(...commandPriorities);
+    if (priority !== null) {
+      this.priority.unshift(priority);
+    }
   }
 
   render() {
     return MultiCommand.renderMany(this.commands);
-  }
-
-  splitByClass() {
-    return MultiCommand.splitByClass(this.commands);
-  }
-
-  static splitByClass(
-    commands: Array<Command>
-  ): [Array<Command>, Array<Command>] {
-    const rest = [...commands];
-    let first = [];
-    while (rest.length) {
-      if (rest[0] instanceof MultiCommand) {
-        const cmd = <MultiCommand>rest.shift();
-        rest.unshift(...cmd.commands);
-      } else if (rest[0] instanceof NoopCommand) {
-        rest.shift();
-      } else if (first.length === 0) {
-        first.push(rest.shift());
-      } else if (first[0].constructor === rest[0].constructor) {
-        first.push(rest.shift());
-      } else {
-        break;
-      }
-    }
-    return [first, rest];
   }
 
   static renderMany(commands: Array<Command>): string {
@@ -687,8 +558,6 @@ export class MultiCommand extends Command {
     if (command instanceof MultiCommand) {
       const [commands, priorities] = MultiCommand.flatten(command.commands);
       return commands;
-    } else if (command instanceof PriorityCommand) {
-      return MultiCommand.flattenCommand(command.command);
     } else if (command instanceof NoopCommand) {
       return [];
     } else {

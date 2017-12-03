@@ -13,7 +13,7 @@ export class ConfigClass {
 
   _macroPath: string;
   set macroPath(path: string) {
-    this._macroPath = expandHomeDir(path);
+    this._macroPath = path ? expandHomeDir(path) : null;
   }
 
   getMacroPath(name) {
@@ -22,3 +22,4 @@ export class ConfigClass {
 }
 
 export const Config = ConfigClass.getInstance();
+export default Config;

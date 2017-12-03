@@ -160,7 +160,7 @@ export class PegGenerator {
         }
       }
       if (wrapPriority) {
-        expr = `new PriorityCommand(${this.nextPriority++}, ${expr})`;
+        expr = `new MultiCommand([${expr}], ${this.nextPriority++})`;
       }
 
       return `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n
@@ -213,7 +213,7 @@ export class PegGenerator {
         invariant(sourcePath, "Import statements only allowed at top level");
         const filePath = path.join(
           path.dirname(sourcePath),
-          `${ruleAst.module}.pgv`
+          `${ruleAst.module}.pegvoice`
         );
         const parsed = this.parser(filePath);
         invariant(
@@ -260,7 +260,10 @@ export class PegGenerator {
         return result;
       };
 
-      __grammar__ = head:__command__ tail:(_ __command__)* {
+      __grammar__ = head:__command__? tail:(_ __command__)* __eof__ {
+        if (!head) {
+          head = options.command('noop');
+        }
         return options.commands.MultiCommand.fromArray([
           head, ...tail.map(match => match[1])
         ]);

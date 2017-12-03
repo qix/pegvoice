@@ -2,12 +2,12 @@
 /*eslint no-console: "allow"*/
 
 import * as EventEmitter from "events";
+import { Machine } from "../Machine";
 import { ParseError } from "./ParseError";
 import { PegGenerator } from "./PegGenerator";
 
 import * as chokidar from "chokidar";
-import * as commands from "../commands";
-import * as extensions from "../extensions";
+import * as commands from "../commands/index";
 import * as debounce from "lodash.debounce";
 import * as expandHomeDir from "expand-home-dir";
 import * as fs from "fs";
@@ -49,13 +49,17 @@ function tryParse(source, callback) {
 export class Parser extends EventEmitter {
   ParseError = ParseError;
 
+  machine: Machine;
   path: string;
   options: any;
   parser: any;
+  extensions: { [name: string]: any };
 
-  constructor(path, options: any = {}) {
+  constructor(machine: Machine, path, options: any = {}) {
     super();
+    this.machine = machine;
     this.path = expandHomeDir(path);
+    this.extensions = {};
     this.options = options;
 
     if (options.onError) {
@@ -100,7 +104,8 @@ export class Parser extends EventEmitter {
     const generator = new PegGenerator(languageParser);
     const source = generator.pegFile(grammarPath);
 
-    fs.writeFileSync(grammarPath + ".out", source);
+    // fs.writeFileSync(grammarPath + ".out", source);
+
     this.emit("step", "Creating parser");
     return tryParse(source, s =>
       peg.generate(s, {
@@ -116,6 +121,9 @@ export class Parser extends EventEmitter {
         this.path,
         this.options.parserOptions || {}
       );
+
+      // This runs an initial parse, which ensures the parser works and loads extensions/etc.
+      this.parse("");
       this.emit("change");
     } catch (err) {
       this.emit("error", err);
@@ -129,11 +137,14 @@ export class Parser extends EventEmitter {
     }
     try {
       return this.parser.parse(transcript, {
-        command(command, args = {}) {
-          return commands.deserializeCommand({ command, args });
+        command: (command, args = {}) => {
+          return this.machine.deserializeCommand({ command, args });
+        },
+        loadExtension: name => {
+          return this.machine.loadExtension(name);
         },
         commands,
-        extensions,
+        extensions: this.extensions,
         mode
       });
     } catch (err) {
