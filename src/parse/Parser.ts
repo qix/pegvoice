@@ -54,6 +54,7 @@ export class Parser extends EventEmitter {
   options: any;
   parser: any;
   extensions: { [name: string]: any };
+  watcher: any;
 
   constructor(machine: Machine, path, options: any = {}) {
     super();
@@ -72,7 +73,7 @@ export class Parser extends EventEmitter {
       this.on("step", options.onStep);
     }
 
-    this.watch();
+    this.watcher = this.watch();
     this.build();
   }
 
@@ -87,6 +88,7 @@ export class Parser extends EventEmitter {
         this.emit("update");
       }, 100)
     );
+    return watcher;
   }
 
   buildParser(grammarPath, options = {}) {
@@ -95,7 +97,9 @@ export class Parser extends EventEmitter {
     this.emit("step", "Compiling language");
     const language = tryParse(read(langPath), s => peg.generate(s));
 
+    const sourceFiles: Set<string> = new Set();
     const languageParser = (path: string): any => {
+      sourceFiles.add(path);
       return tryParse(read(path), source => {
         return language.parse(source);
       });
@@ -103,6 +107,7 @@ export class Parser extends EventEmitter {
 
     const generator = new PegGenerator(languageParser);
     const source = generator.pegFile(grammarPath);
+    this.watcher.add(Array.from(sourceFiles));
 
     // fs.writeFileSync(grammarPath + ".out", source);
 

@@ -3,4 +3,5 @@ node_modules
 *.log
 *.out
 vagrant/.vagrant
+vagrant/files
 out/

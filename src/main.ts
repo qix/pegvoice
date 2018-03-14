@@ -132,11 +132,12 @@ async function main() {
         req.on("end", () => {
           const message = JSON.parse(Buffer.concat(buffer).toString("utf-8"));
 
-          const transcripts = message.interpretations
-            .map(option => {
-              return option.join(wordSeperator);
-            })
-            .filter(x => x);
+          // Sometimes here we get an empty interpretation meaning possibly saw
+          // nothing. We could ignore those but then often noise gets interpreted
+          // as of/is/etc.
+          const transcripts = message.interpretations.map(option => {
+            return option.join(wordSeperator);
+          });
 
           // Dragon joins some phrases, seperate them out here
           const dragonReplace = {
