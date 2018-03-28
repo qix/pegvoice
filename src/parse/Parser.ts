@@ -92,7 +92,9 @@ export class Parser extends EventEmitter {
   }
 
   buildParser(grammarPath, options = {}) {
-    const read = path => fs.readFileSync(path).toString("utf-8");
+    const read = path => {
+      return fs.readFileSync(path).toString("utf-8");
+    };
 
     this.emit("step", "Compiling language");
     const language = tryParse(read(langPath), s => peg.generate(s));

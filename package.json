@@ -18,6 +18,8 @@
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "robotjs": "^0.4.7",
+    "shell-escape": "^0.2.0",
+    "shell-quote": "^1.6.1",
     "terminal-kit": "^1.14.1",
     "typescript": "^2.6.2"
   },

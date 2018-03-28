@@ -1,6 +1,5 @@
 #!/bin/bash
 
 cd "$(dirname $0)"
-
-exec nodemon -e "ts,pegjs,pegvoice" -w "$ROOT" \
+exec nodemon -e "ts,pegjs,pegvoice" -w "." \
   --exec "./src/main.ts" --command="$1" --mode="$2" --noop --trace

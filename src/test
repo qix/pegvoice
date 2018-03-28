@@ -1,6 +1,0 @@
-#!/bin/bash
-
-ROOT="$(dirname $0)"
-
-nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
-  --exec 'npm test'

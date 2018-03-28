@@ -1,8 +1,0 @@
-#!/bin/bash
-
-ROOT="$(dirname $0)"
-
-nodemon -e "js,pegjs,pegvoice" -w "$ROOT" \
-"$ROOT/main.js" --server \
-  --debug-log="$(dirname $0)/debug.log" \
-  --result-log="$(dirname $0)/results.sample"

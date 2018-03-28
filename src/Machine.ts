@@ -15,6 +15,7 @@ import {
   Command,
   definedCommands as baseDefinedCommands
 } from "./commands/base";
+import { SerializedCommand } from "./commands/serialized";
 import { findExtension } from "./extensions";
 import { EventEmitter } from "events";
 
@@ -96,15 +97,24 @@ export class Machine extends EventEmitter {
     this.commands[commandName] = command;
   }
 
-  deserializeCommand(props: { command: string; args: any }): Command {
-    const { command, args } = props;
+  serializeCommand(command: Command): SerializedCommand {
+    const constr = <typeof Command>command.constructor;
+    return {
+      command: constr.commandName,
+      args: command.serialize()
+    };
+  }
+
+  deserializeCommand(serialized: SerializedCommand): Command {
     invariant(
-      this.commands.hasOwnProperty(command),
+      this.commands.hasOwnProperty(serialized.command),
       "Command not found: %s",
-      command
+      serialized.command
     );
-    const cls = this.commands[command];
-    return cls.deserializeArgs(args || {});
+    const classConstructor = this.commands[serialized.command];
+    const obj: Command = Object.create(classConstructor.prototype);
+    obj.deserializor(this, serialized.args);
+    return obj;
   }
 
   executeCommand(command) {

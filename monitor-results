@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd "$(dirname $0)"
-exec nodemon -e check-results,ts,pegjs,pegvoice -w . --exec \
+exec nodemon -e ts,pegjs,pegvoice -w . --exec \
   "./src/check-results.ts --watch"

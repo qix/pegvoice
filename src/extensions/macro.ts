@@ -63,7 +63,7 @@ export class SaveMacroCommand extends StringCommand {
           );
         })
         .map(cmd => {
-          return JSON.stringify(cmd.serialize());
+          return JSON.stringify(machine.serializeCommand(cmd));
         })
         .join("\n") + "\n";
 

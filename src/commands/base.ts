@@ -7,6 +7,7 @@ import * as child_process from "child_process";
 
 import * as invariant from "invariant";
 import * as path from "path";
+import { SerializedCommand } from "./serialized";
 
 function lowerKey(key) {
   const map = "+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;\"'";
@@ -37,6 +38,10 @@ export abstract class Command {
   constructor() {
     this.priority = [];
   }
+  deserializor(machine: Machine, serialized: SerializedCommand): void {
+    Object.assign(this, serialized);
+  }
+
   get enabledDuringSleep() {
     return false;
   }
@@ -55,16 +60,7 @@ export abstract class Command {
   }
 
   serialize() {
-    const { commandName } = <typeof Command>this.constructor;
-    return {
-      command: commandName,
-      args: this.serializeArgs()
-    };
-  }
-  abstract serializeArgs(): any;
-
-  static deserializeArgs(args: any): Command {
-    throw new Error("Not implemented");
+    return {};
   }
 
   static renderMany(commands) {
@@ -76,12 +72,6 @@ export abstract class SimpleCommand extends Command {
     const { commandName } = <typeof Command>this.constructor;
     return `[${commandName}]`;
   }
-  static deserializeArgs() {
-    return new (<any>this)();
-  }
-  serializeArgs() {
-    return {};
-  }
 }
 abstract class BasicCommand<T> extends Command {
   value: T;
@@ -90,7 +80,7 @@ abstract class BasicCommand<T> extends Command {
   constructor(value: T, args: any = {}) {
     super();
     this.value = value;
-    this.args = args || {};
+    this.args = args;
     invariant(!this.args.hasOwnProperty("value"), "Value argument is reserved");
   }
   render() {
@@ -100,19 +90,17 @@ abstract class BasicCommand<T> extends Command {
     )}]`;
   }
 
-  serializeArgs() {
-    return Object.assign(
-      {
-        value: this.value
-      },
-      this.args
-    );
+  deserializor(machine: Machine, args: any) {
+    super.deserializor(machine, args);
+    this.args = withoutProperty(args, "value");
+    this.value = args.value;
   }
-
-  static deserializeArgs<T>(args) {
-    const { value } = args;
-    invariant(typeof value !== "undefined", "Invalid value");
-    return new (<any>this)(value, withoutProperty(args, "value"));
+  serialize() {
+    return {
+      ...super.serialize(),
+      ...this.args,
+      value: this.value
+    };
   }
 }
 
@@ -130,7 +118,12 @@ abstract class CommandExtender extends Command {
   command: Command;
   constructor(command) {
     super();
+    invariant(command instanceof Command, "Expected Command, saw %j", command);
     this.command = command;
+  }
+  deserializor(machine: Machine, serialized) {
+    super.deserializor(machine, serialized);
+    this.command = machine.deserializeCommand(serialized.command);
   }
   get enabledDuringSleep() {
     return this.command.enabledDuringSleep;
@@ -147,8 +140,9 @@ abstract class CommandExtender extends Command {
   parseExecute(state) {
     this.command.parseExecute(state);
   }
-  serializeArgs(): any {
+  serialize() {
     return {
+      ...super.serialize(),
       command: this.command.serialize()
     };
   }
@@ -159,7 +153,27 @@ abstract class CommandGroup extends Command {
 
   constructor(commands: Array<Command>) {
     super();
+    commands.forEach(command => {
+      invariant(
+        command instanceof Command,
+        "Expected Command, saw %j",
+        command
+      );
+    });
     this.commands = commands;
+  }
+  deserializor(machine: Machine, serialized) {
+    super.deserializor(machine, serialized);
+    this.commands = serialized.commands.map(cmd =>
+      machine.deserializeCommand(cmd)
+    );
+  }
+
+  serialize() {
+    return {
+      ...super.serialize(),
+      commands: this.commands.map(cmd => cmd.serialize())
+    };
   }
 
   get enabledDuringSleep() {
@@ -281,13 +295,11 @@ export class RepeatCommand extends CommandExtender {
       this.command.parseExecute(state);
     }
   }
-  serializeArgs() {
-    return Object.assign(
-      {
-        count: this.count
-      },
-      super.serializeArgs()
-    );
+  serialize() {
+    return {
+      ...super.serialize(),
+      count: this.count
+    };
   }
 }
 
@@ -336,8 +348,9 @@ export class KeyHoldCommand extends Command {
     const action = this.state ? "hold" : "release";
     return `[key ${action} ${this.key}]`;
   }
-  serializeArgs(): any {
+  serialize() {
     return {
+      ...super.serialize(),
       key: this.key,
       state: this.state
     };
@@ -466,8 +479,9 @@ export class ModeCommand extends Command {
     (this.enable || []).forEach(mode => state.mode.add(mode));
     (this.disable || []).forEach(mode => state.mode.delete(mode));
   }
-  serializeArgs(): any {
+  serialize() {
     return {
+      ...super.serialize(),
       enable: this.enable,
       disable: this.disable
     };
@@ -584,11 +598,8 @@ export class MultiCommand extends CommandGroup {
     }
   }
   parseExecute(state) {
-    this.commands.forEach(command => command.parseExecute(state));
-  }
-  serializeArgs(): any {
-    return {
-      commands: this.commands.map(cmd => cmd.serialize())
-    };
+    this.commands.forEach(command => {
+      command.parseExecute(state);
+    });
   }
 }
