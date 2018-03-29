@@ -6,6 +6,6 @@ import * as invariant from "invariant";
 const extensions = { vscode, macro, shell };
 
 export function findExtension(name: string) {
-  invariant(extensions.hasOwnProperty(name), "Could not find extension");
+  invariant(extensions.hasOwnProperty(name), "Could not find extension %s", name);
   return extensions[name];
 }

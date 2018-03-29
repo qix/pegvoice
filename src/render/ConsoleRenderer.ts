@@ -1,16 +1,19 @@
 "use strict";
 
 import { ParseError } from "../parse/ParseError";
+import { Renderer } from "./Renderer";
 import { MultiCommand } from "../commands";
 import chalk from "chalk";
 
-export class ConsoleRenderer {
+export class ConsoleRenderer extends Renderer {
   error(err) {
     throw err;
   }
 
-  commandError(err, { rendered }) {
-    console.error(`Error during: ${rendered}`);
+  commandError(err, props: { rendered?: string } = {}) {
+    if (props.rendered) {
+      console.error(`Error during: ${props.rendered}`);
+    }
     console.error(err.stack);
   }
 
@@ -23,8 +26,11 @@ export class ConsoleRenderer {
       console.error(err.render());
     } else {
       console.error(err);
-      console.error("STACK", err.stack, JSON.stringify(err));
     }
+  }
+
+  grammarError(err) {
+    this.parseError(err);
   }
 
   grammarChanged() {

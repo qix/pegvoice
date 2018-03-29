@@ -5,9 +5,11 @@ cd "$(dirname $0)"
 exec nodemon \
   --ext 'ts,pegjs,pegvoice' \
   --delay 100ms \
+  --signal SIGHUP \
   -w ~/pegvoice \
   --exec "./src/main.ts" \
     --server \
     --debug-log="~/.pegvoice/debug.log" \
-    --single-line
+    --single-line \
+    --use-old-if-broken
 

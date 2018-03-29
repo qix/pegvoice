@@ -11,6 +11,7 @@ Usage:
 Options:
   --trace                    Enable peg tracing
   --single-line              Use single line renderer
+  --use-old-if-broken        Use old parser a syntax error is introduced
   --noop                     Disable actual command execution
   --mode=<mode>              Start with mode enabled
   --debug-log=<filename>     Add a debug log
@@ -71,7 +72,7 @@ if (options["--single-line"]) {
 const parser = new Parser(machine, grammarPath, {
   onError(err) {
     log.error(err);
-    renderer.parseError(err);
+    renderer.grammarError(err);
   },
   onChange() {
     renderer.grammarChanged();
@@ -79,6 +80,7 @@ const parser = new Parser(machine, grammarPath, {
   onStep(step) {
     renderer.parseStep(step);
   },
+  useOldParserIfBroken: options["--use-old-if-broken"],
   parserOptions: {
     trace: options["--trace"]
   }
@@ -214,7 +216,6 @@ async function executeTranscripts(transcripts) {
     });
 
   if (firstError) {
-    console.log(firstError);
     renderer.parseError(firstError);
   }
 

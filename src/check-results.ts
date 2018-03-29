@@ -109,6 +109,7 @@ main().then(
   () => process.exit(0),
   err => {
     console.error(err.stack);
+    console.error(err.toString());
     process.exit(1);
   }
 );

@@ -2,10 +2,12 @@
 
 cd "$(dirname $0)"
 echo -e '\033]2;pegvoice\007'
-exec nodemon \
+exec "./node_modules/.bin/nodemon" \
   --ext 'ts,pegjs,pegvoice' \
   --delay 100ms \
+  --signal SIGHUP \
   -w ~/pegvoice \
   --exec "./src/main.ts" \
     --server \
-    --debug-log="~/.pegvoice/debug.log"
+    --debug-log="~/.pegvoice/debug.log" \
+    --use-old-if-broken

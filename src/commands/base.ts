@@ -274,6 +274,14 @@ export class CancelCommand extends SimpleCommand {
 }
 
 @installCommand
+export class ExitCommand extends NumberCommand {
+  static commandName = "exit";
+  async execute(machine) {
+    process.exit(this.value);
+  }
+}
+
+@installCommand
 export class RepeatCommand extends CommandExtender {
   static commandName = "repeat";
   count: number;

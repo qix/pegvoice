@@ -1,5 +1,4 @@
-"use strict";
-
+import { Renderer } from "./Renderer";
 import { terminal as term } from "terminal-kit";
 
 export class SingleLineRenderer {
@@ -37,11 +36,14 @@ export class SingleLineRenderer {
     this.clear();
   }
 
-  parseError(err) {
+  grammarError(err) {
     if (!this.errorFixed) {
-      this.errorMessage = `Parse: ${err.message}`;
+      this.errorMessage = `Grammar: ${err.message}`;
     }
     this.clear();
+  }
+  parseError(err) {
+    // Ignore parse errors in single line mode
   }
 
   parseStep(message) {
@@ -53,7 +55,6 @@ export class SingleLineRenderer {
     if (!this.errorFixed) {
       this.errorMessage = null;
     }
-
     term.clear().hideCursor();
     term.green.bold("Waiting for commands...");
   }

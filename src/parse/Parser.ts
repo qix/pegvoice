@@ -46,6 +46,15 @@ function tryParse(source, callback) {
   }
 }
 
+interface ParserOptions {
+  useOldParserIfBroken?: boolean;
+  onError?: (err) => void;
+  onChange?: () => void;
+  onStep?: (step: string) => void;
+  parserOptions?: {
+    trace?: boolean;
+  };
+}
 export class Parser extends EventEmitter {
   ParseError = ParseError;
 
@@ -55,8 +64,9 @@ export class Parser extends EventEmitter {
   parser: any;
   extensions: { [name: string]: any };
   watcher: any;
+  parserError: any = null;
 
-  constructor(machine: Machine, path, options: any = {}) {
+  constructor(machine: Machine, path, options: ParserOptions = {}) {
     super();
     this.machine = machine;
     this.path = expandHomeDir(path);
@@ -124,6 +134,7 @@ export class Parser extends EventEmitter {
 
   build() {
     try {
+      this.parserError = null;
       this.parser = this.buildParser(
         this.path,
         this.options.parserOptions || {}
@@ -133,6 +144,10 @@ export class Parser extends EventEmitter {
       this.parse("");
       this.emit("change");
     } catch (err) {
+      this.parserError = err;
+      if (!this.options.useOldParserIfBroken) {
+        this.parser = null;
+      }
       this.emit("error", err);
     }
   }
@@ -140,7 +155,11 @@ export class Parser extends EventEmitter {
   parse(transcript, mode = null) {
     mode = mode || new Set();
     if (!this.parser) {
-      throw new Error("No parser");
+      if (this.parserError) {
+        throw this.parserError;
+      } else {
+        throw new Error("No parser");
+      }
     }
     try {
       return this.parser.parse(transcript, {
