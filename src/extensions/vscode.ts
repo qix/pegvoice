@@ -22,7 +22,9 @@ async function vscodeRequest(uri, payload = null) {
   });
 }
 
-class VscodeCommand extends StringCommand {
+class VscodeCommand extends StringCommand<{
+  text?: string
+}> {
   static commandName = "vscode";
 
   static fromKeyCommands(commands) {

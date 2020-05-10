@@ -59,7 +59,10 @@ export class Machine extends EventEmitter {
   commands: { [name: string]: typeof Command };
   titleHandlers: Array<TitleHandler> = [];
 
-  constructor(log, options: any = {}) {
+  constructor(log, options: {
+    disableTitleWatch?: boolean
+    startAwake?: boolean
+  } = {}) {
     super();
 
     this.commands = {};
@@ -68,7 +71,7 @@ export class Machine extends EventEmitter {
     this.mode = new Set();
     this.lastTitle = null;
     this.record = false;
-    this.sleep = false;
+    this.sleep = !options.startAwake;
     this.titleWatch = !options.disableTitleWatch;
     this.keysDown = new Set();
 
@@ -134,13 +137,18 @@ export class Machine extends EventEmitter {
     i3.command(command);
   }
   keyTap(key, modifiers) {
+    robot.setKeyboardDelay(5);
+    const s = Date.now();
     robot.keyTap(key, modifiers);
+    console.log(Date.now() - s)
   }
   keyUp(key) {
+    robot.setKeyboardDelay(0);
     robot.keyToggle(key, "up");
     this.keysDown.delete(key);
   }
   keyDown(key) {
+    robot.setKeyboardDelay(0);
     robot.keyToggle(key, "down");
     this.keysDown.add(key);
   }
@@ -153,6 +161,7 @@ export class Machine extends EventEmitter {
     });
   }
   click() {
+    robot.setMouseDelay(0);
     robot.mouseClick();
   }
 
@@ -171,9 +180,8 @@ export class Machine extends EventEmitter {
     if (this.titleWatch) {
       await this.handleTitle(await getCurrentTitle());
     }
-    if (await isScreensaverActive()) {
-      throw new Error("Screensaver is active");
-    }
+    this.toggleMode('screensaver', await isScreensaverActive());
+
     return this.mode;
   }
 

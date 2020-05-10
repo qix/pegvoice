@@ -1,7 +1,7 @@
 "use strict";
 
 import { ParseError } from "../parse/ParseError";
-import { Renderer } from "./Renderer";
+import { Renderer, RenderOpt } from "./Renderer";
 import { MultiCommand } from "../commands";
 import chalk from "chalk";
 
@@ -25,7 +25,11 @@ export class ConsoleRenderer extends Renderer {
     if (err instanceof ParseError) {
       console.error(err.render());
     } else {
-      console.error(err);
+      if (err.stack) {
+        console.error(err.stack);
+      } else {
+        console.error(err.toString())
+      }
     }
   }
 
@@ -37,7 +41,8 @@ export class ConsoleRenderer extends Renderer {
     console.log("New grammer loaded");
   }
 
-  render({ modeString, execCommand, skipCommands, noop, record, running }) {
+  render(options: RenderOpt) {
+    const { modeString, execCommand, skipCommands, noopReason, running } = options;
     const { grey, green, yellow } = chalk;
     console.log(chalk.white.dim(`[${modeString}]`));
     for (let { N, transcript, rendered, priority } of skipCommands) {
@@ -48,11 +53,11 @@ export class ConsoleRenderer extends Renderer {
 
     if (execCommand) {
       const { N, rendered, transcript, priority } = execCommand;
-      const word = noop ? "NoOp" : "Exec";
+      const word = noopReason ? `NoOp[${noopReason}]` : "Exec";
       console.log(
         `${running ? green("RUN") : grey("FIN")} ` +
-          `${N} ${word}: ` +
-          `${yellow(transcript)} => ${green(rendered)} ${grey(priority)}`
+        `${N} ${word}: ` +
+        `${yellow(transcript)} => ${green(rendered)} ${grey(priority.toString())}`
       );
     }
   }

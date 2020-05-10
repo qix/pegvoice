@@ -6,14 +6,17 @@ Usage:
   pegvoice --kaldi [options]
   pegvoice --server [options]
   pegvoice --stdin [options]
+  pegvoice --json-rpc=<path> [options]
   pegvoice --command=<command> [options]
 
 Options:
   --trace                    Enable peg tracing
   --single-line              Use single line renderer
   --use-old-if-broken        Use old parser a syntax error is introduced
+  --start-awake              Start awake by default
   --noop                     Disable actual command execution
   --mode=<mode>              Start with mode enabled
+  --json-rpc=<path>          Path to JSON-rpc voice server
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
   --macros=<path>            Macro storage [default: ~/.pegvoice/macros]
@@ -39,6 +42,7 @@ import * as util from "util";
 
 import * as http from "http";
 import { rightArrow, modeSeperator, wordSeperator } from "./symbols";
+import { JsonRpc } from "./jsonrpc";
 
 const options = docopt(doc);
 
@@ -59,7 +63,9 @@ const log = bunyan.createLogger({
   streams: bunyanStreams
 });
 const machine = new Machine(log, {
-  disableTitleWatch: !!options["--mode"]
+  disableTitleWatch: !!options["--mode"],
+  startAwake: !!options['--start-awake'],
+
 });
 
 let renderer;
@@ -71,7 +77,6 @@ if (options["--single-line"]) {
 
 const parser = new Parser(machine, grammarPath, {
   onError(err) {
-    log.error(err);
     renderer.grammarError(err);
   },
   onChange() {
@@ -127,6 +132,27 @@ async function main() {
       });
     }
 
+    if (options["--json-rpc"]) {
+      const rpc = JsonRpc.spawn(expandHomeDir(options['--json-rpc']), []);
+      if (parser.fsm) {
+        rpc.send('fsm', parser.fsm.dump())
+      }
+      rpc.on('message', ({ method, params }) => {
+        if (method === 'message') {
+          executeTranscripts([splitWords(params.output)]);
+        } else if (method === 'partial') {
+          console.error('Partial', params)
+        } else {
+          console.error('Not handled', method, params)
+
+        }
+      })
+
+      parser.on('change', () => {
+        console.log('CHANGED')
+      })
+    }
+
     if (options["--server"]) {
       const server = http.createServer((req, res) => {
         let buffer = [];
@@ -173,20 +199,20 @@ async function main() {
   });
 }
 
-async function executeTranscripts(transcripts) {
-  let first = true;
-  let mode;
+async function decodeTranscripts(transcripts) {
+  let mode: Set<string>;
   try {
     mode = await machine.fetchCurrentMode();
   } catch (err) {
     renderer.commandError(err);
     return;
   }
+
+  let firstError = null;
+
   const modeString = Array.from(mode)
     .sort()
     .join(" ");
-
-  let firstError = null;
 
   const commands: Array<CommandResult> = transcripts
     .map((transcript, idx) => {
@@ -218,15 +244,23 @@ async function executeTranscripts(transcripts) {
   if (firstError) {
     renderer.parseError(firstError);
   }
+  return { commands, mode, modeString };
+}
 
-  let noop = options["--noop"];
+async function executeTranscripts(transcripts) {
+
+  const { commands, mode, modeString } = await decodeTranscripts(transcripts);
+
+  let noopReason: string | null = options["--noop"] ? 'cmd' : null;
 
   let execCommand = null;
   if (commands.length && commands[0].command) {
     execCommand = commands.shift();
 
     if (machine.sleep && !execCommand.command.enabledDuringSleep) {
-      noop = true;
+      noopReason = 'sleep';
+    } else if (mode.has('screensaver') && !execCommand.command.enabledDuringScreensaver) {
+      noopReason = 'screensaver';
     }
   }
 
@@ -234,11 +268,11 @@ async function executeTranscripts(transcripts) {
     execCommand,
     skipCommands: commands,
     modeString,
-    noop,
+    noopReason,
     record: machine.record
   };
 
-  if (!noop && execCommand) {
+  if (!noopReason && execCommand) {
     renderer.render(
       Object.assign({}, renderParams, {
         running: true

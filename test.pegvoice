@@ -1,0 +1,85 @@
+_digit = word:(
+  one / two / three / four / five /
+  six / seven / eight / nine / naught / zero
+) _dragon? {
+  const digits = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "zero": 0,
+    "naught": 0,
+  };
+  return digits.hasOwnProperty(word) ? digits[word] : parseInt(word, 10);
+}
+
+number_ten_word = ...{
+  ten => 10;
+  eleven => 11;
+  twelve => 12;
+  thirteen => 13;
+  fourteen => 14;
+  fifteen => 15;
+  sixteen => 16;
+  seventeen => 17;
+  eighteen => 18;
+  nineteen => 19;
+}
+
+number_ten_combo_word = ...{
+  twenty => 20;
+  thirty => 30;
+  fourty => 40;
+  fifty => 50;
+  sixty => 60;
+  seventy => 70;
+  eighty => 80;
+  ninety => 90;
+}
+
+_number_ten_combo = word:_number_ten_combo_word digit:(_ _digit)? {
+  return word + (extractOptional(digit, 1) || 0);
+}
+
+
+_number_ten = _number_ten_word / _number_ten_combo
+_number_ten_or_less = _number_ten / _digit;
+
+_number_hundred = hundred:(_number_ten_or_less _ "hundred" (_ "and")?) ten:(_ _number_ten_or_less)? {
+  let number = 0;
+  if (hundred) {
+    number += hundred[0] * 100;
+  }
+  return number + (ten ? ten[1] : 0);
+}
+
+_number_pair = hundred:_number_ten_or_less _ ten:_number_ten {
+  return hundred * 100 + ten;
+}
+
+_number_hundred_word = a _ hundred { return 100; }
+
+_number = _number_hundred_word / _number_pair / _number_hundred / _number_ten_or_less;
+
+
+:number back space => key('backspace');
+:number jump => key('up');
+back :number => key('up');
+
+spell a;
+spell one;
+spell two;
+spell three;
+spell four;
+spell five;
+spell six;
+spell seven;
+spell eight;
+spell nine;
+spell naught;
+spell zero;

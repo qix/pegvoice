@@ -30,25 +30,32 @@ function installCommand(command: any) {
   definedCommands.push(<typeof Command>command);
 }
 
+export interface CommandOptions {
+  enabledDuringSleep?: boolean
+  enabledDuringScreensaver?: boolean;
+  priority?: number
+}
+
 export abstract class Command {
   static commandName: string = null;
 
   priority: Array<number>;
 
-  constructor() {
-    this.priority = [];
+  readonly enabledDuringScreensaver: boolean;
+  readonly enabledDuringSleep: boolean;
+  constructor(options: CommandOptions = {}) {
+    this.priority = options.priority ? [options.priority] : [];
+    this.enabledDuringSleep = options.enabledDuringSleep ?? false;
+    this.enabledDuringScreensaver = options.enabledDuringScreensaver ?? false;
   }
   deserializor(machine: Machine, serialized: SerializedCommand): void {
     Object.assign(this, serialized);
   }
 
-  get enabledDuringSleep() {
-    return false;
-  }
   abstract async execute(machine);
   abstract render(): string;
 
-  parseExecute(state) {}
+  parseExecute(state) { }
   compareTo(right) {
     const length = Math.min(this.priority.length, right.priority.length);
     for (let i = 0; i < length; i++) {
@@ -73,16 +80,26 @@ export abstract class SimpleCommand extends Command {
     return `[${commandName}]`;
   }
 }
-abstract class BasicCommand<T> extends Command {
+abstract class BasicCommand<T, U> extends Command {
   value: T;
-  args: any;
+  args: Partial<U> & {
+    enabledDuringScreensaver?: boolean
+    enabledDuringSleep?: boolean
+  };
 
-  constructor(value: T, args: any = {}) {
-    super();
+  constructor(value: T, args: Partial<U & {
+    enabledDuringScreensaver?: boolean
+    enabledDuringSleep?: boolean
+  }> = {}) {
+    super({
+      enabledDuringScreensaver: args.enabledDuringScreensaver,
+      enabledDuringSleep: args.enabledDuringSleep
+    });
     this.value = value;
     this.args = args;
     invariant(!this.args.hasOwnProperty("value"), "Value argument is reserved");
   }
+
   render() {
     const { commandName } = <typeof Command>this.constructor;
     return `[${commandName} ${JSON.stringify(this.value)}${optionalJson(
@@ -110,9 +127,9 @@ function withoutProperty(obj, prop) {
   return copy;
 }
 
-export abstract class BooleanCommand extends BasicCommand<boolean> {}
-export abstract class NumberCommand extends BasicCommand<number> {}
-export abstract class StringCommand extends BasicCommand<string> {}
+export abstract class BooleanCommand<T = {}> extends BasicCommand<boolean, T> { }
+export abstract class NumberCommand<T = {}> extends BasicCommand<number, T> { }
+export abstract class StringCommand<T = {}> extends BasicCommand<string, T> { }
 
 abstract class CommandExtender extends Command {
   command: Command;
@@ -124,9 +141,6 @@ abstract class CommandExtender extends Command {
   deserializor(machine: Machine, serialized) {
     super.deserializor(machine, serialized);
     this.command = machine.deserializeCommand(serialized.command);
-  }
-  get enabledDuringSleep() {
-    return this.command.enabledDuringSleep;
   }
   renderPartial(): string {
     return "";
@@ -151,8 +165,21 @@ abstract class CommandExtender extends Command {
 abstract class CommandGroup extends Command {
   commands: Array<Command>;
 
-  constructor(commands: Array<Command>) {
-    super();
+  constructor(commands: Array<Command>, options: CommandOptions = {}) {
+    super({
+      ...options,
+      enabledDuringSleep: commands.every(cmd => cmd.enabledDuringSleep),
+      enabledDuringScreensaver: commands.every(cmd => cmd.enabledDuringScreensaver),
+    });
+
+    // This is needed because commands are often regrouped
+    if (options.enabledDuringSleep && !this.enabledDuringSleep) {
+      throw new Error('All subcommands must match enabledDuringSleep option');
+    } else if (options.enabledDuringScreensaver && !this.enabledDuringScreensaver) {
+      console.log('oh');
+      throw new Error('All subcommands must match enabledDuringScreensaver option');
+    }
+
     commands.forEach(command => {
       invariant(
         command instanceof Command,
@@ -176,9 +203,6 @@ abstract class CommandGroup extends Command {
     };
   }
 
-  get enabledDuringSleep() {
-    return this.commands.every(cmd => cmd.enabledDuringSleep);
-  }
   splitByClass() {
     return CommandGroup.splitByClass(this.commands);
   }
@@ -209,12 +233,15 @@ abstract class CommandGroup extends Command {
 @installCommand
 export class NoopCommand extends SimpleCommand {
   static commandName = "noop";
-  async execute() {}
+  async execute() { }
 }
 
 @installCommand
-export class ExecCommand extends StringCommand {
+export class ExecCommand extends StringCommand<{
+  wait: true
+}> {
   static commandName = "exec";
+
   async execute(machine) {
     const proc = child_process.spawn(
       "/bin/bash",
@@ -295,6 +322,7 @@ export class RepeatCommand extends CommandExtender {
   }
   async execute(machine) {
     for (let i = 0; i < this.count; i++) {
+      console.log('repeat')
       await this.command.execute(machine);
     }
   }
@@ -421,6 +449,7 @@ export class KeyCommand extends StringCommand {
       machine.toggleMode("vim-visual", false);
     }
 
+    console.log('key tap', key)
     machine.keyTap(key, modifiers);
   }
 
@@ -525,8 +554,12 @@ export class RelativePathCommand extends StringCommand {
 @installCommand
 export class SleepCommand extends BooleanCommand {
   static commandName = "sleep";
-  get enabledDuringSleep(): boolean {
-    return true;
+
+  constructor(value, options: CommandOptions = {}) {
+    super(value, {
+      ...options,
+      enabledDuringSleep: true,
+    })
   }
 
   async execute(machine) {
@@ -547,14 +580,11 @@ export class MultiCommand extends CommandGroup {
   static commandName = "multi";
   commands: Array<Command>;
 
-  constructor(commands: Array<Command>, priority: number = null) {
+  constructor(commands: Array<Command>, options: CommandOptions = {}) {
     const [flatCommands, commandPriorities] = MultiCommand.flatten(commands);
-    super(flatCommands);
+    super(flatCommands, options);
 
     this.priority.push(...commandPriorities);
-    if (priority !== null) {
-      this.priority.unshift(priority);
-    }
   }
 
   render() {

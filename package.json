@@ -1,28 +1,29 @@
 {
   "dependencies": {
-    "@types/jest": "^21.1.8",
-    "@types/node": "^8.0.53",
-    "binary-split": "^1.0.3",
-    "bluebird": "^3.5.1",
+    "@types/jest": "^21.1.10",
+    "@types/node": "^8.10.60",
+    "@types/pegjs": "^0.10.1",
+    "binary-split": "^1.0.5",
+    "bluebird": "^3.7.2",
     "bunyan": "^1.8.12",
-    "chalk": "^2.3.0",
+    "chalk": "^2.4.2",
     "chokidar": "^1.7.0",
     "docopt": "^0.6.2",
-    "eslint-plugin-jest": "^21.2.0",
+    "eslint-plugin-jest": "^21.27.2",
     "expand-home-dir": "0.0.3",
     "i3": "^0.2.1",
-    "invariant": "^2.2.2",
-    "jest": "^21.2.1",
+    "invariant": "^2.2.4",
+    "jest": "^26.0.1",
     "lodash.debounce": "^4.0.8",
-    "nodemon": "^1.17.1",
+    "nodemon": "^1.19.4",
     "pegjs": "^0.10.0",
-    "request": "^2.83.0",
-    "request-promise": "^4.2.2",
-    "robotjs": "^0.4.7",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "robotjs": "^0.6.0",
     "shell-escape": "^0.2.0",
-    "shell-quote": "^1.6.1",
-    "terminal-kit": "^1.14.1",
-    "typescript": "^2.6.2"
+    "shell-quote": "^1.7.2",
+    "terminal-kit": "^1.35.2",
+    "typescript": "^3.8.3"
   },
   "scripts": {
     "test": "jest",
@@ -31,5 +32,8 @@
   },
   "nodemonConfig": {
     "ext": "ts,pegjs,pegvoice"
+  },
+  "devDependencies": {
+    "ts-node": "^8.10.1"
   }
 }

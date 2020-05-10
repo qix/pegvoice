@@ -87,6 +87,7 @@ PegRule = rule:Rule {
     type: 'pegrule',
     name: rule.name,
     code: text(),
+    rule: rule,
   };
 }
 

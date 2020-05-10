@@ -6,8 +6,10 @@ exec "./node_modules/.bin/nodemon" \
   --ext 'ts,pegjs,pegvoice' \
   --delay 100ms \
   --signal SIGHUP \
-  -w ~/pegvoice \
+  -w "." \
+  -w ~/.pegvoice \
   --exec "./src/main.ts" \
-    --server \
+    --json-rpc=~/code/voice/start \
     --debug-log="~/.pegvoice/debug.log" \
-    --use-old-if-broken
+    --use-old-if-broken \
+    "$@"

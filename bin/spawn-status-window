@@ -1,0 +1,29 @@
+#!/bin/bash
+
+WIDTH=1920
+HEIGHT=16
+
+xdotool search --name '^pegvoice$' | xargs --no-run-if-empty -n 1 xdotool windowkill
+
+gnome-terminal \
+  --hide-menubar --disable-factory \
+  --window-with-profile=pegvoice \
+  --role='pegvoice' -- ~/code/pegvoice/run-status "$@" &
+sleep 1
+
+
+for win in $(xdotool search --name '^pegvoice$'); do
+  echo "Moving window: $win" >> ~/log
+  #xdotool set_window --overrideredirect=1 $win
+  xdotool windowunmap --sync $win
+  xdotool windowsize --sync $win $WIDTH $HEIGHT
+  xdotool windowmove --sync $win $((1920 - $WIDTH)) $((1080 - $HEIGHT))
+
+  xprop -id "${win}" -format _NET_WM_WINDOW_TYPE 32a -set _NET_WM_WINDOW_TYPE "_NET_WM_WINDOW_TYPE_DOCK"
+  xprop -id "${win}" -format _NET_WM_STRUT_PARTIAL 32cccccccccccc \
+    -set _NET_WM_STRUT_PARTIAL "0,0,0,${HEIGHT},0,0,0,0,0,${WIDTH},0,0"
+  sleep 1
+  xdotool windowmap --sync $win
+done
+
+echo "Done!"

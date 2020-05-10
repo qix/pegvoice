@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as peg from "pegjs";
 import * as util from "util";
 import { wordSeperator } from "../symbols";
+import { FSM } from "./FSM";
 
 const langPath = require.resolve("../language/lang.pegjs");
 
@@ -62,6 +63,7 @@ export class Parser extends EventEmitter {
   path: string;
   options: any;
   parser: any;
+  fsm: FSM | null = null;
   extensions: { [name: string]: any };
   watcher: any;
   parserError: any = null;
@@ -118,27 +120,34 @@ export class Parser extends EventEmitter {
     };
 
     const generator = new PegGenerator(languageParser);
-    const source = generator.pegFile(grammarPath);
+    const { source, fsm } = generator.pegFile(grammarPath);
     this.watcher.add(Array.from(sourceFiles));
 
-    // fs.writeFileSync(grammarPath + ".out", source);
+    const outputPath = grammarPath + ".out";
+    console.log('Wrote grammar to: ' + outputPath)
+    fs.writeFileSync(outputPath, source);
 
     this.emit("step", "Creating parser");
-    return tryParse(source, s =>
+    const parser = tryParse(source, s =>
       peg.generate(s, {
         ...options,
         allowedStartRules: ["__grammar__"]
       })
     );
+
+    return { parser, fsm }
   }
 
   build() {
     try {
       this.parserError = null;
-      this.parser = this.buildParser(
+      const { parser, fsm } = this.buildParser(
         this.path,
         this.options.parserOptions || {}
       );
+
+      this.parser = parser;
+      this.fsm = fsm;
 
       // This runs an initial parse, which ensures the parser works and loads extensions/etc.
       this.parse("");
