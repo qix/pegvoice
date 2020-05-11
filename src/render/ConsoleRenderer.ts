@@ -6,6 +6,10 @@ import { MultiCommand } from "../commands";
 import chalk from "chalk";
 
 export class ConsoleRenderer extends Renderer {
+  constructor() {
+    super();
+  }
+
   error(err) {
     throw err;
   }
@@ -41,6 +45,10 @@ export class ConsoleRenderer extends Renderer {
     console.log("New grammer loaded");
   }
 
+  message(...args) {
+    console.log(...args);
+  }
+
   render(options: RenderOpt) {
     const { modeString, execCommand, skipCommands, noopReason, running } = options;
     const { grey, green, yellow } = chalk;
@@ -54,11 +62,14 @@ export class ConsoleRenderer extends Renderer {
     if (execCommand) {
       const { N, rendered, transcript, priority } = execCommand;
       const word = noopReason ? `NoOp[${noopReason}]` : "Exec";
-      console.log(
-        `${running ? green("RUN") : grey("FIN")} ` +
-        `${N} ${word}: ` +
-        `${yellow(transcript)} => ${green(rendered)} ${grey(priority.toString())}`
-      );
+
+      let line = `${running ? green("RUN") : grey("FIN")} ${N} ${word}: `;
+      line += `${yellow(transcript)} => ${green(rendered)} ${grey(priority.toString())}`;
+      if (options.runTimeMs) {
+        line += ' ' + grey(`${options.runTimeMs.toFixed(3)}ms`)
+      }
+
+      console.log(line);
     }
   }
 }

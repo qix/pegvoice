@@ -3,6 +3,7 @@ import CommandResult from "./CommandResult";
 export abstract class Renderer {
   abstract parseError(message: string);
   abstract grammarError(err: Error);
+  abstract message(message: string);
 }
 
 export interface RenderOpt {
@@ -12,4 +13,5 @@ export interface RenderOpt {
   noopReason: string
   record: boolean
   running: boolean
+  runTimeMs?: number;
 }

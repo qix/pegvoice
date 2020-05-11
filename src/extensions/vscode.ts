@@ -124,6 +124,8 @@ export function activate(machine: Machine) {
       }
     });
 
+    console.log(title);
+
     let vscodeModes = [];
     /*
         let vscode = title.endsWith(' - Visual Studio Code');

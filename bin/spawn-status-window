@@ -2,7 +2,6 @@
 
 WIDTH=1920
 HEIGHT=16
-
 xdotool search --name '^pegvoice$' | xargs --no-run-if-empty -n 1 xdotool windowkill
 
 gnome-terminal \

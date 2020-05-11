@@ -1,11 +1,12 @@
 import { Renderer } from "./Renderer";
 import { terminal as term } from "terminal-kit";
 
-export class SingleLineRenderer {
+export class SingleLineRenderer extends Renderer {
   errorMessage: string | null;
   errorFixed: boolean;
 
   constructor() {
+    super();
     this.errorMessage = null;
     this.errorFixed = false;
   }
@@ -19,6 +20,9 @@ export class SingleLineRenderer {
       remaining -= render.length;
     }
     return remaining;
+  }
+
+  message(message: string) {
   }
 
   error(err) {

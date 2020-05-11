@@ -136,11 +136,10 @@ export class Machine extends EventEmitter {
   i3(command) {
     i3.command(command);
   }
+
   keyTap(key, modifiers) {
-    robot.setKeyboardDelay(5);
-    const s = Date.now();
+    robot.setKeyboardDelay(0);
     robot.keyTap(key, modifiers);
-    console.log(Date.now() - s)
   }
   keyUp(key) {
     robot.setKeyboardDelay(0);
@@ -152,6 +151,7 @@ export class Machine extends EventEmitter {
     robot.keyToggle(key, "down");
     this.keysDown.add(key);
   }
+
   cancel() {
     for (let key of Array.from(this.keysDown)) {
       this.keyUp(key);

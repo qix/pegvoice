@@ -26,7 +26,6 @@ Options:
 
 import { Machine } from "./Machine";
 import { Config } from "./config";
-import { ParseError } from "./parse/ParseError";
 import { Parser } from "./parse/Parser";
 import { ConsoleRenderer } from "./render/ConsoleRenderer";
 import CommandResult from "./render/CommandResult";
@@ -37,12 +36,11 @@ import * as binarySplit from "binary-split";
 import * as bunyan from "bunyan";
 import { docopt } from "docopt";
 import * as expandHomeDir from "expand-home-dir";
-import * as fs from "fs";
-import * as util from "util";
 
 import * as http from "http";
-import { rightArrow, modeSeperator, wordSeperator } from "./symbols";
+import {  wordSeperator } from "./symbols";
 import { JsonRpc } from "./jsonrpc";
+import { RenderOpt } from "./render/Renderer";
 
 const options = docopt(doc);
 
@@ -65,7 +63,6 @@ const log = bunyan.createLogger({
 const machine = new Machine(log, {
   disableTitleWatch: !!options["--mode"],
   startAwake: !!options['--start-awake'],
-
 });
 
 let renderer;
@@ -137,13 +134,18 @@ async function main() {
       if (parser.fsm) {
         rpc.send('fsm', parser.fsm.dump())
       }
+      const threshold = 1.75;
       rpc.on('message', ({ method, params }) => {
         if (method === 'message') {
-          executeTranscripts([splitWords(params.output)]);
+          if (params.likelihood < threshold) {
+            renderer.message('Below threshold: [%d] %o', params.likelihood, params.output)
+          } else {
+            executeTranscripts([splitWords(params.output)]);
+          }
         } else if (method === 'partial') {
-          console.error('Partial', params)
+          renderer.message('Partial', params)
         } else {
-          console.error('Not handled', method, params)
+          renderer.message('Not handled', method, params)
 
         }
       })
@@ -264,23 +266,25 @@ async function executeTranscripts(transcripts) {
     }
   }
 
-  const renderParams = {
+  const renderParams: RenderOpt = {
     execCommand,
     skipCommands: commands,
     modeString,
     noopReason,
-    record: machine.record
+    record: machine.record,
+    running: false
   };
 
   if (!noopReason && execCommand) {
-    renderer.render(
-      Object.assign({}, renderParams, {
-        running: true
-      })
-    );
+    renderParams.running = true;
+    renderer.render({ ...renderParams });
+    const startExec = process.hrtime.bigint();
     await machine.executeCommand(execCommand.command).catch(err => {
       renderer.commandError(err, execCommand);
     });
+    const execTimeNanos = Number(process.hrtime.bigint() - startExec);
+    renderParams.running = false;
+    renderParams.runTimeMs = (execTimeNanos / 1_000_000);
   }
 
   if (sampleLog && machine.record && (execCommand || transcripts.length)) {

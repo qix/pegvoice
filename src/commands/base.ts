@@ -176,7 +176,6 @@ abstract class CommandGroup extends Command {
     if (options.enabledDuringSleep && !this.enabledDuringSleep) {
       throw new Error('All subcommands must match enabledDuringSleep option');
     } else if (options.enabledDuringScreensaver && !this.enabledDuringScreensaver) {
-      console.log('oh');
       throw new Error('All subcommands must match enabledDuringScreensaver option');
     }
 
@@ -322,7 +321,6 @@ export class RepeatCommand extends CommandExtender {
   }
   async execute(machine) {
     for (let i = 0; i < this.count; i++) {
-      console.log('repeat')
       await this.command.execute(machine);
     }
   }
@@ -449,7 +447,6 @@ export class KeyCommand extends StringCommand {
       machine.toggleMode("vim-visual", false);
     }
 
-    console.log('key tap', key)
     machine.keyTap(key, modifiers);
   }
 
