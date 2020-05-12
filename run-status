@@ -6,7 +6,7 @@ exec nodemon \
   --ext 'ts,pegjs,pegvoice' \
   --delay 100ms \
   --signal SIGHUP \
-  -w ~/pegvoice \
+  -w "." \
   --exec "./src/main.ts" \
     --debug-log="~/.pegvoice/debug.log" \
     --single-line \

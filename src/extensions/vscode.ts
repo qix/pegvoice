@@ -4,26 +4,39 @@ import * as invariant from "invariant";
 import * as os from "os";
 import * as path from "path";
 import * as request from "request-promise";
+import { promises as fs } from "fs";
 
 import { Machine } from "../Machine";
 import {
   StringCommand,
   MultiCommand,
   KeyCommand,
-  NoopCommand
+  NoopCommand,
 } from "../commands/base";
 
 async function vscodeRequest(uri, payload = null) {
-  const socketPath = path.join(os.homedir(), ".pegvoice/vscode-socket");
-  return await request({
-    url: `http://unix:${socketPath}:${uri}`,
-    json: payload || true,
-    method: payload ? "POST" : "GET"
-  });
+  const socketRoot = path.join(os.homedir(), ".pegvoice");
+  const socketFiles = (await fs.readdir(socketRoot)).filter((filename) =>
+    filename.startsWith("vscode-socket-")
+  );
+
+  if (!socketFiles.length) {
+    throw new Error("Could not find any sockets for vscode");
+  }
+
+  return await Promise.all(
+    socketFiles.map((filename) =>
+      request({
+        url: `http://unix:${path.join(socketRoot, filename)}:${uri}`,
+        json: payload || true,
+        method: payload ? "POST" : "GET",
+      })
+    )
+  );
 }
 
 class VscodeCommand extends StringCommand<{
-  text?: string
+  text?: string;
 }> {
   static commandName = "vscode";
 
@@ -32,7 +45,7 @@ class VscodeCommand extends StringCommand<{
     let typing = null;
     const keyMap = {
       enter: "\n",
-      tab: "\t"
+      tab: "\t",
     };
     const commandMap = {
       left: "cursorLeft",
@@ -40,14 +53,14 @@ class VscodeCommand extends StringCommand<{
       up: "cursorUp",
       down: "cursorDown",
       backspace: "deleteLeft",
-      delete: "deleteRight"
+      delete: "deleteRight",
     };
     commands.forEach((command: KeyCommand) => {
       let key = keyMap[command.value] || command.value;
       if (/^[ -~]$/.exec(key) || key === "\n") {
         if (!typing) {
           typing = new VscodeCommand("default:type", {
-            text: ""
+            text: "",
           });
           rv.push(typing);
         }
@@ -70,12 +83,12 @@ class VscodeCommand extends StringCommand<{
     if (first.length && first[0] instanceof KeyCommand) {
       return MultiCommand.fromArray([
         VscodeCommand.fromKeyCommands(first),
-        VscodeCommand.fromTypeCommands(rest)
+        VscodeCommand.fromTypeCommands(rest),
       ]);
     }
     return MultiCommand.fromArray([
       ...first,
-      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand()
+      rest.length ? VscodeCommand.fromTypeCommands(rest) : new NoopCommand(),
     ]);
   }
 
@@ -86,7 +99,7 @@ class VscodeCommand extends StringCommand<{
   async execute(machine) {
     return vscodeRequest("/command", {
       command: this.value,
-      args: this.args
+      args: this.args,
     });
   }
 }
@@ -103,12 +116,12 @@ export function activate(machine: Machine) {
     "editorHasRenameProvider",
     "filesExplorerFocus",
     "inSnippetMode",
-    "replaceActive"
+    "replaceActive",
   ];
 
   function modeTest(modes, string) {
     if (string.includes(" && ")) {
-      return string.split(" && ").every(str => modeTest(modes, str));
+      return string.split(" && ").every((str) => modeTest(modes, str));
     } else if (string.startsWith("!")) {
       return !modeTest(modes, string.substring(1));
     }
@@ -117,23 +130,13 @@ export function activate(machine: Machine) {
     return modes.has(`vscode-${string}`);
   }
 
-  machine.addTitleHandler(async title => {
-    machine.mode.forEach(mode => {
+  machine.addTitleHandler(async (title) => {
+    machine.mode.forEach((mode) => {
       if (mode.startsWith("vscode-")) {
         machine.mode.delete(mode);
       }
     });
 
-    console.log(title);
-
-    let vscodeModes = [];
-    /*
-        let vscode = title.endsWith(' - Visual Studio Code');
-        if (vscode) {
-          const state = await vscodeRequest('/state');
-          vscodeModes = state.modes;
-        }
-        */
     let vscode = title.endsWith("~~pegvoice-vscode");
     machine.toggleMode("vscode", vscode);
 
@@ -141,10 +144,10 @@ export function activate(machine: Machine) {
       const match = /.*~~context~~(.*)~~pegvoice-vscode$/.exec(title);
       match[1]
         .split("~")
-        .filter(mode => {
+        .filter((mode) => {
           return watchModes.includes(mode);
         })
-        .forEach(mode => {
+        .forEach((mode) => {
           machine.mode.add(`vscode-${mode}`);
         });
     }
@@ -154,6 +157,6 @@ export function activate(machine: Machine) {
   return {
     VscodeCommand,
     modeTest,
-    modes: watchModes
+    modes: watchModes,
   };
 }

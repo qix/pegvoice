@@ -7,9 +7,8 @@ exec "./node_modules/.bin/nodemon" \
   --delay 100ms \
   --signal SIGHUP \
   -w "." \
-  -w ~/.pegvoice \
-  --exec "./src/main.ts" \
-    --json-rpc=~/code/voice/start \
+  -- "./src/main.ts" \
+    --json-rpc=voice-server \
     --debug-log="~/.pegvoice/debug.log" \
     --use-old-if-broken \
     "$@"

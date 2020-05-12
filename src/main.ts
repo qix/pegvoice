@@ -19,6 +19,7 @@ Options:
   --json-rpc=<path>          Path to JSON-rpc voice server
   --debug-log=<filename>     Add a debug log
   --result-log=<filename>    Log results to a file
+  --output=<path>            Compiled output [default: ~/.pegvoice/output]
   --macros=<path>            Macro storage [default: ~/.pegvoice/macros]
   --grammar=<filename>       Grammer file [default: ~/.pegvoice/grammar/main.pegvoice]
   --samples=<filename>       Samples file [default: ~/.pegvoice/samples.log]
@@ -38,9 +39,10 @@ import { docopt } from "docopt";
 import * as expandHomeDir from "expand-home-dir";
 
 import * as http from "http";
-import {  wordSeperator } from "./symbols";
+import { wordSeperator } from "./symbols";
 import { JsonRpc } from "./jsonrpc";
-import { RenderOpt } from "./render/Renderer";
+import { RenderOpt, Renderer } from "./render/Renderer";
+import { ExecutionContext } from "./commands/ExecutionContext";
 
 const options = docopt(doc);
 
@@ -48,7 +50,7 @@ const bunyanStreams = [];
 if (options["--debug-log"]) {
   bunyanStreams.push({
     level: "debug",
-    path: expandHomeDir(options["--debug-log"])
+    path: expandHomeDir(options["--debug-log"]),
   });
 }
 
@@ -58,21 +60,26 @@ const grammarPath = expandHomeDir(options["--grammar"]);
 
 const log = bunyan.createLogger({
   name: "pegvoice",
-  streams: bunyanStreams
-});
-const machine = new Machine(log, {
-  disableTitleWatch: !!options["--mode"],
-  startAwake: !!options['--start-awake'],
+  streams: bunyanStreams,
 });
 
-let renderer;
+let renderer: Renderer;
+let childStderr: "ignore" | "inherit" = "inherit";
+
 if (options["--single-line"]) {
+  childStderr = "ignore";
   renderer = new SingleLineRenderer();
 } else {
   renderer = new ConsoleRenderer();
 }
 
+const machine = new Machine(renderer, {
+  disableTitleWatch: !!options["--mode"],
+  startAwake: !!options["--start-awake"],
+});
+
 const parser = new Parser(machine, grammarPath, {
+  compiledPath: expandHomeDir(options["--output"]),
   onError(err) {
     renderer.grammarError(err);
   },
@@ -83,24 +90,23 @@ const parser = new Parser(machine, grammarPath, {
     renderer.parseStep(step);
   },
   useOldParserIfBroken: options["--use-old-if-broken"],
-  parserOptions: {
-    trace: options["--trace"]
-  }
+  trace: options["--trace"] ?? false,
+});
+
+parser.on("warning", (warning: string) => {
+  renderer.message("Warning: " + warning);
 });
 
 function splitWords(string) {
   if (string.includes(wordSeperator)) {
     return string.trim();
   }
-  return string
-    .trim()
-    .split(" ")
-    .join(wordSeperator);
+  return string.trim().split(" ").join(wordSeperator);
 }
 
 async function main() {
   await new Promise((resolve, reject) => {
-    const handleError = err => {
+    const handleError = (err) => {
       try {
         log.error(err);
         renderer.error(err);
@@ -109,7 +115,7 @@ async function main() {
       }
     };
 
-    (options["--mode"] || "").split(" ").forEach(mode => {
+    (options["--mode"] || "").split(" ").forEach((mode) => {
       if (mode) {
         machine.toggleMode(mode, true);
       }
@@ -124,55 +130,63 @@ async function main() {
     }
 
     if (options["--stdin"]) {
-      process.stdin.pipe(binarySplit()).on("data", line => {
+      process.stdin.pipe(binarySplit()).on("data", (line) => {
         executeTranscripts([splitWords(line.toString("utf-8"))]);
       });
     }
 
     if (options["--json-rpc"]) {
-      const rpc = JsonRpc.spawn(expandHomeDir(options['--json-rpc']), []);
+      const rpc = JsonRpc.spawn(expandHomeDir(options["--json-rpc"]), [], {
+        childStderr,
+      });
+
       if (parser.fsm) {
-        rpc.send('fsm', parser.fsm.dump())
+        rpc.send("fsm", parser.fsm.dump());
       }
+      parser.on("change", () => {
+        rpc.send("fsm", parser.fsm.dump());
+      });
+
       const threshold = 1.75;
-      rpc.on('message', ({ method, params }) => {
-        if (method === 'message') {
+      rpc.on("message", ({ method, params }) => {
+        if (method === "message") {
+          let noopReason: string | null = null;
           if (params.likelihood < threshold) {
-            renderer.message('Below threshold: [%d] %o', params.likelihood, params.output)
-          } else {
-            executeTranscripts([splitWords(params.output)]);
+            noopReason = "below-threshold:" + params.likelihood.toFixed(2);
           }
-        } else if (method === 'partial') {
-          renderer.message('Partial', params)
+          executeTranscripts([splitWords(params.output)], {
+            noopReason,
+          });
+        } else if (method === "partial") {
+          executeTranscripts([splitWords(params.output)], {
+            partial: true,
+          });
+        } else if (method === "status") {
+          renderer.message("Status: " + params.message);
         } else {
-          renderer.message('Not handled', method, params)
-
+          renderer.message("Not handled", method, params);
         }
-      })
-
-      parser.on('change', () => {
-        console.log('CHANGED')
-      })
+      });
     }
 
     if (options["--server"]) {
       const server = http.createServer((req, res) => {
         let buffer = [];
-        req.on("data", data => buffer.push(data));
+        req.on("data", (data) => buffer.push(data));
         req.on("end", () => {
           const message = JSON.parse(Buffer.concat(buffer).toString("utf-8"));
 
           // Sometimes here we get an empty interpretation meaning possibly saw
           // nothing. We could ignore those but then often noise gets interpreted
           // as of/is/etc.
-          const transcripts = message.interpretations.map(option => {
+          const transcripts = message.interpretations.map((option) => {
             return option.join(wordSeperator);
           });
 
           // Dragon joins some phrases, seperate them out here
           const dragonReplace = {
             downright: ["down", "right"],
-            lineup: ["line", "up"]
+            lineup: ["line", "up"],
           };
           for (let transcript of transcripts) {
             for (let [match, replace] of Object.entries(dragonReplace)) {
@@ -201,20 +215,21 @@ async function main() {
   });
 }
 
-async function decodeTranscripts(transcripts) {
-  let mode: Set<string>;
-  try {
-    mode = await machine.fetchCurrentMode();
-  } catch (err) {
-    renderer.commandError(err);
-    return;
-  }
+interface DecodeResult {
+  commands: CommandResult[];
+  mode: Set<string>;
+  modeString: string;
+}
+
+async function decodeTranscripts(
+  ctx: ExecutionContext,
+  transcripts: string[]
+): Promise<DecodeResult> {
+  let mode: Set<string> = await machine.fetchCurrentMode(ctx);
 
   let firstError = null;
 
-  const modeString = Array.from(mode)
-    .sort()
-    .join(" ");
+  const modeString = Array.from(mode).sort().join(" ");
 
   const commands: Array<CommandResult> = transcripts
     .map((transcript, idx) => {
@@ -231,7 +246,7 @@ async function decodeTranscripts(transcripts) {
           command: null,
           rendered: "null",
           priority: null,
-          transcript
+          transcript,
         };
       }
     })
@@ -249,20 +264,45 @@ async function decodeTranscripts(transcripts) {
   return { commands, mode, modeString };
 }
 
-async function executeTranscripts(transcripts) {
+async function executeTranscripts(
+  transcripts: string[],
+  props: {
+    partial?: boolean;
+    noopReason?: string;
+  } = {}
+) {
+  const ctx = new ExecutionContext(renderer, machine);
 
-  const { commands, mode, modeString } = await decodeTranscripts(transcripts);
+  let decoded: DecodeResult;
 
-  let noopReason: string | null = options["--noop"] ? 'cmd' : null;
+  try {
+    decoded = await decodeTranscripts(ctx, transcripts);
+  } catch (err) {
+    ctx.error(err);
+    return;
+  }
+
+  const { commands, mode, modeString } = decoded;
+
+  let noopReason: string | null = props.noopReason ?? null;
+
+  if (noopReason === null && options["--noop"]) {
+    noopReason = "cmd";
+  }
 
   let execCommand = null;
   if (commands.length && commands[0].command) {
     execCommand = commands.shift();
 
-    if (machine.sleep && !execCommand.command.enabledDuringSleep) {
-      noopReason = 'sleep';
-    } else if (mode.has('screensaver') && !execCommand.command.enabledDuringScreensaver) {
-      noopReason = 'screensaver';
+    if (props.partial) {
+      noopReason = "partial";
+    } else if (machine.sleep && !execCommand.command.enabledDuringSleep) {
+      noopReason = "sleep";
+    } else if (
+      mode.has("screensaver") &&
+      !execCommand.command.enabledDuringScreensaver
+    ) {
+      noopReason = "screensaver";
     }
   }
 
@@ -272,26 +312,26 @@ async function executeTranscripts(transcripts) {
     modeString,
     noopReason,
     record: machine.record,
-    running: false
+    running: false,
   };
 
   if (!noopReason && execCommand) {
     renderParams.running = true;
     renderer.render({ ...renderParams });
     const startExec = process.hrtime.bigint();
-    await machine.executeCommand(execCommand.command).catch(err => {
+    await machine.executeCommand(ctx, execCommand.command).catch((err) => {
       renderer.commandError(err, execCommand);
     });
     const execTimeNanos = Number(process.hrtime.bigint() - startExec);
     renderParams.running = false;
-    renderParams.runTimeMs = (execTimeNanos / 1_000_000);
+    renderParams.runTimeMs = execTimeNanos / 1_000_000;
   }
 
   if (sampleLog && machine.record && (execCommand || transcripts.length)) {
     sampleLog.append({
       modeString,
       transcript: execCommand ? execCommand.transcript : transcripts[0],
-      result: execCommand ? execCommand.rendered : "null"
+      result: execCommand ? execCommand.rendered : "null",
     });
   }
 
@@ -300,7 +340,7 @@ async function executeTranscripts(transcripts) {
 
 main().then(
   () => process.exit(0),
-  err => {
+  (err) => {
     console.error(err.stack);
     process.exit(1);
   }

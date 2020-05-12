@@ -1,23 +1,21 @@
 "use strict";
 
-import * as bluebird from "bluebird";
 import chalk from "chalk";
 import * as fs from "fs";
 import * as i3Library from "i3";
 import * as invariant from "invariant";
 import { exec } from "child_process";
 import { promisify } from "util";
-import * as os from "os";
-import * as path from "path";
-import * as request from "request-promise";
 import * as robot from "robotjs";
 import {
   Command,
-  definedCommands as baseDefinedCommands
+  definedCommands as baseDefinedCommands,
 } from "./commands/base";
 import { SerializedCommand } from "./commands/serialized";
 import { findExtension } from "./extensions";
 import { EventEmitter } from "events";
+import { ExecutionContext } from "./commands/ExecutionContext";
+import { Renderer } from "./render/Renderer";
 
 const i3 = i3Library.createClient();
 const execAsync = promisify(exec);
@@ -30,16 +28,17 @@ async function getCurrentTitle() {
 
 async function isScreensaverActive() {
   const { stdout } = await execAsync("gnome-screensaver-command -q");
-  const response = stdout.trim();
   const knownResponses = {
     "The screensaver is inactive": false,
-    "The screensaver is active": true
+    "The screensaver is active": true,
   };
-  invariant(
-    knownResponses.hasOwnProperty(response),
-    "Expected known response from gnome-screensaver"
-  );
-  return knownResponses[response];
+
+  for (const [response, rv] of Object.entries(knownResponses)) {
+    if (stdout.includes(response)) {
+      return rv;
+    }
+  }
+  throw new Error("Expected known response from gnome-screensaver");
 }
 
 type TitleHandler = (title: string) => Promise<void>;
@@ -59,10 +58,13 @@ export class Machine extends EventEmitter {
   commands: { [name: string]: typeof Command };
   titleHandlers: Array<TitleHandler> = [];
 
-  constructor(log, options: {
-    disableTitleWatch?: boolean
-    startAwake?: boolean
-  } = {}) {
+  constructor(
+    readonly renderer: Renderer,
+    options: {
+      disableTitleWatch?: boolean;
+      startAwake?: boolean;
+    } = {}
+  ) {
     super();
 
     this.commands = {};
@@ -77,7 +79,7 @@ export class Machine extends EventEmitter {
 
     this.currentMacro = null;
 
-    baseDefinedCommands.forEach(cmd => this.installCommand(cmd));
+    baseDefinedCommands.forEach((cmd) => this.installCommand(cmd));
   }
 
   addTitleHandler(cb: TitleHandler) {
@@ -104,7 +106,7 @@ export class Machine extends EventEmitter {
     const constr = <typeof Command>command.constructor;
     return {
       command: constr.commandName,
-      args: command.serialize()
+      args: command.serialize(),
     };
   }
 
@@ -120,8 +122,8 @@ export class Machine extends EventEmitter {
     return obj;
   }
 
-  executeCommand(command) {
-    return bluebird.resolve(command.execute(this)).finally(() => {
+  executeCommand(ctx: ExecutionContext, command: Command) {
+    return command.execute(ctx).finally(() => {
       this.previousCommand = command;
       this.emit("commandFinished", command);
     });
@@ -152,13 +154,14 @@ export class Machine extends EventEmitter {
     this.keysDown.add(key);
   }
 
-  cancel() {
+  reset() {
     for (let key of Array.from(this.keysDown)) {
       this.keyUp(key);
     }
-    this.mode.forEach(mode => {
+    this.mode.forEach((mode) => {
       this.mode.delete(mode);
     });
+    this.renderer.reset();
   }
   click() {
     robot.setMouseDelay(0);
@@ -176,18 +179,23 @@ export class Machine extends EventEmitter {
     }
   }
 
-  async fetchCurrentMode() {
+  async fetchCurrentMode(ctx: ExecutionContext) {
     if (this.titleWatch) {
       await this.handleTitle(await getCurrentTitle());
     }
-    this.toggleMode('screensaver', await isScreensaverActive());
+
+    try {
+      this.toggleMode("screensaver", await isScreensaverActive());
+    } catch (err) {
+      ctx.error(err);
+    }
 
     return this.mode;
   }
 
   async handleTitle(title) {
     if (title !== this.lastTitle) {
-      console.log(chalk.white.dim(`Title: ${title}`));
+      this.renderer.message(`Title: ${title}`);
     }
 
     const match = / <vim:(.*)>$/.exec(title);
@@ -211,18 +219,17 @@ export class Machine extends EventEmitter {
     this.toggleMode("vim-visual", vimVisual);
     this.toggleMode("vim-rebase", vim && title.startsWith("git-rebase-todo "));
     this.toggleMode("chrome", title.endsWith(" - Google Chrome"));
-    this.toggleMode("slack", title.endsWith("Slack - Google Chrome"));
+    this.toggleMode(
+      "slack",
+      title.endsWith("Slack - Google Chrome") || title.startsWith("Slack | ")
+    );
     this.lastTitle = title;
   }
 
   trackModeChange(cb: () => void) {
-    const prev = Array.from(this.mode)
-      .sort()
-      .join(", ");
+    const prev = Array.from(this.mode).sort().join(", ");
     cb();
-    const after = Array.from(this.mode)
-      .sort()
-      .join(", ");
+    const after = Array.from(this.mode).sort().join(", ");
 
     /* @TODO: Track recursive changes and output somewhere
     if (prev !== after) {

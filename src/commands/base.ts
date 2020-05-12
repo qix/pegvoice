@@ -8,6 +8,8 @@ import * as child_process from "child_process";
 import * as invariant from "invariant";
 import * as path from "path";
 import { SerializedCommand } from "./serialized";
+import { quote } from "shell-quote";
+import { ExecutionContext } from "./ExecutionContext";
 
 function lowerKey(key) {
   const map = "+=!1@2#3$4%5^6&7*8(9)0_-?/|\\{[}]><~`:;\"'";
@@ -31,9 +33,9 @@ function installCommand(command: any) {
 }
 
 export interface CommandOptions {
-  enabledDuringSleep?: boolean
+  enabledDuringSleep?: boolean;
   enabledDuringScreensaver?: boolean;
-  priority?: number
+  priority?: number;
 }
 
 export abstract class Command {
@@ -52,10 +54,10 @@ export abstract class Command {
     Object.assign(this, serialized);
   }
 
-  abstract async execute(machine);
+  abstract async execute(ctx: ExecutionContext);
   abstract render(): string;
 
-  parseExecute(state) { }
+  parseExecute(state) {}
   compareTo(right) {
     const length = Math.min(this.priority.length, right.priority.length);
     for (let i = 0; i < length; i++) {
@@ -71,7 +73,7 @@ export abstract class Command {
   }
 
   static renderMany(commands) {
-    return commands.map(cmd => cmd.render()).join(" ");
+    return commands.map((cmd) => cmd.render()).join(" ");
   }
 }
 export abstract class SimpleCommand extends Command {
@@ -83,17 +85,14 @@ export abstract class SimpleCommand extends Command {
 abstract class BasicCommand<T, U> extends Command {
   value: T;
   args: Partial<U> & {
-    enabledDuringScreensaver?: boolean
-    enabledDuringSleep?: boolean
+    enabledDuringScreensaver?: boolean;
+    enabledDuringSleep?: boolean;
   };
 
-  constructor(value: T, args: Partial<U & {
-    enabledDuringScreensaver?: boolean
-    enabledDuringSleep?: boolean
-  }> = {}) {
+  constructor(value: T, args: Partial<U & CommandOptions> = {}) {
     super({
       enabledDuringScreensaver: args.enabledDuringScreensaver,
-      enabledDuringSleep: args.enabledDuringSleep
+      enabledDuringSleep: args.enabledDuringSleep,
     });
     this.value = value;
     this.args = args;
@@ -116,7 +115,7 @@ abstract class BasicCommand<T, U> extends Command {
     return {
       ...super.serialize(),
       ...this.args,
-      value: this.value
+      value: this.value,
     };
   }
 }
@@ -127,9 +126,9 @@ function withoutProperty(obj, prop) {
   return copy;
 }
 
-export abstract class BooleanCommand<T = {}> extends BasicCommand<boolean, T> { }
-export abstract class NumberCommand<T = {}> extends BasicCommand<number, T> { }
-export abstract class StringCommand<T = {}> extends BasicCommand<string, T> { }
+export abstract class BooleanCommand<T = {}> extends BasicCommand<boolean, T> {}
+export abstract class NumberCommand<T = {}> extends BasicCommand<number, T> {}
+export abstract class StringCommand<T = {}> extends BasicCommand<string, T> {}
 
 abstract class CommandExtender extends Command {
   command: Command;
@@ -157,7 +156,7 @@ abstract class CommandExtender extends Command {
   serialize() {
     return {
       ...super.serialize(),
-      command: this.command.serialize()
+      command: this.command.serialize(),
     };
   }
 }
@@ -168,18 +167,25 @@ abstract class CommandGroup extends Command {
   constructor(commands: Array<Command>, options: CommandOptions = {}) {
     super({
       ...options,
-      enabledDuringSleep: commands.every(cmd => cmd.enabledDuringSleep),
-      enabledDuringScreensaver: commands.every(cmd => cmd.enabledDuringScreensaver),
+      enabledDuringSleep: commands.every((cmd) => cmd.enabledDuringSleep),
+      enabledDuringScreensaver: commands.every(
+        (cmd) => cmd.enabledDuringScreensaver
+      ),
     });
 
     // This is needed because commands are often regrouped
     if (options.enabledDuringSleep && !this.enabledDuringSleep) {
-      throw new Error('All subcommands must match enabledDuringSleep option');
-    } else if (options.enabledDuringScreensaver && !this.enabledDuringScreensaver) {
-      throw new Error('All subcommands must match enabledDuringScreensaver option');
+      throw new Error("All subcommands must match enabledDuringSleep option");
+    } else if (
+      options.enabledDuringScreensaver &&
+      !this.enabledDuringScreensaver
+    ) {
+      throw new Error(
+        "All subcommands must match enabledDuringScreensaver option"
+      );
     }
 
-    commands.forEach(command => {
+    commands.forEach((command) => {
       invariant(
         command instanceof Command,
         "Expected Command, saw %j",
@@ -190,7 +196,7 @@ abstract class CommandGroup extends Command {
   }
   deserializor(machine: Machine, serialized) {
     super.deserializor(machine, serialized);
-    this.commands = serialized.commands.map(cmd =>
+    this.commands = serialized.commands.map((cmd) =>
       machine.deserializeCommand(cmd)
     );
   }
@@ -198,7 +204,7 @@ abstract class CommandGroup extends Command {
   serialize() {
     return {
       ...super.serialize(),
-      commands: this.commands.map(cmd => cmd.serialize())
+      commands: this.commands.map((cmd) => cmd.serialize()),
     };
   }
 
@@ -232,25 +238,39 @@ abstract class CommandGroup extends Command {
 @installCommand
 export class NoopCommand extends SimpleCommand {
   static commandName = "noop";
-  async execute() { }
+  async execute() {}
 }
 
 @installCommand
 export class ExecCommand extends StringCommand<{
-  wait: true
+  wait?: boolean;
 }> {
+  constructor(
+    command: string[] | string,
+    options: CommandOptions & { wait: boolean }
+  ) {
+    if (Array.isArray(command)) {
+      command = quote(command);
+    }
+    super(command, options);
+  }
   static commandName = "exec";
 
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     const proc = child_process.spawn(
       "/bin/bash",
       ["--login", "-c", this.value],
       {
-        detached: true
+        detached: true,
       }
     );
+    proc.on("exit", (code) => {
+      if (code !== 0) {
+        ctx.error(new Error("Process exit with code " + code));
+      }
+    });
     if (this.args.wait) {
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         proc.on("exit", () => {
           resolve();
         });
@@ -262,8 +282,8 @@ export class ExecCommand extends StringCommand<{
 @installCommand
 export class I3Command extends StringCommand {
   static commandName = "i3";
-  async execute(machine) {
-    machine.i3(this.value);
+  async execute(ctx: ExecutionContext) {
+    ctx.machine.i3(this.value);
   }
 }
 
@@ -277,9 +297,9 @@ export class PreviousCommand extends SimpleCommand {
     // Save the previous command in case this is run again in a future command (prevent loop)
     this.previousCommand = null;
   }
-  async execute(machine) {
-    this.previousCommand = this.previousCommand || machine.previousCommand;
-    return this.previousCommand.execute(machine);
+  async execute(ctx: ExecutionContext) {
+    this.previousCommand = this.previousCommand || ctx.machine.previousCommand;
+    return this.previousCommand.execute(ctx);
   }
 }
 
@@ -292,17 +312,17 @@ export class WaitCommand extends NumberCommand {
 }
 
 @installCommand
-export class CancelCommand extends SimpleCommand {
-  static commandName = "cancel";
-  async execute(machine) {
-    return machine.cancel();
+export class ResetCommand extends SimpleCommand {
+  static commandName = "reset";
+  async execute(ctx: ExecutionContext) {
+    return ctx.machine.reset();
   }
 }
 
 @installCommand
 export class ExitCommand extends NumberCommand {
   static commandName = "exit";
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     process.exit(this.value);
   }
 }
@@ -319,9 +339,9 @@ export class RepeatCommand extends CommandExtender {
   renderPartial() {
     return `${this.count}`;
   }
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     for (let i = 0; i < this.count; i++) {
-      await this.command.execute(machine);
+      await this.command.execute(ctx);
     }
   }
   parseExecute(state) {
@@ -332,7 +352,7 @@ export class RepeatCommand extends CommandExtender {
   serialize() {
     return {
       ...super.serialize(),
-      count: this.count
+      count: this.count,
     };
   }
 }
@@ -341,15 +361,15 @@ export class RepeatCommand extends CommandExtender {
 export class BackgroundCommand extends CommandExtender {
   static commandName = "background";
 
-  async execute(machine) {
-    await new Promise(resolve => {
+  async execute(ctx: ExecutionContext) {
+    await new Promise((resolve) => {
       let timeout = setTimeout(() => resolve(), 100);
-      this.command.execute(machine).then(
+      this.command.execute(ctx).then(
         () => {
           clearTimeout(timeout);
           resolve();
         },
-        err => {
+        (err) => {
           console.error("Error during background command:");
           console.error(err.stack);
           clearTimeout(timeout);
@@ -371,11 +391,11 @@ export class KeyHoldCommand extends Command {
     this.key = key;
     this.state = state;
   }
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     if (this.state) {
-      machine.keyDown(this.key);
+      ctx.machine.keyDown(this.key);
     } else {
-      machine.keyUp(this.key);
+      ctx.machine.keyUp(this.key);
     }
   }
   render() {
@@ -386,7 +406,7 @@ export class KeyHoldCommand extends Command {
     return {
       ...super.serialize(),
       key: this.key,
-      state: this.state
+      state: this.state,
     };
   }
 }
@@ -407,7 +427,7 @@ export class KeyCommand extends StringCommand {
       {
         semicolon: ";",
         underscore: "_",
-        space: " "
+        space: " ",
       }[name] || name
     );
   }
@@ -424,9 +444,9 @@ export class KeyCommand extends StringCommand {
     key = KeyCommand.tryToAscii(key);
 
     const modifiers = split.map(
-      modifier =>
+      (modifier) =>
         ({
-          ctrl: "control"
+          ctrl: "control",
         }[modifier] || modifier)
     );
 
@@ -439,15 +459,15 @@ export class KeyCommand extends StringCommand {
     return [key, modifiers];
   }
 
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     const [key, modifiers] = KeyCommand.splitModifiers(this.value);
 
     if (key === "escape") {
-      machine.toggleMode("vim-insert", false);
-      machine.toggleMode("vim-visual", false);
+      ctx.machine.toggleMode("vim-insert", false);
+      ctx.machine.toggleMode("vim-visual", false);
     }
 
-    machine.keyTap(key, modifiers);
+    ctx.machine.keyTap(key, modifiers);
   }
 
   render() {
@@ -455,7 +475,7 @@ export class KeyCommand extends StringCommand {
   }
 
   static renderMany(commands: Array<KeyCommand>) {
-    const keys = commands.map(cmd => KeyCommand.tryToAscii(cmd.value));
+    const keys = commands.map((cmd) => KeyCommand.tryToAscii(cmd.value));
 
     const escaped = ['"', "'"];
 
@@ -467,7 +487,7 @@ export class KeyCommand extends StringCommand {
         string = "";
       }
     };
-    const addLarge = key => {
+    const addLarge = (key) => {
       closeString();
       rv += (rv ? " " : "") + `<${key}>`;
     };
@@ -495,29 +515,29 @@ export class ModeCommand extends Command {
     this.enable = enable;
     this.disable = disable;
   }
-  async execute(machine) {
-    machine.trackModeChange(() => {
-      (this.enable || []).forEach(mode => machine.mode.add(mode));
-      (this.disable || []).forEach(mode => machine.mode.delete(mode));
+  async execute(ctx: ExecutionContext) {
+    ctx.machine.trackModeChange(() => {
+      (this.enable || []).forEach((mode) => ctx.machine.mode.add(mode));
+      (this.disable || []).forEach((mode) => ctx.machine.mode.delete(mode));
     });
   }
   render() {
     const changes = [
-      ...this.enable.map(mode => `+${mode}`),
-      ...this.disable.map(mode => `-${mode}`)
+      ...this.enable.map((mode) => `+${mode}`),
+      ...this.disable.map((mode) => `-${mode}`),
     ];
     return `[mode ${changes.join(" ")}]`;
   }
   parseExecute(state) {
     state.mode = new Set([...state.mode]);
-    (this.enable || []).forEach(mode => state.mode.add(mode));
-    (this.disable || []).forEach(mode => state.mode.delete(mode));
+    (this.enable || []).forEach((mode) => state.mode.add(mode));
+    (this.disable || []).forEach((mode) => state.mode.delete(mode));
   }
   serialize() {
     return {
       ...super.serialize(),
       enable: this.enable,
-      disable: this.disable
+      disable: this.disable,
     };
   }
 }
@@ -525,8 +545,8 @@ export class ModeCommand extends Command {
 @installCommand
 export class ClickCommand extends SimpleCommand {
   static commandName = "click";
-  async execute(machine) {
-    machine.click();
+  async execute(ctx: ExecutionContext) {
+    ctx.machine.click();
   }
 }
 
@@ -534,8 +554,8 @@ export class ClickCommand extends SimpleCommand {
 export class RelativePathCommand extends StringCommand {
   static commandName = "type.relativePath";
 
-  async execute(machine) {
-    const current = await machine.fetchCurrentPath();
+  async execute(ctx: ExecutionContext) {
+    const current = await ctx.machine.fetchCurrentPath();
     let type = this.value;
     if (current) {
       type = path.relative(current, type);
@@ -543,7 +563,7 @@ export class RelativePathCommand extends StringCommand {
 
     for (const letter of type) {
       const [key, modifiers] = KeyCommand.splitModifiers(letter);
-      machine.keyTap(key, modifiers);
+      ctx.machine.keyTap(key, modifiers);
     }
   }
 }
@@ -556,19 +576,19 @@ export class SleepCommand extends BooleanCommand {
     super(value, {
       ...options,
       enabledDuringSleep: true,
-    })
+    });
   }
 
-  async execute(machine) {
-    machine.setSleep(this.value);
+  async execute(ctx: ExecutionContext) {
+    ctx.machine.setSleep(this.value);
   }
 }
 
 @installCommand
 export class RecordCommand extends BooleanCommand {
   static commandName = "record";
-  async execute(machine) {
-    machine.setRecord(this.value);
+  async execute(ctx: ExecutionContext) {
+    ctx.machine.setRecord(this.value);
   }
 }
 
@@ -616,7 +636,7 @@ export class MultiCommand extends CommandGroup {
   static flatten(commands): [Array<Command>, Array<number>] {
     const rv = [];
     const priority = [];
-    commands.forEach(el => {
+    commands.forEach((el) => {
       priority.push(...(el.priority || []));
       rv.push(...MultiCommand.flattenCommand(el));
     });
@@ -627,13 +647,13 @@ export class MultiCommand extends CommandGroup {
     return new MultiCommand(arr);
   }
 
-  async execute(machine) {
+  async execute(ctx: ExecutionContext) {
     for (let command of this.commands) {
-      await command.execute(machine);
+      await command.execute(ctx);
     }
   }
   parseExecute(state) {
-    this.commands.forEach(command => {
+    this.commands.forEach((command) => {
       command.parseExecute(state);
     });
   }

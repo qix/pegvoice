@@ -13,6 +13,7 @@ import * as expandHomeDir from "expand-home-dir";
 import * as fs from "fs";
 import * as peg from "pegjs";
 import * as util from "util";
+import path = require("path");
 import { wordSeperator } from "../symbols";
 import { FSM } from "./FSM";
 
@@ -31,7 +32,7 @@ function tryParse(source, callback) {
     if (err.name === "SyntaxError") {
       const replaceError = new ParseError(
         {
-          location: err.location
+          location: err.location,
         },
         err.message
       );
@@ -52,15 +53,15 @@ interface ParserOptions {
   onError?: (err) => void;
   onChange?: () => void;
   onStep?: (step: string) => void;
-  parserOptions?: {
-    trace?: boolean;
-  };
+  compiledPath?: string;
+  trace?: boolean;
 }
 export class Parser extends EventEmitter {
   ParseError = ParseError;
 
   machine: Machine;
-  path: string;
+  grammarPath: string;
+  compiledPath?: string;
   options: any;
   parser: any;
   fsm: FSM | null = null;
@@ -71,7 +72,10 @@ export class Parser extends EventEmitter {
   constructor(machine: Machine, path, options: ParserOptions = {}) {
     super();
     this.machine = machine;
-    this.path = expandHomeDir(path);
+    this.grammarPath = expandHomeDir(path);
+    this.compiledPath = options.compiledPath
+      ? expandHomeDir(options.compiledPath)
+      : null;
     this.extensions = {};
     this.options = options;
 
@@ -85,13 +89,19 @@ export class Parser extends EventEmitter {
       this.on("step", options.onStep);
     }
 
+    this.on("warning", (warning) => {
+      if (this.listenerCount("warning") === 1) {
+        console.error("Warning: " + warning);
+      }
+    });
+
     this.watcher = this.watch();
     this.build();
   }
 
   watch() {
-    const watcher = chokidar.watch(this.path, {
-      persistent: this.options.watchPersistent || false
+    const watcher = chokidar.watch(this.grammarPath, {
+      persistent: this.options.watchPersistent || false,
     });
     watcher.on(
       "change",
@@ -103,48 +113,58 @@ export class Parser extends EventEmitter {
     return watcher;
   }
 
-  buildParser(grammarPath, options = {}) {
-    const read = path => {
+  private buildParser() {
+    const read = (path) => {
       return fs.readFileSync(path).toString("utf-8");
     };
 
     this.emit("step", "Compiling language");
-    const language = tryParse(read(langPath), s => peg.generate(s));
+    const language = tryParse(read(langPath), (s) => peg.generate(s));
 
     const sourceFiles: Set<string> = new Set();
     const languageParser = (path: string): any => {
       sourceFiles.add(path);
-      return tryParse(read(path), source => {
+      return tryParse(read(path), (source) => {
         return language.parse(source);
       });
     };
 
-    const generator = new PegGenerator(languageParser);
-    const { source, fsm } = generator.pegFile(grammarPath);
+    const generator = new PegGenerator(languageParser, {
+      onWarning: this.emit.bind(this, "warning"),
+    });
+    const { source, fsm } = generator.pegFile(this.grammarPath);
     this.watcher.add(Array.from(sourceFiles));
 
-    const outputPath = grammarPath + ".out";
-    console.log('Wrote grammar to: ' + outputPath)
-    fs.writeFileSync(outputPath, source);
+    if (this.compiledPath) {
+      try {
+        fs.mkdirSync(this.compiledPath);
+      } catch (err) {
+        if (err.code !== "EEXIST") {
+          throw err;
+        }
+      }
+      fs.writeFileSync(path.join(this.compiledPath, "grammar.pegjs"), source);
+      fs.writeFileSync(
+        path.join(this.compiledPath, "grammar.dot"),
+        fsm.renderDot()
+      );
+    }
 
     this.emit("step", "Creating parser");
-    const parser = tryParse(source, s =>
+    const parser = tryParse(source, (s) =>
       peg.generate(s, {
-        ...options,
-        allowedStartRules: ["__grammar__"]
+        trace: this.options.trace || false,
+        allowedStartRules: ["__grammar__"],
       })
     );
 
-    return { parser, fsm }
+    return { parser, fsm };
   }
 
   build() {
     try {
       this.parserError = null;
-      const { parser, fsm } = this.buildParser(
-        this.path,
-        this.options.parserOptions || {}
-      );
+      const { parser, fsm } = this.buildParser();
 
       this.parser = parser;
       this.fsm = fsm;
@@ -175,18 +195,18 @@ export class Parser extends EventEmitter {
         command: (command, args = {}) => {
           return this.machine.deserializeCommand({ command, args });
         },
-        loadExtension: name => {
+        loadExtension: (name) => {
           return this.machine.loadExtension(name);
         },
         commands,
         extensions: this.extensions,
-        mode
+        mode,
       });
     } catch (err) {
       if (err instanceof this.parser.SyntaxError) {
         throw new ParseError(
           {
-            location: err.location || null
+            location: err.location || null,
           },
           err.message
         );

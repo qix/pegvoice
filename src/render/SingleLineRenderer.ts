@@ -1,82 +1,101 @@
-import { Renderer } from "./Renderer";
+import { Renderer, RenderOpt } from "./Renderer";
 import { terminal as term } from "terminal-kit";
 
+enum FixedMessagePriority {
+  none = 0,
+  message,
+  warning,
+  commandError,
+  grammarError,
+  error,
+}
 export class SingleLineRenderer extends Renderer {
-  errorMessage: string | null;
-  errorFixed: boolean;
-
-  constructor() {
-    super();
-    this.errorMessage = null;
-    this.errorFixed = false;
-  }
+  msg: string | null = null;
+  msgPri: FixedMessagePriority = FixedMessagePriority.none;
+  msgColor: "red" | "white" = "white";
 
   clear() {
     term.clear().hideCursor();
-    let remaining = term.width;
-    if (this.errorMessage) {
-      const render = this.errorMessage.substring(0, remaining);
-      term.red.bold(render);
+    let remaining: number = term.width;
+    if (this.msg) {
+      const render = this.msg.substring(0, remaining);
+      term[this.msgColor].bold(render);
       remaining -= render.length;
     }
     return remaining;
   }
 
-  message(message: string) {
+  message(message: string, ...args) {
+    this.clear();
+    term.white(message);
   }
 
-  error(err) {
-    if (!this.errorFixed) {
-      this.errorMessage = `Error: ${err.message}`;
-      this.errorFixed = true;
+  private setMessage(
+    color: "red" | "white",
+    message: string,
+    priority: FixedMessagePriority
+  ) {
+    if (priority < this.msgPri) {
+      return;
+    }
+
+    this.msg = message.split("\n")[0];
+    this.msgColor = color;
+    this.msgPri = priority;
+
+    const maxLength = Math.max(40, term.width / 2);
+    if (this.msg.length > maxLength) {
+      this.msg = this.msg.substring(0, maxLength - 3) + "...";
     }
     this.clear();
   }
 
-  commandError(err) {
-    if (!this.errorFixed) {
-      this.errorMessage = `Command: ${err.message}`;
-    }
-    this.clear();
+  error(err: Error) {
+    this.setMessage("red", `Error: ${err.message}`, FixedMessagePriority.error);
   }
 
-  grammarError(err) {
-    if (!this.errorFixed) {
-      this.errorMessage = `Grammar: ${err.message}`;
-    }
-    this.clear();
+  commandError(err: Error) {
+    this.setMessage(
+      "red",
+      `Command: ${err.message}`,
+      FixedMessagePriority.commandError
+    );
   }
-  parseError(err) {
+
+  grammarError(err: Error) {
+    this.setMessage(
+      "red",
+      `Grammar: ${err.message}`,
+      FixedMessagePriority.grammarError
+    );
+  }
+  parseError(err: Error) {
     // Ignore parse errors in single line mode
   }
 
   parseStep(message) {
-    term.clear().hideCursor();
+    this.clear();
     term.yellow.bold(message);
   }
 
+  reset() {
+    this.msg = null;
+  }
+
   grammarChanged() {
-    if (!this.errorFixed) {
-      this.errorMessage = null;
+    if (this.msgPri === FixedMessagePriority.grammarError) {
+      this.msg = null;
     }
-    term.clear().hideCursor();
+    this.clear();
     term.green.bold("Waiting for commands...");
   }
 
-  render({ modeString, execCommand, skipCommands, noop, record }) {
+  render(opt: RenderOpt) {
+    const { modeString, execCommand, skipCommands, noopReason, record } = opt;
     const arrow = " => ";
-    const word = noop ? "NoOp" : "Exec";
+    const word = noopReason ? "NoOp" : "Exec";
 
     let remaining = this.clear();
-
-    /*
-    for (let {N, rendered, transcript, priority} of skipCommands) {
-      term
-        .gray(`${N} ${word}: `)
-        .white(transcript)
-        .gray(` => ${rendered}${priority}\n`)
-    }
-    */
 
     const recordSymbol = record ? " ■ " : " 🚫 ";
     const modeStringPrefix = `[${modeString}] `;
@@ -93,10 +112,11 @@ export class SingleLineRenderer extends Renderer {
 
     if (execCommand) {
       let { N, rendered, transcript, priority } = execCommand;
-      const prefix = `${N} ${word}: `;
+      const prefixLength =
+        `${N} ${word}: `.length + (noopReason ? noopReason.length + 1 : 0);
       const postfix = ` ${priority}`;
 
-      remaining -= prefix.length + postfix.length + arrow.length;
+      remaining -= prefixLength + postfix.length + arrow.length;
 
       if (transcript.length > remaining / 2) {
         transcript =
@@ -111,8 +131,9 @@ export class SingleLineRenderer extends Renderer {
 
       term.white(`${N} `);
 
-      if (noop) {
+      if (noopReason) {
         term.bgRed(word);
+        term.red(" " + noopReason);
       } else {
         term.white(word);
       }
@@ -142,7 +163,7 @@ export class SingleLineRenderer extends Renderer {
       first = false;
     }
 
-    if (remaining) {
+    if (remaining > 0) {
       term.white(" ".repeat(remaining));
     }
 

@@ -27,11 +27,11 @@ import { Machine } from "./Machine";
 
 const log = bunyan.createLogger({
   name: "check-results",
-  streams: []
+  streams: [],
 });
 const machine = new Machine(log);
 const parser = new Parser(machine, options["--grammar"], {
-  watchPersistent: options["--watch"]
+  // watchPersistent: options["--watch"]
 });
 const sampleLog = new SampleLog(options["--samples"]);
 
@@ -43,7 +43,7 @@ function checkDiff() {
     modeString,
     transcript,
     line: oldLine,
-    result: oldResult
+    result: oldResult,
   } of sampleLog.readAll()) {
     let newResult;
     try {
@@ -61,7 +61,7 @@ function checkDiff() {
     const newLine = {
       modeString,
       transcript,
-      result: newResult
+      result: newResult,
     };
     newResults.push(newLine);
 
@@ -107,7 +107,7 @@ async function main() {
 
 main().then(
   () => process.exit(0),
-  err => {
+  (err) => {
     console.error(err.stack);
     console.error(err.toString());
     process.exit(1);

@@ -3,81 +3,93 @@
 import { ParseError } from "./ParseError";
 import { wordSeperator } from "../symbols";
 
-import * as fs from 'fs';
+import * as fs from "fs";
 import * as invariant from "invariant";
 import * as path from "path";
+import util = require("util");
 
 import { FSM, Node } from "./FSM";
 
 interface AstBase {
   type: string;
   location: {
-    start: { offset: number, line: number, column: number }
-    end: { offset: number, line: number, column: number }
-  }
+    start: { offset: number; line: number; column: number };
+    end: { offset: number; line: number; column: number };
+  };
 }
 interface AstAction extends AstBase {
-  type: 'action';
-  expression: Ast
-  code: string
+  type: "action";
+  expression: Ast;
+  code: string;
 }
 interface AstNamed extends AstBase {
-  type: 'named';
-  expression: Ast
-  name: string
+  type: "named";
+  expression: Ast;
+  name: string;
 }
 interface AstSequence extends AstBase {
-  type: 'sequence';
+  type: "sequence";
   elements: SequenceAst[];
 }
 interface AstChoice extends AstBase {
-  type: 'choice';
-  alternatives: SequenceAst[]
+  type: "choice";
+  alternatives: SequenceAst[];
 }
 interface AstRuleRef extends AstBase {
-  type: 'rule_ref';
-  name: string
+  type: "rule_ref";
+  name: string;
 }
 
 interface AstGroup extends AstBase {
-  type: 'group';
-  expression: SequenceAst
+  type: "group";
+  expression: SequenceAst;
 }
 interface AstLabeled extends AstBase {
-  type: 'labeled';
+  type: "labeled";
   label: string;
-  expression: SequenceAst
+  expression: SequenceAst;
 }
 interface AstLiteral extends AstBase {
-  type: 'literal';
-  value: string
-  ignoreCase: boolean
-  expression: SequenceAst
+  type: "literal";
+  value: string;
+  ignoreCase: boolean;
+  expression: SequenceAst;
 }
 interface AstOptional extends AstBase {
-  type: 'optional';
-  expression: SequenceAst
+  type: "optional";
+  expression: SequenceAst;
 }
 interface AstSimpleAnd extends AstBase {
   // Try to match the expression. If the match succeeds, just return undefined
   // and do not consume any input, otherwise consider the match failed.
-  type: 'simple_and';
-  expression: SequenceAst
+  type: "simple_and";
+  expression: SequenceAst;
 }
 interface AstSemanticAnd extends AstBase {
-  type: 'semantic_and';
-  code: string
+  type: "semantic_and";
+  code: string;
 }
 interface AstZeroOrMore extends AstBase {
-  type: 'zero_or_more';
-  expression: SequenceAst
+  type: "zero_or_more";
+  expression: SequenceAst;
 }
 interface AstSimpleNot extends AstBase {
-  type: 'simple_not';
-  expression: SequenceAst
+  type: "simple_not";
+  expression: SequenceAst;
 }
 
-type SequenceAst = AstLabeled | AstSimpleNot | AstSemanticAnd | AstZeroOrMore | AstLiteral | AstSimpleAnd | AstRuleRef | AstOptional | AstChoice | AstGroup | AstSequence;
+type SequenceAst =
+  | AstLabeled
+  | AstSimpleNot
+  | AstSemanticAnd
+  | AstZeroOrMore
+  | AstLiteral
+  | AstSimpleAnd
+  | AstRuleRef
+  | AstOptional
+  | AstChoice
+  | AstGroup
+  | AstSequence;
 type Ast = SequenceAst | AstAction | AstNamed;
 
 export class PegGenerator {
@@ -88,17 +100,35 @@ export class PegGenerator {
   codeId: { [code: string]: number } = {};
   coreFSM: FSM;
 
-  constructor(private parser: ((path: string) => any)) { }
+  private warn: (warning: string) => void;
+
+  constructor(
+    private parser: (path: string) => any,
+    prop: {
+      onWarning?: (warning: string) => void;
+    } = {}
+  ) {
+    this.warn =
+      prop.onWarning ||
+      ((warning) => {
+        console.error("Warning: " + warning);
+      });
+  }
 
   addRuleFSM(name: string, start: Node, final?: Node) {
     if (!this.ruleFSM.hasOwnProperty(name)) {
-      if (name.startsWith('_')) {
+      if (name.startsWith("_")) {
         throw new Error("Could not find rule: " + name);
       }
       // @todo: Make sure this is never overwritten
       this.words.add(name);
 
-      console.error('Unknown rule %s, assumming plain word', JSON.stringify(name))
+      this.warn(
+        util.format(
+          "Unknown rule %s, assumming plain word",
+          JSON.stringify(name)
+        )
+      );
       final = final || start.fsm.node();
       start.edge(name, final);
       return final;
@@ -108,20 +138,19 @@ export class PegGenerator {
     if (start.fsm.subFSM.has(fsm)) {
       const prev = start.fsm.subFSM.get(fsm);
       if (prev.start !== start) {
-        start.edge('', prev.start);
+        start.edge("", prev.start);
       }
       return prev.final;
-
     } else {
       final = final || start.fsm.node();
 
-      const ruleStart = start.edge('');
+      const ruleStart = start.edge("");
       ruleStart.addFSM(fsm, final);
 
       start.fsm.subFSM.set(fsm, {
         start: ruleStart,
         final,
-      })
+      });
     }
 
     return final;
@@ -129,7 +158,7 @@ export class PegGenerator {
 
   pegNoop(start: Node, final?: Node): Node {
     if (final) {
-      start.edge('', final);
+      start.edge("", final);
       return final;
     } else {
       return start;
@@ -137,60 +166,66 @@ export class PegGenerator {
   }
 
   pegSequence(ast: SequenceAst, start: Node, final?: Node): Node {
-    if (ast.type === 'semantic_and') {
+    if (ast.type === "semantic_and") {
       return this.pegNoop(start, final);
-    } else if (ast.type === 'simple_not') {
-      console.log('Not is not handled')
+    } else if (ast.type === "simple_not") {
+      this.warn("Not is not handled");
       return this.pegNoop(start, final);
-    } else if (ast.type === 'labeled' || ast.type === 'group') {
+    } else if (ast.type === "labeled" || ast.type === "group") {
       return this.pegSequence(ast.expression, start, final);
-    } else if (ast.type === 'rule_ref') {
-      if (ast.name === '_' || ast.name === '_dragon') {
+    } else if (ast.type === "rule_ref") {
+      if (ast.name === "_" || ast.name === "_dragon") {
         // ignore space nodes
         return this.pegNoop(start, final);
       }
       return this.addRuleFSM(ast.name, start, final);
-    } else if (ast.type === 'optional') {
+    } else if (ast.type === "optional") {
       final = this.pegSequence(ast.expression, start, final);
-      start.edge('', final);
+      start.edge("", final);
       return final;
-    } else if (ast.type === 'choice') {
+    } else if (ast.type === "choice") {
       final = final || start.fsm.node();
-      ast.alternatives.forEach(alt => {
+      ast.alternatives.forEach((alt) => {
         this.pegSequence(alt, start, final);
-      })
+      });
       return final;
-    } else if (ast.type === 'sequence') {
+    } else if (ast.type === "sequence") {
       for (const element of ast.elements) {
         start = this.pegSequence(element, start);
       }
       return this.pegNoop(start, final);
-    } else if (ast.type === 'simple_and') {
-      invariant(ast.expression.type === 'rule_ref' && ast.expression.name === '_', 'simple_and only supported with space');
+    } else if (ast.type === "simple_and") {
+      invariant(
+        ast.expression.type === "rule_ref" && ast.expression.name === "_",
+        "simple_and only supported with space"
+      );
       return this.pegNoop(start, final);
-    } else if (ast.type === 'literal') {
+    } else if (ast.type === "literal") {
       final = final || start.fsm.node();
       start.edge(ast.value, final);
       return final;
-    } else if (ast.type === 'zero_or_more') {
+    } else if (ast.type === "zero_or_more") {
       if (final) {
-        start.edge('', final);
+        start.edge("", final);
       }
       final = start;
       return this.pegSequence(ast.expression, start, final);
     } else {
-      console.log(ast)
-      throw new Error('Unknown sequence ast: ' + (ast as SequenceAst).type)
+      throw new Error("Unknown sequence ast: " + (ast as SequenceAst).type);
     }
   }
 
   pegExpression(start: Node, final: Node, ast: Ast) {
-    if (ast.type === 'action' || ast.type === 'named' || ast.type === 'labeled') {
+    if (
+      ast.type === "action" ||
+      ast.type === "named" ||
+      ast.type === "labeled"
+    ) {
       this.pegExpression(start, final, ast.expression);
-    } else if (ast.type === 'choice') {
-      ast.alternatives.forEach(alt => {
+    } else if (ast.type === "choice") {
+      ast.alternatives.forEach((alt) => {
         this.pegExpression(start, final, alt);
-      })
+      });
     } else {
       this.pegSequence(ast, start, final);
     }
@@ -198,7 +233,7 @@ export class PegGenerator {
 
   matchToId(match) {
     return match
-      .map(expr => {
+      .map((expr) => {
         if (expr.type === "word") {
           return expr.word;
         } else if (
@@ -220,20 +255,19 @@ export class PegGenerator {
   }
 
   spellRule(start: Node, final: Node, word, alt = []) {
-
     start.edge(word, final);
 
     const options = [
       JSON.stringify(word) + "i _dragon? &_",
-      ...alt.map(words => {
+      ...alt.map((words) => {
         let node = start;
-        words.forEach(word => {
+        words.forEach((word) => {
           node = node.edge(word);
-        })
-        node.edge('', final);
+        });
+        node.edge("", final);
 
         return words
-          .map(w => {
+          .map((w) => {
             if (/^[a-z][a-z_]+$/.test(w)) {
               this.words.add(w);
               return w;
@@ -241,7 +275,7 @@ export class PegGenerator {
             return JSON.stringify(w) + "i _dragon? &_";
           })
           .join(" _ ");
-      })
+      }),
     ];
 
     return (
@@ -250,13 +284,12 @@ export class PegGenerator {
     );
   }
 
-
   pegRule(start: Node, final: Node, ast, ruleName, wrapPriority = true) {
     const { match } = ast;
 
     let desc = null;
-    if (match.every(expr => expr.type === "word")) {
-      desc = match.map(expr => expr.word).join(" ");
+    if (match.every((expr) => expr.type === "word")) {
+      desc = match.map((expr) => expr.word).join(" ");
     }
 
     desc = desc ? ` "${desc}"` : "";
@@ -279,20 +312,23 @@ export class PegGenerator {
     let first = true;
 
     let repeatSpecial = null;
+    let next: Node = start;
+
     const pegMatch = matches
       .map((expr, idx) => {
         let pegCode = "";
         let prefix = "";
+        const thisNode = next;
         if (expr.type === "word") {
-          start = start.edge(expr.word);
+          next = next.edge(expr.word);
           this.words.add(expr.word);
           pegCode = expr.word;
         } else if (expr.type === "pegmatch") {
           prefix = `${expr.name}:`;
-          const ruleId = `_${expr.identifier}`
+          const ruleId = `_${expr.identifier}`;
           pegCode = ruleId;
 
-          start = this.addRuleFSM(ruleId, start);
+          next = this.addRuleFSM(ruleId, next);
         } else if (expr.type === "specialmatch") {
           invariant(
             expr.identifier === "repeat" && repeatSpecial === null,
@@ -301,6 +337,7 @@ export class PegGenerator {
           prefix = "repeat_count:";
           pegCode = "_number";
           repeatSpecial = expr;
+          next = this.addRuleFSM("_number", next);
         } else if (expr.type === "pegtest" || expr.type === "pegtestcode") {
           throw new Error("tests must be at the start");
         } else {
@@ -309,6 +346,7 @@ export class PegGenerator {
 
         const spaceMatch = first ? '""' : "_";
         if (expr.optional) {
+          thisNode.edge("", next);
           return ` ${prefix}(${spaceMatch} ${pegCode} ${first ? "" : "&"}_)?`;
         } else {
           first = false;
@@ -317,11 +355,11 @@ export class PegGenerator {
       })
       .join("");
 
-    start.edge('', final);
-
     invariant(!first || !pegMatch, "Not allowed optional all keywords");
 
     if (ast.expr.type === "code") {
+      next.edge("", final);
+
       let code = ast.expr.code;
       let expr = `(function(){
         ${code}
@@ -333,7 +371,8 @@ export class PegGenerator {
         }
       }
       if (wrapPriority) {
-        expr = `new MultiCommand([${expr}], { priority: ${this.nextPriority++} })`;
+        expr = `new MultiCommand([${expr}], { priority: ${this
+          .nextPriority++} })`;
       }
 
       return `${ruleName}${desc} = ${predicates}${pegMatch} "."? {\n
@@ -341,7 +380,8 @@ export class PegGenerator {
       }\n`;
     } else if (ast.expr.type === "rules") {
       const { ruleNames, source } = this.generateSource(
-        start, final,
+        next,
+        final,
 
         ast.expr.rules,
         `${ruleName}_`,
@@ -378,7 +418,7 @@ export class PegGenerator {
         source += this.pegRule(start, final, ruleAst, ruleName, wrapPriority);
         ruleNames.push(ruleName);
       } else if (ruleAst.type === "pegrule") {
-        invariant(ruleAst.rule.type === 'rule', "Expected rule")
+        invariant(ruleAst.rule.type === "rule", "Expected rule");
         const fsm = new FSM();
         this.pegExpression(fsm.root, fsm.final, ruleAst.rule.expression);
         this.ruleFSM[ruleAst.name] = fsm;
@@ -390,8 +430,14 @@ export class PegGenerator {
         this.ruleFSM[word] = fsm;
       } else if (ruleAst.type === "define") {
         const exprFSM = new FSM();
-        source += this.pegRule(exprFSM.root, exprFSM.final, ruleAst, `_${ruleAst.identifier}`, false);
-        this.ruleFSM['_' + ruleAst.identifier] = exprFSM;
+        source += this.pegRule(
+          exprFSM.root,
+          exprFSM.final,
+          ruleAst,
+          `_${ruleAst.identifier}`,
+          false
+        );
+        this.ruleFSM["_" + ruleAst.identifier] = exprFSM;
       } else if (ruleAst.type === "import") {
         invariant(sourcePath, "Import statements only allowed at top level");
         const filePath = path.join(
@@ -404,7 +450,8 @@ export class PegGenerator {
           "Initializer not valid on included files"
         );
         const generated = this.generateSource(
-          start, final,
+          start,
+          final,
           parsed.rules,
           prefix,
           sourcePath,
@@ -430,7 +477,13 @@ export class PegGenerator {
         rv += `{\n${ast.initializer.code}\n}\n`;
       }
 
-      const { ruleNames, source } = this.generateSource(fsm.root, fsm.final, ast.rules, "c_", path);
+      const { ruleNames, source } = this.generateSource(
+        fsm.root,
+        fsm.final,
+        ast.rules,
+        "c_",
+        path
+      );
       rv += `${source}\n`;
 
       for (let word of this.words) {
